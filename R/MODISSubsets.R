@@ -11,10 +11,10 @@ function(LoadDat, LoadMethod='object' | 'ext.file', FileSep=NULL, Product, Bands
     for(x in nrow(lat.long)){
       ifelse(StartDate == TRUE, ID<- paste(lat.long[x,1],lat.long[x,2],lat.long[x,3],lat.long[x,4],sep=''), ID<- paste(lat.long[x,1],lat.long[x,2],lat.long[x,3],sep=''))
     }  
-    lat.long<- cbind(SubsetID=ID,lat.long,Status=rep(NA,nrow(lat.long)))        # Code has identified which subscripts in the larger data file correspond to unique locations,
+    lat.long<- data.frame(SubsetID=ID,lat.long,Status=rep(NA,nrow(lat.long)))        # Code has identified which subscripts in the larger data file correspond to unique locations,
     print('IDs do not contain unique time-series: using subset IDs instead.')   # making sure all are considered, so that corresponding information specific to each location such as date and ID can be easily retrieved.
   } else {
-    lat.long<- cbind(SubsetID=unique(dat$ID),lat.long,Status=rep(NA,nrow(lat.long)))
+    lat.long<- data.frame(SubsetID=unique(dat$ID),lat.long,Status=rep(NA,nrow(lat.long)))
   }
   Start<- rep(StartDate, nrow(lat.long))
   if(DateFormat == 'year') {
