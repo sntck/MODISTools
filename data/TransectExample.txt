@@ -1,2 +1,0 @@
-transect	start.lat	start.long	end.lat	end.long	start.date	end.date
-1	51.414196	-0.648894	51.414211	-0.641607	2002	2004
