@@ -1,0 +1,2 @@
+lat	long	start.date	end.date	ID
+51.41363	-0.64875	2002	2004	1
