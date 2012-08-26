@@ -1,5 +1,5 @@
 MODISSummaries <-
-function(LoadDat, LoadMethod='object' | 'ext.file', FileSep=NULL, Dir='.', Band, ValidRange, NoDataValue, QualityControl=0, Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=TRUE, NoFill=TRUE, PoorQuality=TRUE) 
+function(LoadDat, LoadMethod='object' | 'ext.file', FileSep=NULL, Dir='.', Band, ValidRange, NoDataValue, ScaleFactor, QualityControl=0, Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=TRUE, NoFill=TRUE, PoorQuality=TRUE) 
 { 
   if(LoadMethod == 'object'){ details<- data.frame(LoadDat) }
   if(LoadMethod == 'ext.file'){ details<- read.delim(LoadDat, sep=FileSep) }
@@ -66,24 +66,24 @@ function(LoadDat, LoadMethod='object' | 'ext.file', FileSep=NULL, Dir='.', Band,
      for(i in 1:ncol(band.time.series)) {                           # Run time series for each pixel i.
         good<- sum(!is.na(band.time.series[,i]))
         if(good >= 2) {
-      sout = approx(x=ds$date[which.are.band], y=as.numeric(band.time.series[,i])*0.0001, method = "linear", n = ((max(ds$date[!is.na(band.time.series[,i])])- min(ds$date[!is.na(band.time.series[,i])]))-1))
-          minobsband = min(as.numeric(band.time.series[,i])*0.0001, na.rm = TRUE)    # Minimum value observed
-      maxobsband = max(as.numeric(band.time.series[,i])*0.0001, na.rm = TRUE)    # Maximum value observed
+      sout = approx(x=ds$date[which.are.band], y=as.numeric(band.time.series[,i])*ScaleFactor, method = "linear", n = ((max(ds$date[!is.na(band.time.series[,i])])- min(ds$date[!is.na(band.time.series[,i])]))-1))
+          minobsband = min(as.numeric(band.time.series[,i])*ScaleFactor, na.rm = TRUE)    # Minimum value observed
+      maxobsband = max(as.numeric(band.time.series[,i])*ScaleFactor, na.rm = TRUE)    # Maximum value observed
       if(Yield == TRUE){ band.yield[i] = (sum(sout$y) - minobsband*length(sout$x)) / length(sout$x) }    #(((365*length(years))-16)*365) # average annual yield  (i.e. work out daily yield * 365
           if(Mean == TRUE){ mean.band[i]<- mean(sout$y) }
           if(SD == TRUE){ sd.band[i]<- sd(sout$y) }
         }
         if(good == 1){
         warning("Only single good value: cannot estimate yield", immediate. = TRUE)
-      if(Mean == TRUE){ mean.band[i]<- mean(as.numeric(band.time.series[,i])*0.0001,na.rm=TRUE) } 
+      if(Mean == TRUE){ mean.band[i]<- mean(as.numeric(band.time.series[,i])*ScaleFactor,na.rm=TRUE) } 
         }
         if(good == 0){
           warning("No reliable data for this pixel", immediate. = TRUE)
         }
         if(Min == TRUE){ band.min[i]<- minobsband }
         if(Max == TRUE){ band.max[i]<- maxobsband }
-        if(NoFill == TRUE){ nofill[i]<- paste(round((sum(ds[,i+5] == -3000)/length(band.time.series[,i]))*100,2),'% (',sum(ds[,i+5] == -3000),'/',length(band.time.series[,i]),')',sep='') }
-        if(PoorQuality == TRUE){ poorquality[i]<- paste(round((sum(rel.time.series[,i] != 0)/length(rel.time.series[,i]))*100,2),'% (',sum(rel.time.series[,i] != 0),'/',length(rel.time.series[,i]),')',sep='') }
+        if(NoFill == TRUE){ nofill[i]<- paste(round((sum(ds[,i+5] == NoDataValue)/length(band.time.series[,i]))*100,2),'% (',sum(ds[,i+5] == NoDataValue),'/',length(band.time.series[,i]),')',sep='') }
+        if(PoorQuality == TRUE){ poorquality[i]<- paste(round((sum(rel.time.series[,i] != QualityControl)/length(rel.time.series[,i]))*100,2),'% (',sum(rel.time.series[,i] != QualityControl),'/',length(rel.time.series[,i]),')',sep='') }
      }
      distance.bands<- c()
      distance.bands[centre]<- 1

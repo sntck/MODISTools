@@ -7,18 +7,16 @@ function(LoadDat, LoadMethod='object' | 'ext.file', FileSep=NULL, Product, Bands
   Start<- rep(StartDate, length(dat$lat[!is.na(dat$lat)]))
   ifelse(Start == TRUE, lat.long<- unique(cbind(lat=dat$lat[!is.na(dat$lat)],long=dat$long[!is.na(dat$lat)],end.date=dat$end.date[!is.na(dat$lat)],start.date=dat$start.date[!is.na(dat$lat)])), lat.long<- unique(cbind(lat=dat$lat[!is.na(dat$lat)],long=dat$long[!is.na(dat$lat)],end.date=dat$end.date[!is.na(dat$lat)])))               # Finds all unique time-series wanted, for each unique location.
   print(paste('Found ',nrow(lat.long),' unique time-series to download.',sep=''))
+  Start<- rep(StartDate, nrow(lat.long))
   if(nrow(lat.long) != length(unique(dat$ID))) {
-    for(x in nrow(lat.long)){
-      ifelse(StartDate == TRUE, ID<- paste(lat.long[x,1],lat.long[x,2],lat.long[x,3],lat.long[x,4],sep=''), ID<- paste(lat.long[x,1],lat.long[x,2],lat.long[x,3],sep=''))
-    }  
+    ifelse(Start == TRUE, ID<- paste(lat.long[,1],lat.long[,2],lat.long[,3],lat.long[,4],sep=''), ID<- paste(lat.long[,1],lat.long[,2],lat.long[,3],sep=''))   
     lat.long<- data.frame(SubsetID=ID,lat.long,Status=rep(NA,nrow(lat.long)))        # Code has identified which subscripts in the larger data file correspond to unique locations,
     print('IDs do not contain unique time-series: using subset IDs instead.')   # making sure all are considered, so that corresponding information specific to each location such as date and ID can be easily retrieved.
   } else {
     lat.long<- data.frame(SubsetID=unique(dat$ID),lat.long,Status=rep(NA,nrow(lat.long)))
   }
-  Start<- rep(StartDate, nrow(lat.long))
   if(DateFormat == 'year') {
-    ifelse(StartDate == FALSE, start.date<- strptime(paste(lat.long[,4]-TimeSeriesLength,'-01-01',sep=''),'%Y-%m-%d'), start.date<- strptime(paste(lat.long[,5],'-01-01',sep=''),'%Y-%m-%d'))
+    ifelse(Start == FALSE, start.date<- strptime(paste(lat.long[,4]-TimeSeriesLength,'-01-01',sep=''),'%Y-%m-%d'), start.date<- strptime(paste(lat.long[,5],'-01-01',sep=''),'%Y-%m-%d'))
     end.date<- strptime(paste(lat.long[,4],'-12-31',sep=''),'%Y-%m-%d')                 # Put start and end dates in POSIXlt format.                       
     start.day<- start.date$yday
     start.day[nchar(start.day) == 2]<- paste(0, start.day[nchar(start.day) == 2], sep='')
@@ -30,7 +28,7 @@ function(LoadDat, LoadMethod='object' | 'ext.file', FileSep=NULL, Product, Bands
     MODIS.end<- paste('A', substr(end.date, 1, 4), end.day, sep='')  
   } 
   if(DateFormat == 'posixt') {
-    ifelse(StartDate == FALSE, start.date<- strptime(paste(lat.long[,4]-TimeSeriesLength,'-01-01',sep=''),'%Y-%m-%d'), start.date<- strptime(lat.long[,5],'%Y-%m-%d'))
+    ifelse(Start == FALSE, start.date<- strptime(paste(lat.long[,4]-TimeSeriesLength,'-01-01',sep=''),'%Y-%m-%d'), start.date<- strptime(lat.long[,5],'%Y-%m-%d'))
     end.date<- strptime(lat.long[,4],'%Y-%m-%d')
     start.day<- start.date$yday
     start.day[nchar(start.day) == 2]<- paste(0, start.day[nchar(start.day) == 2], sep='')

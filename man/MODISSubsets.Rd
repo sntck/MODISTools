@@ -49,5 +49,5 @@ the respective time-series was downloaded successfully or identifying any proble
 MODISSubsets(LoadDat=SubsetExample, LoadMethod='object', Product='MOD13Q1',     # dontrun() used because running the example requires internet access, and takes a minute or two to run.
     Bands=c('250m_16_days_EVI','250m_16_days_pixel_reliability'), 
     Size=c(0,0), StartDate=TRUE, DateFormat='year')
-MODISSummaries(LoadDat=SubsetExample, LoadMethod='object', Band='250m_16_days_EVI', ValidRange=c(-2000,10000), NoDataValue=-3000)}    
+MODISSummaries(LoadDat=SubsetExample, LoadMethod='object', Band='250m_16_days_EVI', ValidRange=c(-2000,10000), NoDataValue=-3000, ScaleFactor=0.0001)}    
 }
