@@ -11,6 +11,8 @@ Installation
 -------
 
 See the Downloads page for most recent versions of MODISTools.
+
 Dependencies:
+
 http://www.omegahat.org/SSOAP/
 http://www.omegahat.org/XMLSchema/
