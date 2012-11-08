@@ -5,3 +5,4 @@ function(Product)
   ornlMODISFuncs = genSOAPClientInterface(operations=ornlMODIS@operations[[1]], def=ornlMODIS)
   ornlMODISFuncs@functions$getbands(Product)
 }
+

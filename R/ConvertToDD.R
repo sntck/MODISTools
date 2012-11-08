@@ -9,92 +9,102 @@ function(XY, FileSep=NULL, LatColName, LongColName, LoadMethod= 'object' | 'ext.
   long.res<- c()
   DD.lat<- c()
   DD.long<- c()
-  # Conversions for latitudes
+  S.lat<- c()
+  S.long<- c()
+  
   D.point.lat<- regexpr(DSign, DMS.lat)
   if(DegFormat == 'DMS') {      # If original format is degrees minutes seconds
     D.lat<- as.numeric(substr(DMS.lat, 1, D.point.lat-1))
     M.lat<- as.numeric(substr(DMS.lat, D.point.lat+1, D.point.lat+2))
-    if(substr(DMS.lat[1], nchar(DMS.lat), nchar(DMS.lat)) == 'N') {
-      S.lat<- as.numeric(substr(DMS.lat, D.point.lat+4, nchar(DMS.lat)-2)) 
-    } else {
-      if(substr(DMS.lat[1], nchar(DMS.lat), nchar(DMS.lat)) == 'S') { 
-        D.lat<- -D.lat
-        S.lat<- as.numeric(substr(DMS.lat, D.point.lat+4, nchar(DMS.lat)-2)) 
+    for(i in 1:length(DMS.lat)){
+      if(substr(DMS.lat[i], nchar(DMS.lat[i]), nchar(DMS.lat[i])) == 'N') {
+        S.lat[i]<- as.numeric(substr(DMS.lat[i], D.point.lat[i]+4, nchar(DMS.lat[i])-2)) 
       } else {
-        S.lat<- as.numeric(substr(DMS.lat, D.point.lat+4, nchar(DMS.lat)-1))
+        if(substr(DMS.lat[i], nchar(DMS.lat[i]), nchar(DMS.lat[i])) == 'S') { 
+          D.lat[i]<- -D.lat[i]
+          S.lat[i]<- as.numeric(substr(DMS.lat[i], D.point.lat[i]+4, nchar(DMS.lat[i])-2)) 
+        } else {
+          S.lat[i]<- as.numeric(substr(DMS.lat[i], D.point.lat[i]+4, nchar(DMS.lat[i])-1))
+        }
       }
-    } 
-    nas<- is.na(D.lat) 
-    calc.set<- (D.lat[which(!is.na(D.lat))]) >= 0
-    lat.res[which(calc.set == TRUE)]<- (D.lat[which(!is.na(D.lat))]) + ((M.lat[which(!is.na(D.lat))])/60) + ((S.lat[which(!is.na(D.lat))])/3600)
-    lat.res[which(calc.set == FALSE)]<- -((S.lat[which(!is.na(D.lat))])/3600) - ((M.lat[which(!is.na(D.lat))])/60) + (D.lat[which(!is.na(D.lat))])
-    if(substr(DMS.lat[1], nchar(DMS.lat), nchar(DMS.lat)) == 'S'){ lat.res[which(D.lat == 0)]<- -lat.res[which(D.lat == 0)] }                      
-    DD.lat[nas == FALSE]<- lat.res
-    DD.lat[nas == TRUE]<- NA    
+      if(D.lat[i] >= 0){
+        DD.lat[i]<- (D.lat[i]) + ((M.lat[i])/60) + ((S.lat[i])/3600)
+      } else {
+        DD.lat[i]<- -((S.lat[i])/3600) - ((M.lat[i])/60) + (D.lat[i])
+      }
+      if(substr(DMS.lat[i], nchar(DMS.lat[i]), nchar(DMS.lat[i])) == 'W' && D.lat[i] == 0){ DD.lat[i]<- -DD.lat[i] }
+    }     
   } 
+  
   if(DegFormat == 'DM') {     # If original format is degrees decimal minutes
     D.lat<- as.numeric(substr(DMS.lat, 1, D.point.lat-1))
-    if(substr(DMS.lat[1], nchar(DMS.lat), nchar(DMS.lat)) == 'N') { 
-      M.lat<- as.numeric(substr(DMS.lat, D.point.lat+1, nchar(DMS.lat)-2)) 
-    } else {
-      if(substr(DMS.lat[1], nchar(DMS.lat), nchar(DMS.lat)) == 'S') { 
-         M.lat<- as.numeric(substr(DMS.lat, D.point.lat+1, nchar(DMS.lat)-2))
-         D.lat<- -D.lat 
+    M.lat<- c()
+    for(i in 1:length(DMS.lat)){
+      if(substr(DMS.lat[i], nchar(DMS.lat[i]), nchar(DMS.lat[i])) == 'N') { 
+        M.lat[i]<- as.numeric(substr(DMS.lat[i], D.point.lat[i]+1, nchar(DMS.lat[i])-2)) 
       } else {
-        M.lat<- as.numeric(substr(DMS.lat, D.point.lat+1, nchar(DMS.lat)-1))
+        if(substr(DMS.lat[i], nchar(DMS.lat[i]), nchar(DMS.lat[i])) == 'S') { 
+           M.lat[i]<- as.numeric(substr(DMS.lat[i], D.point.lat[i]+1, nchar(DMS.lat[i])-2))
+           D.lat[i]<- -D.lat[i] 
+        } else {
+          M.lat[i]<- as.numeric(substr(DMS.lat[i], D.point.lat[i]+1, nchar(DMS.lat[i])-1))
+        }
       }
-    } 
-    nas<- is.na(D.lat) 
-    calc.set<- (D.lat[which(!is.na(D.lat))]) >= 0
-    lat.res[which(calc.set == TRUE)]<- (D.lat[which(!is.na(D.lat))]) + ((M.lat[which(!is.na(D.lat))])/60)
-    lat.res[which(calc.set == FALSE)]<- -((M.lat[which(!is.na(D.lat))])/60) + (D.lat[which(!is.na(D.lat))])
-    if(substr(DMS.lat[1], nchar(DMS.lat), nchar(DMS.lat)) == 'S'){ lat.res[which(D.lat == 0)]<- -lat.res[which(D.lat == 0)] }                      
-    DD.lat[nas == FALSE]<- lat.res
-    DD.lat[nas == TRUE]<- NA      
+      if(D.lat[i] >= 0){
+        DD.lat[i]<- (D.lat[i]) + ((M.lat[i])/60)
+      } else {
+        DD.lat[i]<- -((M.lat[i])/60) + (D.lat[i])
+      }
+      if(substr(DMS.lat[i], nchar(DMS.lat[i]), nchar(DMS.lat[i])) == 'W' && D.lat[i] == 0){ DD.lat[i]<- -DD.lat[i] }                      
+    }     
   } 
-  # Conversions for longitudes   
+  
+  
   D.point.long<- regexpr(DSign, DMS.long)
   if(DegFormat == 'DMS') {      # If original format is degrees minutes seconds
     D.long<- as.numeric(substr(DMS.long, 1, D.point.long-1))
     M.long<- as.numeric(substr(DMS.long, D.point.long+1, D.point.long+2))
-    if(substr(DMS.long[1], nchar(DMS.long), nchar(DMS.long)) == 'E') { 
-      S.long<- as.numeric(substr(DMS.long, D.point.long+4, nchar(DMS.long)-2)) 
-    } else {
-      if(substr(DMS.long[1], nchar(DMS.long), nchar(DMS.long)) == 'W') { 
-        S.long<- as.numeric(substr(DMS.long, D.point.long+4, nchar(DMS.long)-2))
-        D.long<- -D.long 
+    for(i in 1:length(DMS.long)){
+      if(substr(DMS.long[i], nchar(DMS.long[i]), nchar(DMS.long[i])) == 'E') { 
+        S.long[i]<- as.numeric(substr(DMS.long[i], D.point.long[i]+4, nchar(DMS.long[i])-2)) 
       } else {
-        S.long<- as.numeric(substr(DMS.long, D.point.long+4, nchar(DMS.long)-1))
+        if(substr(DMS.long[i], nchar(DMS.long[i]), nchar(DMS.long[i])) == 'W') { 
+          S.long[i]<- as.numeric(substr(DMS.long[i], D.point.long[i]+4, nchar(DMS.long[i])-2))
+          D.long[i]<- -D.long[i] 
+        } else {
+          S.long[i]<- as.numeric(substr(DMS.long[i], D.point.long[i]+4, nchar(DMS.long[i])-1))
+        }
       }
-    }
-    nas<- is.na(D.long) 
-    calc.set<- (D.long[which(!is.na(D.long))]) >= 0
-    long.res[which(calc.set == TRUE)]<- (D.long[which(!is.na(D.long))]) + ((M.long[which(!is.na(D.long))])/60) + ((S.long[which(!is.na(D.long))])/3600)
-    long.res[which(calc.set == FALSE)]<- -((S.long[which(!is.na(D.long))])/3600) - ((M.long[which(!is.na(D.long))])/60) + (D.long[which(!is.na(D.long))])
-    if(substr(DMS.long[1], nchar(DMS.long), nchar(DMS.long)) == 'W'){ long.res[which(D.long == 0)]<- -long.res[which(D.long == 0)] }                      
-    DD.long[nas == FALSE]<- long.res
-    DD.long[nas == TRUE]<- NA   
+      if(D.long[i] >= 0){
+        DD.long[i]<- (D.long[i]) + ((M.long[i])/60) + ((S.long[i])/3600)
+      } else {
+        DD.long[i]<- -((S.long[i])/3600) - ((M.long[i])/60) + (D.long[i])
+      }
+      if(substr(DMS.long[i], nchar(DMS.long[i]), nchar(DMS.long[i])) == 'W' && D.long[i] == 0){ DD.long[i]<- -DD.long[i] }
+    }   
   } 
+  
   if(DegFormat == 'DM') {     # If original format is degrees decimal minutes
     D.long<- as.numeric(substr(DMS.long, 1, D.point.long-1))
-    if(substr(DMS.long[1], nchar(DMS.long), nchar(DMS.long)) == 'E') {   
-      M.long<- as.numeric(substr(DMS.long, D.point.long+1, nchar(DMS.long)-2))
-    } else {
-      if(substr(DMS.long[1], nchar(DMS.long), nchar(DMS.long)) == 'W') {   
-        M.long<- as.numeric(substr(DMS.long, D.point.long+1, nchar(DMS.long)-2))
-        D.long<- -D.long 
+    M.long<- c()
+    for(i in 1:length(DMS.long)){
+      if(substr(DMS.long[i], nchar(DMS.long[i]), nchar(DMS.long[i])) == 'E') {   
+        M.long[i]<- as.numeric(substr(DMS.long[i], D.point.long[i]+1, nchar(DMS.long[i])-2))
       } else {
-        M.long<- as.numeric(substr(DMS.long, D.point.long+1, nchar(DMS.long)-1))
+        if(substr(DMS.long[i], nchar(DMS.long[i]), nchar(DMS.long[i])) == 'W') {   
+          M.long[i]<- as.numeric(substr(DMS.long[i], D.point.long[i]+1, nchar(DMS.long[i])-2))
+          D.long[i]<- -D.long[i] 
+        } else {
+          M.long[i]<- as.numeric(substr(DMS.long[i], D.point.long[i]+1, nchar(DMS.long[i])-1))
+        }
       }
-    }
-    nas<- is.na(D.long) 
-    calc.set<- (D.long[which(!is.na(D.long))]) >= 0
-    long.res[which(calc.set == TRUE)]<- (D.long[which(!is.na(D.long))]) + ((M.long[which(!is.na(D.long))])/60)
-    long.res[which(calc.set == FALSE)]<- -((M.long[which(!is.na(D.long))])/60) + (D.long[which(!is.na(D.long))])
-    if(substr(DMS.long[1], nchar(DMS.long), nchar(DMS.long)) == 'W'){ long.res[which(D.long == 0)]<- -long.res[which(D.long == 0)] }                      
-    DD.long[nas == FALSE]<- long.res
-    DD.long[nas == TRUE]<- NA   
+      if(D.long[i] >= 0){
+        DD.long[i]<- (D.long[i]) + ((M.long[i])/60)
+      } else {
+        DD.long[i]<- -((M.long[i])/60) + (D.long[i])
+      }
+      if(substr(DMS.long[i], nchar(DMS.long[i]), nchar(DMS.long[i])) == 'W' && D.long[i] == 0){ DD.long[i]<- -DD.long[i] }                      
+    }  
   }
-  # Assemble new converted lat longs
   return(cbind(DD.lat, DD.long))
 }

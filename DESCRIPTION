@@ -1,11 +1,11 @@
 Package: MODISTools
 Type: Package
 Title: MODIS Subsetting Tools
-Version: 0.9
-Date: 2012-07-22
+Version: 0.91
+Date: 2012-11-08
 Author: Sean Tuck
-Depends: R (>= 1.5.0), SSOAP (>= 0.91-0)
-Suggests: XMLSchema, RCurl, XML
+Depends: R (>= 1.5.0), SSOAP (>= 0.91-0), XMLSchema
+Suggests: RCurl, XML
 Maintainer: Sean Tuck <sean.tuck11@imperial.ac.uk>
 Description: 	Provides several functions for extracting and dealing 
 		with subsets of MODIS data as a batch process.
