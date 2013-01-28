@@ -1,14 +1,16 @@
 MODISTransects <-
-  function(LoadData, LoadMethod='object' | 'ext.file', FileSep=NULL, Product, Bands, Size=c(), SaveDir=NULL, StartDate=FALSE, TimeSeriesLength=2, DateFormat='year' | 'posixt')
+  function(LoadData, LoadMethod='object' | 'ext.file', FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat='year' | 'posixt')
   {
-    if(LoadMethod == 'object') { t.dat<- data.frame(LoadData) }   # Load data of locations; external data file, or an R object.
-    if(LoadMethod == 'ext.file') { t.dat<- read.delim(LoadData, sep=FileSep) }
+    if(LoadMethod == 'object') { dat<- data.frame(LoadData) }   # Load data of locations; external data file, or an R object.
+    if(LoadMethod == 'ext.file') { dat<- read.delim(LoadData, sep=FileSep) }
     ornlMODIS = processWSDL('http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.wsdl')
     ornlMODISFuncs = genSOAPClientInterface(operations=ornlMODIS@operations[[1]], def=ornlMODIS)
     Tile.width<- (20015109.354+20015109.354)/36                   # Actual width of each tile in the MODIS projection.
     w.res<- regexpr('m_', Bands[1])
     res<- as.numeric(substr(Bands[1], 1, w.res-1))                # Identify resolution and work out actual cell size from projection info accordingly.
     cell.size<- Tile.width/(1200*(1000/res))                      # Works out actual width of each pixel in the MODIS projection.
+    t.dat<- dat[duplicated(dat$transect) == FALSE,]
+    print(paste('Found ',nrow(t.dat),' transects. Downloading time-series sets for each transect...',sep=''))
     for(i in 1:nrow(t.dat)) {                                     # Loop that repeats for each transect.
       delta.lat<- t.dat$end.lat[i]-t.dat$start.lat[i]
       delta.long<- round(t.dat$end.long[i]-t.dat$start.long[i], digits=5)

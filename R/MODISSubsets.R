@@ -1,5 +1,5 @@
 MODISSubsets <-
-function(LoadDat, LoadMethod='object' | 'ext.file', FileSep=NULL, Product, Bands, Size=c(), SaveDir=NULL, StartDate=FALSE, TimeSeriesLength=2, DateFormat='year' | 'posixt', Transect=FALSE)
+function(LoadDat, LoadMethod='object' | 'ext.file', FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat='year' | 'posixt', Transect=FALSE)
 {
     if(LoadMethod == 'object') { dat<- data.frame(LoadDat) }                # Load data of locations; external data file, or an R object.
     if(LoadMethod == 'ext.file') { dat<- read.delim(LoadDat, sep=FileSep) }
@@ -110,9 +110,11 @@ function(LoadDat, LoadMethod='object' | 'ext.file', FileSep=NULL, Product, Bands
     }
     if(Transect == FALSE){ write.table(lat.long, file=paste(SaveDir,'Subset Download ',Sys.Date(),'.csv',sep=''), col.names=TRUE, row.names=FALSE, sep=',') }             # Writes an ascii file with all dates for each band at a given location into the working directory.
     if(Transect == TRUE){
-        ifelse(SaveDir == NULL, DirList<- list.files(), DirList<- list.files(path=SaveDir))
-        if(any(DirList == paste(SaveDir,'Subset Download ',Sys.Date(),'.csv',sep='')) == FALSE){ write.table(lat.long, file=paste(SaveDir,'Subset Download ',Sys.Date(),'.csv',sep=''), col.names=TRUE, row.names=FALSE, sep=',') }
-        if(any(DirList == paste(SaveDir,'Subset Download ',Sys.Date(),'.csv',sep=''))){ write.table(lat.long, file=paste(SaveDir,'Subset Download ',Sys.Date(),'.csv',sep=''), col.names=FALSE, row.names=FALSE, sep=',',append=TRUE) }
+        ifelse(SaveDir == "./", DirList<- list.files(), DirList<- list.files(path=SaveDir))
+        w.transect<- regexpr('Point', dat$ID[1])
+        transect.id<- substr(dat$ID[1], 1, w.transect-1)
+        if(any(DirList == paste(SaveDir,transect.id,'_Subset Download ',Sys.Date(),'.csv',sep='')) == FALSE){ write.table(lat.long, file=paste(SaveDir,transect.id,'_Subset Download ',Sys.Date(),'.csv',sep=''), col.names=TRUE, row.names=FALSE, sep=',') }
+        if(any(DirList == paste(SaveDir,transect.id,'_Subset Download ',Sys.Date(),'.csv',sep=''))){ write.table(lat.long, file=paste(SaveDir,transect.id,'_Subset Download ',Sys.Date(),'.csv',sep=''), col.names=FALSE, row.names=FALSE, sep=',',append=TRUE) }
     }   
     if(Transect == FALSE){ print('Done! Check the subset download file for correct subset information and any download messages.') }                                                                                    
 }
