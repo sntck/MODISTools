@@ -3,7 +3,7 @@
 \title{MODIS Transect Subset Tool}
 \description{A function that downloads batches of MODIS data transects.}
 \usage{MODISTransects(LoadData, LoadMethod = "object" | "ext.file", 
-FileSep = NULL, Product, Bands, Size = c(), SaveDir = NULL, StartDate = FALSE, 
+FileSep = NULL, Product, Bands, Size = c(), SaveDir = "./", StartDate = FALSE, 
 TimeSeriesLength = 2, DateFormat = "year" | "posixt")}
 \arguments{
   \item{LoadData}{Input data: file or object in R environment. For data input requirements, see details. All arguments to be passed to MODISSubsets(); see ?MODISSubsets for more information.}
@@ -14,7 +14,7 @@ TimeSeriesLength = 2, DateFormat = "year" | "posixt")}
   \item{Size}{Numeric vector of two non-negative integers defining the dimensions of tile requested at each location. The first element identifies the distance from the centre to the 
   bottom/top (in both directions), and the second element to the left/right (in both directions) in km. For example, Size=c(0,0) identifies the centre pixel only, whereas Size=c(1,1) 
   identifies a tile of 2kmsq.}
-  \item{SaveDir}{Character string; an optional argument to specify the subdirectory where downloaded ascii files should be saved: default SaveDir=NULL saves the files to the working directory.}
+  \item{SaveDir}{Character string; an optional argument to specify the subdirectory where downloaded ascii files should be saved: default SaveDir="./" saves the files to the working directory.}
   \item{StartDate}{Logical; indicate whether the input dataset contains information on the time-series start date. If StartDate=TRUE, start dates will be taken from the input data and will
     expect the data frame to have a column named start.date. Default is StartDate=FALSE, whereby the input data is assumed to have only time-series end date and the length of time-series recorded
     prior to that date is determined by another optional argument, TimeSeriesLength.}
