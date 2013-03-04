@@ -6,7 +6,7 @@ Date: 2012-11-08
 Author: Sean Tuck
 Depends: SSOAP (>= 0.91-0), XMLSchema
 Suggests: RCurl, XML
-Maintainer: Sean Tuck <sean.tuck@stx.ox.ac.uk>
+Maintainer: Sean Tuck <sean.tuck@plants.ox.ac.uk>
 Description: 	Provides several functions for extracting and dealing 
 		with subsets of MODIS Land Processes data as a batch process.
 License: GPL-2
