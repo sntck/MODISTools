@@ -1,5 +1,5 @@
 ## Function to find the coordinates from a focal pixel when given a distance and an angle.
-## Version 1  24th January 2013  Helen R. Phillips (with help from Isabel Fenton)
+## Version 2  5th March 2013  Helen R. Phillips (with help from Isabel Fenton)
 
 ## Input file should have the following columns;
 ## start.lat
@@ -7,10 +7,19 @@
 ## distance should be in metres
 ## angle can either be degrees or radians
 
-EndCoordinates <- function(XY, FileSep = NULL, LoadMethod = 'object'|'ext.file', Distance = 1000, Angle = 90, AngleUnits = 'radians'|'degrees', Dir = ".", FileName = ".")
+EndCoordinates <- function(LoadDat, LoadMethod = 'object'|'ext.file', FileSep = NULL, Distance = 1000, Angle = 90, AngleUnits = 'radians'|'degrees', Dir = ".", FileName = ".")
 {
-    if(LoadMethod == 'object') { x<- data.frame(XY) }
-    if(LoadMethod == 'ext.file') { x<- read.delim(XY, sep=FileSep) }
+    if(LoadMethod == 'object') { x<- data.frame(LoadDat) }
+    if(LoadMethod == 'ext.file') { x<- read.delim(LoadDat, sep=FileSep) }
+    
+    if(AngleUnits == 'radians'){
+    	if(Angle > (2*pi)){stop('Not sensible radian values. Did you mean degrees?')}
+    }
+  
+    if(AngleUnits == 'degrees'){
+    	if(Angle > 360){stop('Not sensible degrees values. Check input.')}
+    }
+    
     if (AngleUnits == 'radians'){ angle.rad <- Angle }
     if (AngleUnits == 'degrees'){ angle.rad <- Angle/(180/pi) }
 	lat.rad <- x$start.lat/(180/pi)
