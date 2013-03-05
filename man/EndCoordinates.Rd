@@ -2,7 +2,9 @@
 \alias{EndCoordinates}
 \title{Calculate end location of a transect}
 \description{Function that uses a set of locations in decimal degrees to calculate new locations, at a specified distance and angle away, that can form the start and end coordinates for transects.}
-\usage{EndCoordinates(LoadDat, LoadMethod = 'object'|'ext.file', FileSep = NULL, Distance = 1000, Angle = 90, AngleUnits = 'radians'|'degrees', Dir = ".", FileName = "Transect Coordinates")}
+\usage{EndCoordinates(LoadDat, LoadMethod = 'object'|'ext.file', FileSep = NULL, 
+		Distance = 1000, Angle = 90, AngleUnits = 'radians'|'degrees', Dir = ".", 
+		FileName = "Transect Coordinates")}
 \arguments{
   \item{LoadDat}{Input data; an object or external file to be read in, containing a set of locations to be used for calculating new end coordinates.}
   \item{LoadMethod}{Character string; method of data input. If XY is a text file LoadMethod='ext.file', if LoadMethod is an object method='object'.}
@@ -18,5 +20,6 @@
 \author{Helen Phillips}
 \seealso{\code{\link[MODISTools:MODISTransects]{MODISTransects}} \code{\link[MODISTools:ConvertToDD]{ConvertToDD}}}
 \examples{data(EndCoordinatesExample)
-	EndCoordinates(LoadDat=EndCoordinatesExample, LoadMethod='object', Distance = 2000, Angle = 90, AngleUnits = 'degrees')
+	EndCoordinates(LoadDat=EndCoordinatesExample, LoadMethod='object', 
+	Distance = 2000, Angle = 90, AngleUnits = 'degrees')
 }
