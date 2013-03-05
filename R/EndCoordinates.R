@@ -7,7 +7,7 @@
 ## distance should be in metres
 ## angle can either be degrees or radians
 
-EndCoordinates <- function(LoadDat, LoadMethod = 'object'|'ext.file', FileSep = NULL, Distance = 1000, Angle = 90, AngleUnits = 'radians'|'degrees', Dir = ".", FileName = ".")
+EndCoordinates <- function(LoadDat, LoadMethod = 'object'|'ext.file', FileSep = NULL, Distance = 1000, Angle = 90, AngleUnits = 'radians'|'degrees', Dir = ".", FileName = "Transect Coordinates")
 {
     if(LoadMethod == 'object') { x<- data.frame(LoadDat) }
     if(LoadMethod == 'ext.file') { x<- read.delim(LoadDat, sep=FileSep) }
@@ -30,12 +30,10 @@ EndCoordinates <- function(LoadDat, LoadMethod = 'object'|'ext.file', FileSep = 
 	end.lat <- x$start.lat + delta.lat.degrees
 	end.long <- x$start.long + delta.long.degrees
 	x <- cbind(x, end.lat, end.long)
-	if (FileName == "."){
-		FileName <- "Transect Coordinates"
-	}
+	
 	if (Dir == "."){
-			write.csv(x, file = paste(FileName, Distance, "m", Angle, "degrees", Sys.Date(),".csv"), row.names=FALSE)
+			write.csv(x, file = paste(FileName, Distance, "m", Angle, AngleUnits, Sys.Date(),".csv"), row.names=FALSE)
 	}else{
-			write.csv(x, file = paste(Dir, FileName, Distance, "m", Angle, "degrees", Sys.Date(),".csv"), row.names=FALSE)
+			write.csv(x, file = paste(Dir, FileName, Distance, "m", Angle, AngleUnits, Sys.Date(),".csv"), row.names=FALSE)
 		}
 }
