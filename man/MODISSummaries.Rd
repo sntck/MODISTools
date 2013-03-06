@@ -32,7 +32,7 @@ SD=TRUE, Min=TRUE, Max=TRUE, Yield=TRUE, NoFill=TRUE, PoorQuality=TRUE)
   Max,
   Yield,
   NoFill,
-  PoorQuality}{Logical; optional arguments that allow selecting which summaries will be included in the summary file that gets written. Mean is arithmetic mean. SD is standard deviation. Min and Max are minimum and maximum band values. Yield is the average annual yield (may not be sensible for all band types). NoFill and PoorQuality show the percentage of values in each time-series that were NoDataValue and ommitted by QualityControl respectively. All summary statistics are included by default.
+  PoorQuality}{Logical; optional arguments that allow selecting which summaries will be included in the summary file that gets written. Mean is arithmetic mean. SD is standard deviation. Min and Max are minimum and maximum band values. Yield is the average annual yield (may not be sensible for all band types). NoFill and PoorQuality show the percentage of values in each time-series that were NoDataValue and omitted by QualityControl respectively. All summary statistics are included by default.
   }
 }
 \details{Subsets to be processed should include a pixel reliability layer, so the data can be screened for high quality data only, using linear interpolation between high quality values.

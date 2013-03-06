@@ -32,14 +32,14 @@ MODISSummaries <-
       #####
       
       #  Organise data into matrices containing product band data and another for corresponding reliability data.
-      band.time.series<- ds[which.are.band,6:ncol(ds)]
-      rel.time.series<- ds[which.are.reliability,6:ncol(ds)] 
+      band.time.series<- matrix(ds[which.are.band,6:ncol(ds)], nrow=length(which.are.band))
+      rel.time.series<- matrix(ds[which.are.reliability,6:ncol(ds)], nrow=length(which.are.reliability)) 
       
       # Screen the pixel values in band.time.series: any pixels whose value correspond to NoDataValue, or whose
       # corresponding pixel in rel.time.series is below the QualityControl threshold, will be replaced with NA so they
       # are not included in time-series analysis.
       band.time.series<- matrix(
-        ifelse(band.time.series != NoDataValue & rel.time.series < QualityControl, band.time.series, NA),
+        ifelse(band.time.series != NoDataValue & rel.time.series <= QualityControl, band.time.series, NA),
         nrow=length(which.are.band))
       # Final check, that band values all fall within the ValidRange (as defined for given MODIS product band).
       if(any((band.time.series >= ValidRange[1] && band.time.series <= ValidRange[2]) == FALSE, na.rm=TRUE)) { 
@@ -63,6 +63,10 @@ MODISSummaries <-
       
       # Run time-series analysis for the ith pixel.
       for(i in 1:ncol(band.time.series)) {
+        # Minimum and maximum band values observed.
+        minobsband = min(as.numeric(band.time.series[,i])*ScaleFactor, na.rm = TRUE)    
+        maxobsband = max(as.numeric(band.time.series[,i])*ScaleFactor, na.rm = TRUE)
+        
         # Assess the quality of data at this time-step by counting the number of data left after screening, and use this
         # assessment to decide how to proceed with analysis for each time-step. 
         good<- sum(!is.na(band.time.series[,i]))
@@ -70,9 +74,6 @@ MODISSummaries <-
           # Linearly interpolate between screened data points, for each pixel, over time.
           sout = approx(x=ds$date[which.are.band], y=as.numeric(band.time.series[,i])*ScaleFactor, method = "linear", 
                 n = ((max(ds$date[!is.na(band.time.series[,i])])- min(ds$date[!is.na(band.time.series[,i])]))-1))
-          # Minimum and maximum band values observed.
-          minobsband = min(as.numeric(band.time.series[,i])*ScaleFactor, na.rm = TRUE)    
-          maxobsband = max(as.numeric(band.time.series[,i])*ScaleFactor, na.rm = TRUE)
           
           # Carry out all the relevant summary analyses, set by options in the function call.
           if(Yield == TRUE){ band.yield[i] = (sum(sout$y) - minobsband*length(sout$x)) / length(sout$x) }    # (((365*length(years))-16)*365) = average annual yield  (i.e. work out daily yield * 365).
