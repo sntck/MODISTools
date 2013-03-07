@@ -11,7 +11,7 @@
   \item{FileSep}{If LoadMethod='ext.file', choose the field separator character.}
   \item{Distance}{Numeric; distance, in metres, that the end coordinates should be from the focal coordinates.}
   \item{Angle}{Numeric; angle, in either degrees or radians, that the end coordinates should be from the focal coordinates.}
-  \item{AngleUnits}{Logical; the unit the angle is given in, either 'radians' or 'degrees'.}
+  \item{AngleUnits}{Character String; the unit the angle is given in, either 'radians' or 'degrees'.}
   \item{Dir}{Character string; an optional argument to specify the subdirectory where the output file should be saved. Default Dir='.' writes file to the working directory.}
   \item{FileName}{Character string; an optional argument to specify the name given to the output file.  Default is "Transect Coordinates".}
 }
