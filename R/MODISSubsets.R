@@ -33,8 +33,11 @@ function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands
     # Take date information for each time-series, in either 'year' or 'posixt', and turn them into MODIS 
     # date codes (Julian format).
     if(DateFormat == "year") {
-        options(warn=-1); ifelse(Start == FALSE, start.date<- strptime(paste(lat.long[,4]-TimeSeriesLength,"-01-01",
-              sep=""), "%Y-%m-%d"), start.date<- strptime(paste(lat.long[,5],"-01-01",sep=""),"%Y-%m-%d")); options(warn=0)
+        if(StartDate == FALSE){
+          start.date<- strptime(paste(lat.long[,4]-TimeSeriesLength,"-01-01",sep=""), "%Y-%m-%d")
+        } else if(StartDate == TRUE){
+          start.date<- strptime(paste(lat.long[,5],"-01-01",sep=""),"%Y-%m-%d")
+        }
         # Put start and end dates in POSIXlt format.
         end.date<- strptime(paste(lat.long[,4],"-12-31",sep=""),"%Y-%m-%d")
         start.day<- start.date$yday
@@ -49,8 +52,11 @@ function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands
     }
     
     if(DateFormat == "posixt") {
-        options(warn=-1); ifelse(Start == FALSE, start.date<- strptime(paste(lat.long[,4]-TimeSeriesLength,"-01-01",
-              sep=""),"%Y-%m-%d"), start.date<- strptime(lat.long[,5],"%Y-%m-%d")); options(warn=0)
+        if(StartDate == FALSE){
+          start.date<- strptime(paste(lat.long[,4]-TimeSeriesLength,"-01-01",sep=""),"%Y-%m-%d")
+        } else if(StartDate == TRUE){
+          start.date<- strptime(lat.long[,5],"%Y-%m-%d")
+        } 
         end.date<- strptime(lat.long[,4],"%Y-%m-%d")
         start.day<- start.date$yday
         start.day[nchar(start.day) == 2]<- paste(0, start.day[nchar(start.day) == 2], sep="")
