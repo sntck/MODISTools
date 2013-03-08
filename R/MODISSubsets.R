@@ -88,8 +88,11 @@ function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands
       end.dates<- which(dates >= MODIS.end[i])
       # Extract the string of time-steps in between start.dates & end.dates for the given time-series.
       date.res<- start.dates[which(start.dates %in% end.dates == FALSE)]
+      
       # Organise relevant MODIS dates into batches of 10. Web service getsubset function will only take 10 at a time.
-      options(warn=-1); date.list<- matrix(dates[date.res], nrow=10); options(warn=0)
+      # First, use the modulo to fill up any remaining rows in the final column to avoid data recycling.
+      dateNAfiller<- rep(NA, 10 - (length(date.res) %% 10))
+      date.list<- matrix(c(dates[date.res],dateNAfiller), nrow=10)
       
       # Initialise objects that will store downloaded data.
       result<- list(NA)
