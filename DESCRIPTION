@@ -3,7 +3,7 @@ Type: Package
 Title: MODIS Subsetting Tools
 Version: 0.91.1
 Date: 2012-11-08
-Author: Sean Tuck
+Author: Sean Tuck, Helen Phillips
 Depends: SSOAP (>= 0.91-0), XMLSchema
 Suggests: RCurl, XML
 Maintainer: Sean Tuck <sean.tuck@plants.ox.ac.uk>
