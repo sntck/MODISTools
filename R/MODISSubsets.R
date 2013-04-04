@@ -72,10 +72,10 @@ function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands
     #####
     
     # Get the MODIS Web Service Description Language and set up SOAP-Client interface.
-    ornlMODIS = processWSDL("http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.wsdl")
-    ornlMODISFuncs = genSOAPClientInterface(operations=ornlMODIS@operations[[1]], def=ornlMODIS)
+    ornlMODIS<- processWSDL("http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.wsdl")
+    ornlMODISFuncs<- genSOAPClientInterface(operations=ornlMODIS@operations[[1]], def=ornlMODIS)
     # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.
-    dates = ornlMODISFuncs@functions$getdates(lat.long[1,2], lat.long[1,3], Product)
+    dates<- ornlMODISFuncs@functions$getdates(lat.long[1,2], lat.long[1,3], Product)
     
     # Use the getsubset function as described (http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html) to 
     # retrieve data subsets for each time-series of a set of product bands, at a defined surrounding area, saving 
@@ -108,7 +108,7 @@ function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands
             # getsubset function return object of ModisData class, with a subset slot that only allows 10 elements 
             # (i.e. 10 dates), looped until all requested dates have been retrieved.
             # Retrieve the batch of MODIS data and store in result
-            result[[n]] = try(ornlMODISFuncs@functions$getsubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
+            result[[n]]<- try(ornlMODISFuncs@functions$getsubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
                   date.list[1,x], date.list[10,x], Size[1], Size[2]))
             
             # Check data was actually downloaded. If not, wait 30 secs and then try again. If retrieval fails 50 times
@@ -118,7 +118,7 @@ function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands
               while(timer <= 50){
                 print(paste("Connection to the MODIS Web Service failed: trying again in 30secs...attempt ",timer,sep=""))
                 Sys.sleep(30)
-                result[[n]] = try(ornlMODISFuncs@functions$getsubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
+                result[[n]]<- try(ornlMODISFuncs@functions$getsubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
                       date.list[1,x], date.list[10,x], Size[1], Size[2]))
                 timer<- timer+1
                 ifelse(class(result[[n]]) == "try-error", next, break)
@@ -137,7 +137,7 @@ function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands
         
         # This will download the last column of dates left (either the final column or the only column if less than 10
         # dates in the time-series).
-        result[[n]] = try(ornlMODISFuncs@functions$getsubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], date.list[1,ncol(date.list)],
+        result[[n]]<- try(ornlMODISFuncs@functions$getsubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], date.list[1,ncol(date.list)],
               date.list[which(date.list[,ncol(date.list)] >= dates[max(date.res)]), ncol(date.list)], Size[1], Size[2]))
         # Final batch of dates request, which finishes at end.date removing any recycled dates at the end of matrix 
         # (if total no. of dates is not a multiple of 10).
@@ -149,7 +149,7 @@ function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands
             print(paste("Connection to the MODIS Web Service failed: trying again in 30secs...attempt ",timer,sep=""))
             Sys.sleep(30)
             # Final batch of dates, finishes at end.date.
-            result[[n]] = try(ornlMODISFuncs@functions$getsubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
+            result[[n]]<- try(ornlMODISFuncs@functions$getsubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
                   date.list[1,ncol(date.list)], date.list[which(date.list[,ncol(date.list)] >= dates[max(date.res)]), 
                   ncol(date.list)], Size[1], Size[2]))
             timer<- timer+1
