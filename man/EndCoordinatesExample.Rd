@@ -8,8 +8,8 @@ This file can be used in the example for the MODIS EndCoordinates function.}
 \format{
   A data frame with 4 observation on the following 5 variables.
   \describe{
-    \item{lat}{A numeric vector; decimal degrees latitudes in WGS-1984 coordinate system.}
-    \item{long}{A numeric vector; decimal degrees longitudes in WGS-1984 coordinate system.}
+    \item{start.lat}{A numeric vector; decimal degrees latitudes in WGS-1984 coordinate system.}
+    \item{start.long}{A numeric vector; decimal degrees longitudes in WGS-1984 coordinate system.}
     \item{start.date}{A numeric vector; listing the date to begin the time-series for each corresponding locations. Used during MODISTransects.}
     \item{end.date}{A numeric vector; listing the date to end the time-series for each corresponding locations. Used during MODISTransects.}
     \item{ID}{A numeric vector; a unique ID code for each unique location.}
