@@ -41,7 +41,7 @@ MODISTransects <-
       # doesn't matter.
       lat.rad<- median(c(t.dat$start.lat[i], t.dat$end.lat[i]))*(pi/180)
       # Work out how far in metres is the longitudinal difference between start and end locations.
-      long.metres<- delta.long * (LONG_ETR_M * cos(lat.rad))
+      long.metres<- delta.long * (LONG_EQTR_M * cos(lat.rad))
       # Work out the actual length of the transect.
       transect<- sqrt((lat.metres^2)+(long.metres^2))
       
