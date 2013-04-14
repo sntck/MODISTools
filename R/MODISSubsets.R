@@ -2,6 +2,7 @@ MODISSubsets <-
 function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt", Transect=FALSE)
 {
     # Load data of locations; external data file, or an R object.
+    if( (LoadMethod == "object" | LoadMethod == "ext.file") == FALSE) stop("Choose a load method.")
     if(LoadMethod == "object") { dat<- data.frame(LoadDat) }
     if(LoadMethod == "ext.file") { dat<- read.delim(LoadDat, sep=FileSep) }
     
@@ -30,6 +31,8 @@ function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands
     # such as date and ID can be easily retrieved. If the number of unique IDs identified does not equal the number
     # of unique time-series, then IDs are created using each time-series's unique information.
     
+    # Check DateFormat option has been entered correctly.
+    if( (DateFormat == "year" | DateFormat == "posixt") == FALSE) stop("DateFormat option incorrectly set.")
     # Take date information for each time-series, in either 'year' or 'posixt', and turn them into MODIS 
     # date codes (Julian format).
     if(DateFormat == "year") {
@@ -69,6 +72,24 @@ function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands
         MODIS.end<- paste("A", substr(end.date, 1, 4), end.day, sep="")
     }
     # Unique time-series are now extracted from input dataset and organised into a format useful for download.
+    #####
+    
+    ##### Some sanity checks.
+    # If the Product input does not match any product codes in the list output from GetProducts(), stop with error.
+    if(any(Product == GetProducts()) == FALSE){
+      stop("The product name entered does not match any available products. See GetProducts() for available products.")
+    }
+    # If the Bands input does not match with the Product input, stop with error.
+    band.test<- lapply(Bands, function(x) any(x == GetBands(Product)) == FALSE)
+    if(any(band.test == TRUE)){ 
+      stop("The at least one band name entered does not match the product name entered. See GetBands() for band names available within each product.")
+    }
+    # If Size is not two dimensions or are not integers (greater than expected after rounding, with tolerance around
+    # computing precision), stop with error.
+    if(length(Size) != 2) stop("Size input must be a vector of integers, with two elements.")
+    if(abs(Size[1]-round(Size[1])) > .Machine$double.eps^0.5 & abs(Size[2]-round(Size[2])) > .Machine$double.eps^0.5){
+      stop("Size input must be integers.")
+    } 
     #####
     
     # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.
