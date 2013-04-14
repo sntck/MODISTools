@@ -2,7 +2,7 @@
 \alias{GetDates}
 \title{Get list of available dates for requested time-series}
 \description{Function that uses the MODIS SOAP Web Service to retrieve a list of all dates when the requested data, specified by MODIS product and a location, are available for download.}
-\usage{GetDates(Lat, Long, Product)}=
+\usage{GetDates(Lat, Long, Product)}
 \arguments{
   \item{Lat}{A numeric vector; decimal degrees latitudes in WGS-1984 coordinate system.}
   \item{Long}{A numeric vector; decimal degrees latitudes in WGS-1984 coordinate system.}

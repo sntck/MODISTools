@@ -40,5 +40,5 @@ This data frame is then passed to MODISSubsets.}
 data(SubsetExample)
 
 GetSubset(Lat=SubsetExample[,1], Long=SubsetExample[,2], Product="MOD13Q1", Band="250m_16_days_EVI", 
-               StartDate="A2001001", EndDate="A2001025", KmAboveBelow=0, KmLeftRight=0)
+               StartDate="A2001001", EndDate="A2001025", KmAboveBelow=0, KmLeftRight=0)}
 }
