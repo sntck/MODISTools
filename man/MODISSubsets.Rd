@@ -1,7 +1,7 @@
-\name{B. MODISSubsets}
+\name{MODISSubsets}
 \alias{MODISSubsets}
 \title{MODIS Subset Tool}
-\description{Uses the MODIS SOAP Web Service and employs the getsubset function (see references) as a batch process to remotely extract and locally download time-series subsets of a MODIS product for a given area surrounding many locations.
+\description{Uses the MODIS SOAP Web Service (see references) as a batch process to remotely extract and locally download time-series subsets of a MODIS product for a given area surrounding many locations.
 }
 \usage{MODISSubsets(LoadDat, LoadMethod = "object" | "ext.file",
 FileSep = NULL, Product, Bands, Size = c(), 
@@ -37,18 +37,22 @@ DateFormat = "year" | "posixt", Transect=FALSE)
 \value{An ascii file written for each unique time-series (unique location, or unique time-series at a duplicated location), containing all data requested, for each band, for every pixel in the specified tile size. A subset download csv file will also be written, that contains all the unique time-series information, and a status report for each time-series telling the user if the respective time-series was downloaded successfully or identifying any problems with that particular download.
 }
 \references{
-\link{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
+  \link{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
 
-\link{https://lpdaac.usgs.gov/products/modis_products_table}
+  \link{https://lpdaac.usgs.gov/products/modis_products_table}
 
-\link{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}  
+  \link{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}  
 }
 \author{Sean Tuck}
 \seealso{\code{\link{help}}}
 \examples{
-\dontrun{data(SubsetExample)
-MODISSubsets(LoadDat=SubsetExample, LoadMethod='object', Product='MOD13Q1',     # dontrun() used because running the example requires internet access, and takes a minute or two to run.
+\dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
+data(SubsetExample)
+
+MODISSubsets(LoadDat=SubsetExample, LoadMethod='object', Product='MOD13Q1',     
 Bands=c('250m_16_days_EVI','250m_16_days_pixel_reliability'), 
 Size=c(0,0), StartDate=TRUE, DateFormat='year')
-MODISSummaries(LoadDat=SubsetExample, LoadMethod='object', Band='250m_16_days_EVI', ValidRange=c(-2000,10000), NoDataValue=-3000, ScaleFactor=0.0001)}    
+
+MODISSummaries(LoadDat=SubsetExample, LoadMethod='object', Band='250m_16_days_EVI', 
+ValidRange=c(-2000,10000), NoDataValue=-3000, ScaleFactor=0.0001)}    
 }

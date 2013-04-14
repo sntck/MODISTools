@@ -1,4 +1,4 @@
-\name{K. ConvertExample}
+\name{ConvertExample}
 \alias{ConvertExample}
 \docType{data}
 \title{Example dataset for ConvertToDD()}

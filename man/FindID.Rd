@@ -1,4 +1,4 @@
-\name{H. FindID}
+\name{FindID}
 \alias{FindID}
 \title{Time-series matching to IDs}
 \description{A function that takes a unique time-series definition and looks inside a large dataset to find all the IDs that correspond to records with matching time-series definitions. A useful

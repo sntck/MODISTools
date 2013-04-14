@@ -1,4 +1,4 @@
-\name{L. FindIDExample}
+\name{FindIDExample}
 \alias{FindIDExample}
 \docType{data}
 \title{Example dataset for FindIDSubsets()}

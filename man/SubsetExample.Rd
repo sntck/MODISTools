@@ -1,4 +1,4 @@
-\name{I. SubsetExample}
+\name{SubsetExample}
 \alias{SubsetExample}
 \docType{data}
 \title{Example dataset for MODISSubsets()}

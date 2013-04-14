@@ -1,4 +1,4 @@
-\name{D. MODISTransects}
+\name{MODISTransects}
 \alias{MODISTransects}
 \title{MODIS Transect Subset Tool}
 \description{A function that downloads batches of MODIS data transects.
@@ -34,17 +34,19 @@ TimeSeriesLength = 2, DateFormat = "year" | "posixt")
 \value{ascii file written for each location, containing the specified time-series for each band of data requested. File name states the transect ID that the location is within, and a unique ID for that specific location.
 }
 \references{
-  http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html
+  \link{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
   
-  http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl
+  \link{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
   
-  https://lpdaac.usgs.gov/products/modis_products_table
+  \link{https://lpdaac.usgs.gov/products/modis_products_table}
 }
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
 \examples{
-\dontrun{data(TransectExample)
-MODISTransects(LoadData=TransectExample, LoadMethod='object', Product='MOD13Q1',     # dontrun() used because running the example requires internet access, and takes a minute or two to run.
+\dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
+data(TransectExample)
+
+MODISTransects(LoadData=TransectExample, LoadMethod='object', Product='MOD13Q1',     
     Bands=c('250m_16_days_EVI','250m_16_days_pixel_reliability'), 
     Size=c(0,0), StartDate=TRUE, DateFormat='year')}
 }

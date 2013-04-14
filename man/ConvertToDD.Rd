@@ -1,4 +1,4 @@
-\name{G. ConvertToDD}
+\name{ConvertToDD}
 \alias{ConvertToDD}
 \title{Degrees Minutes Seconds/Decimal Minutes - Decimal Degrees Converter}
 \description{Takes a set of coordinates in either degrees minutes seconds or degrees decimal minutes, and converts them to decimal degrees format (dd.ddddd; -dd.ddddd).
@@ -20,6 +20,8 @@ LoadMethod = 'object' | 'ext.file', DegFormat = 'DM' | 'DMS', DSign)}
 \value{Output is a data frame of same dimensions as input, with each value converted to decimal degrees, named "DD.lat" and "DD.long".}
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
-\examples{data(ConvertExample)
+\examples{
+data(ConvertExample)
+
 ConvertToDD(XY=ConvertExample, LatColName='lat', LongColName='long', 
     LoadMethod='object', DegFormat='DMS', DSign='d')}

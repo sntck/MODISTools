@@ -1,4 +1,4 @@
-\name{J. TransectExample}
+\name{TransectExample}
 \alias{TransectExample}
 \docType{data}
 \title{Example dataset for MODISTransects()}

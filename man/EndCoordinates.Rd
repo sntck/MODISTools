@@ -19,7 +19,9 @@
 \value{A new csv file containing the new end coordinate data appended to the original data.}   
 \author{Helen Phillips}
 \seealso{\code{\link[MODISTools:MODISTransects]{MODISTransects}} \code{\link[MODISTools:ConvertToDD]{ConvertToDD}}}
-\examples{data(EndCoordinatesExample)
-	EndCoordinates(LoadDat=EndCoordinatesExample, LoadMethod='object', 
-	Distance = 2000, Angle = 90, AngleUnits = 'degrees')
+\examples{
+data(EndCoordinatesExample)
+
+EndCoordinates(LoadDat=EndCoordinatesExample, LoadMethod='object', 
+  Distance = 2000, Angle = 90, AngleUnits = 'degrees')
 }
