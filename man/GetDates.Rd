@@ -10,11 +10,11 @@
 }
 \value{A character vector; each element representing a time-step (in MODIS date format) where data is available.}
 \references{
-  \link{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
+  \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
   
-  \link{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
+  \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
   
-  \link{https://lpdaac.usgs.gov/products/modis_products_table}
+  \url{https://lpdaac.usgs.gov/products/modis_products_table}
 }
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}

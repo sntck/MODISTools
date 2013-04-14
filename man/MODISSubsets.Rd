@@ -37,11 +37,11 @@ DateFormat = "year" | "posixt", Transect=FALSE)
 \value{An ascii file written for each unique time-series (unique location, or unique time-series at a duplicated location), containing all data requested, for each band, for every pixel in the specified tile size. A subset download csv file will also be written, that contains all the unique time-series information, and a status report for each time-series telling the user if the respective time-series was downloaded successfully or identifying any problems with that particular download.
 }
 \references{
-  \link{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-
-  \link{https://lpdaac.usgs.gov/products/modis_products_table}
-
-  \link{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}  
+  \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
+  
+  \url{https://lpdaac.usgs.gov/products/modis_products_table}
+  
+  \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}  
 }
 \author{Sean Tuck}
 \seealso{\code{\link{help}}}
