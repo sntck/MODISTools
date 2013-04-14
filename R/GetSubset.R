@@ -33,9 +33,9 @@ GetSubset<- function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow,
 
   xmlres<- xmlRoot(xmlTreeParse(reader$value()))
   modisres<- xmlSApply( xmlres[[1]], 
-                        function(x) xmlSApply(x,
-                                              function(x) xmlSApply(x,
-                                                                    function(x) xmlSApply(x,xmlValue))) 
+                    function(x) xmlSApply(x,
+                            function(x) xmlSApply(x,
+                                    function(x) xmlSApply(x,xmlValue))) 
   )
   
   modisres<- as.data.frame(t(unname(modisres[-c(7,11)])))

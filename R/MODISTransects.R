@@ -13,10 +13,6 @@ MODISTransects <-
     if(LoadMethod == "object") { dat<- data.frame(LoadData) }
     if(LoadMethod == "ext.file") { dat<- read.delim(LoadData, sep=FileSep) }
     
-    # Load up Web Service Description Language and set up SOAP-client interface
-    ornlMODIS = processWSDL("http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.wsdl")
-    ornlMODISFuncs = genSOAPClientInterface(operations=ornlMODIS@operations[[1]], def=ornlMODIS)
-    
     #####
     # Actual width of each tile in the MODIS projection (in metres).
     tile.width<- MODPRJ_EXTENT_X / NUM_TILES
@@ -106,15 +102,14 @@ MODISTransects <-
       
       #####
       # Do some error checking of pixels in transect before requesting data in MODISSubsets function call.
-      t.point<- list(NA)
-      xll<- c()
-      yll<- c()
+      xll<- vector(mode="numeric", length=nrow(t.subset))
+      yll<- vector(mode="numeric", length=nrow(t.subset))
       # Get the MODIS Projection coordinates for the pixel that each interpolated transect increment falls within.
       for(n in 1:nrow(t.subset)) {
-        t.point[[n]]<- ornlMODISFuncs@functions$getsubset(t.subset$lat[n], t.subset$long[n], "MOD13Q1", 
-              "250m_16_days_EVI", "A2000049", "A2000049", 0, 0)
-        xll[n]<- t.point[[n]]@xllcorner
-        yll[n]<- t.point[[n]]@yllcorner  
+        t.point<- GetSubset(t.subset$lat[n], t.subset$long[n], Product, 
+              Bands[1], "A2000049", "A2000049", 0, 0)
+        xll[n]<- as.numeric(as.character(t.point$xll))
+        yll[n]<- as.numeric(as.character(t.point$yll))
       }
       
       # Check which pixels have the same x or y as the previous pixel.
@@ -147,6 +142,7 @@ MODISTransects <-
       
       # Transect pixels found, checked, and time-series information organised. Now run MODISSubsets to retrieve subset
       # for this transect of pixels.
-      MODISSubsets(LoadDat=t.subset,LoadMethod="object",Product=Product,Bands=Bands,Size=Size,SaveDir=SaveDir,StartDate=StartDate,TimeSeriesLength=TimeSeriesLength,DateFormat=DateFormat,Transect=TRUE)
+      MODISSubsets(LoadDat=t.subset, LoadMethod="object", Product=Product, Bands=Bands, Size=Size, SaveDir=SaveDir,
+                   StartDate=StartDate, TimeSeriesLength=TimeSeriesLength, DateFormat=DateFormat, Transect=TRUE)
     } # End of loop that reiterates download for each transect.
   }

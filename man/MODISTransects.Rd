@@ -29,7 +29,11 @@ TimeSeriesLength = 2, DateFormat = "year" | "posixt")
   \item{DateFormat}{If DateFormat="year", date information is expected to be given as years. If DateFormat="posixt", date information is expected to be given in a POSIXt format (YYYY-MM-DD). If DateFormat="posixt" and StartDate=FALSE, the start date is set to the first day of end date-TimeSeries (YYYY-01-01).
   }
 }
-\details{File input requirements are a transect ID, a start lat and long, and an end lat and long for each transect, and an end date (start date optional) for the requested time-series for each transect. These fields must be labelled with headers: "transect"; "start.lat"; "start.long"; "end.lat"; "end.long"; "start.date", and; "end.date" respectively. All data types requested must be of the same resolution (pixel size). See ?MODIS.Subsets for more details.
+\details{File input requirements are a transect ID, a start lat and long, and an end lat and long for each transect, and an end date (start date optional) for the requested time-series for each transect. These fields must be labelled with headers: "transect"; "start.lat"; "start.long"; "end.lat"; "end.long"; "start.date", and; "end.date" respectively.
+
+All data types requested must be of the same resolution (pixel size). See ?MODIS.Subsets for more details.
+
+The transects lengths requested must be longer than the requested pixel size. Therefore, each transect must contain more than 1 pixel.
 }
 \value{ascii file written for each location, containing the specified time-series for each band of data requested. File name states the transect ID that the location is within, and a unique ID for that specific location.
 }
