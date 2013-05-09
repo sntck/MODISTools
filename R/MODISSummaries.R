@@ -1,9 +1,18 @@
 MODISSummaries <-
-  function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Dir=".", Band, ValidRange, NoDataValue, ScaleFactor, QualityControl=0, Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=TRUE, NoFill=TRUE, PoorQuality=TRUE) 
+  function(LoadDat, FileSep=NULL, Dir=".", Band, ValidRange, NoDataValue, ScaleFactor, QualityControl=0, Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE) 
   { 
     # Load input time-series data file; external data file, or an R object.
-    if(LoadMethod == "object"){ details<- data.frame(LoadDat) }
-    if(LoadMethod == "ext.file"){ details<- read.delim(LoadDat, sep=FileSep) }
+    if(is.object(LoadDat)) { details<- data.frame(LoadDat) }
+    if(is.character(LoadDat)) {
+      if(FileSep == NULL){
+        stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
+      }
+      details<- read.delim(LoadDat, sep=FileSep) 
+    }
+    if(!is.object(LoadDat) & !is.character(LoadDat)){
+      stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
+    }
+    
     # Get a list of all downloaded subset (.asc) files in the data directory.
     filelist<- list.files(path=Dir, pattern=".asc")
     

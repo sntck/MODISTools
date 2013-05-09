@@ -7,21 +7,30 @@
 ## distance should be in metres
 ## angle can either be degrees or radians
 
-EndCoordinates <- function(LoadDat, LoadMethod = 'object'|'ext.file', FileSep = NULL, Distance = 1000, Angle = 90, AngleUnits = 'radians'|'degrees', Dir = ".", FileName = "Transect Coordinates")
+EndCoordinates <- function(LoadDat, FileSep = NULL, Distance = 1000, Angle = 90, AngleUnits = 'radians'|'degrees', Dir = ".", FileName = "Transect Coordinates")
 {
-    if(LoadMethod == 'object') { x<- data.frame(LoadDat) }
-    if(LoadMethod == 'ext.file') { x<- read.delim(LoadDat, sep=FileSep) }
-    
-    if(AngleUnits == 'radians'){
-    	if(Angle > (2*pi)){stop('Not sensible radian values. Did you mean degrees?')}
+  if(is.object(LoadDat)) { x<- data.frame(LoadDat) }
+  if(is.character(LoadDat)) {
+    if(FileSep == NULL){
+      stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
     }
+    x<- read.delim(LoadDat, sep=FileSep) 
+  }
+  if(!is.object(LoadDat) & !is.character(LoadDat)){
+    stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
+  }
+    
+  if(AngleUnits == 'radians'){
+  	if(Angle > (2*pi)){stop('Not sensible radian values. Did you mean degrees?')}
+  }
   
-    if(AngleUnits == 'degrees'){
-    	if(Angle > 360){stop('Not sensible degrees values. Check input.')}
-    }
+  if(AngleUnits == 'degrees'){
+  	if(Angle > 360){stop('Not sensible degrees values. Check input.')}
+  }
     
-    if (AngleUnits == 'radians'){ angle.rad <- Angle }
-    if (AngleUnits == 'degrees'){ angle.rad <- Angle/(180/pi) }
+  if (AngleUnits == 'radians'){ angle.rad <- Angle }
+  if (AngleUnits == 'degrees'){ angle.rad <- Angle/(180/pi) }
+  
 	lat.rad <- x$start.lat/(180/pi)
 	delta.lat.metres <- round(Distance * cos(angle.rad))
 	delta.long.metres <- round(Distance * sin(angle.rad))

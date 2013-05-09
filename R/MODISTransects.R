@@ -1,5 +1,5 @@
 MODISTransects <-
-  function(LoadData, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt")
+  function(LoadData, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt")
   {
     # Define:  
     # Data are gridded in equal-area tiles in a sinusoidal projection. Each tile consists of a 1200x1200 km data 
@@ -10,8 +10,16 @@ MODISTransects <-
     LONG_EQTR_M = 111.2 * 1000                       # A degree at equator is 111.2km in distance.
     
     # Load data of locations; external data file, or an R object.
-    if(LoadMethod == "object") { dat<- data.frame(LoadData) }
-    if(LoadMethod == "ext.file") { dat<- read.delim(LoadData, sep=FileSep) }
+    if(is.object(LoadData)) { dat<- data.frame(LoadData) }
+    if(is.character(LoadData)) {
+      if(FileSep == NULL){
+        stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
+      }
+      dat<- read.delim(LoadData, sep=FileSep) 
+    }
+    if(!is.object(LoadData) & !is.character(LoadData)){
+      stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
+    }
     
     #####
     # Actual width of each tile in the MODIS projection (in metres).
@@ -142,7 +150,7 @@ MODISTransects <-
       
       # Transect pixels found, checked, and time-series information organised. Now run MODISSubsets to retrieve subset
       # for this transect of pixels.
-      MODISSubsets(LoadDat=t.subset, LoadMethod="object", Product=Product, Bands=Bands, Size=Size, SaveDir=SaveDir,
+      MODISSubsets(LoadDat=t.subset, Product=Product, Bands=Bands, Size=Size, SaveDir=SaveDir,
                    StartDate=StartDate, TimeSeriesLength=TimeSeriesLength, DateFormat=DateFormat, Transect=TRUE)
     } # End of loop that reiterates download for each transect.
   }

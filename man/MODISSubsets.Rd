@@ -3,17 +3,14 @@
 \title{MODIS Subset Tool}
 \description{Uses the MODIS SOAP Web Service (see references) as a batch process to remotely extract and locally download time-series subsets of a MODIS product for a given area surrounding many locations.
 }
-\usage{MODISSubsets(LoadDat, LoadMethod = "object" | "ext.file",
-FileSep = NULL, Product, Bands, Size = c(), 
+\usage{MODISSubsets(LoadDat, FileSep = NULL, Product, Bands, Size = c(), 
 SaveDir = "./", StartDate = FALSE, TimeSeriesLength = 2,
 DateFormat = "year" | "posixt", Transect=FALSE)
 }
 \arguments{
-  \item{LoadDat}{Input dataset: either a file to be read or an R object that has location data, dates (end date, and optionally start date) and study ID for each location. For required data organisation, see Details.
+  \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, dates (end date, and optionally start date) and study ID for each location. For required data organisation, see Details.
   }
-  \item{LoadMethod}{Character string; method of location data input. If load.dat is a text file method="ext.file", if load.dat is an object method="object".
-  }
-  \item{FileSep}{If method="ext.file", choose the field separator character.
+  \item{FileSep}{If LoadDat is a character string that corresponds to a file path, choose the delimiter character for that file (e.g. "," for comma separated).
   }
   \item{Product}{Character string; a product code to request subsets from. The MODIS product table shows all available products and their respective product titles (see references).
   }
@@ -49,10 +46,10 @@ DateFormat = "year" | "posixt", Transect=FALSE)
 \dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
 data(SubsetExample)
 
-MODISSubsets(LoadDat=SubsetExample, LoadMethod='object', Product='MOD13Q1',     
+MODISSubsets(LoadDat=SubsetExample, Product='MOD13Q1',     
 Bands=c('250m_16_days_EVI','250m_16_days_pixel_reliability'), 
 Size=c(0,0), StartDate=TRUE, DateFormat='year')
 
-MODISSummaries(LoadDat=SubsetExample, LoadMethod='object', Band='250m_16_days_EVI', 
+MODISSummaries(LoadDat=SubsetExample, Band='250m_16_days_EVI', 
 ValidRange=c(-2000,10000), NoDataValue=-3000, ScaleFactor=0.0001)}    
 }

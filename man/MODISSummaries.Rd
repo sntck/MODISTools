@@ -3,12 +3,12 @@
 \title{MODIS Subset Processing & Organisation Tool}
 \description{A function to run time-series analysis and compute summary statistics for a downloaded MODIS subset, writing a summary file and another file with processed MODIS data tagged onto the original file inputted to MODISSubsets(). This function allows the user to easily explore the characteristics of the downloaded data, and then process them into a form that is ready for use in modelling.
 }
-\usage{MODISSummaries(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, 
-Dir=".", Band, ValidRange, NoDataValue, ScaleFactor, QualityControl=0, Mean=TRUE, 
-SD=TRUE, Min=TRUE, Max=TRUE, Yield=TRUE, NoFill=TRUE, PoorQuality=TRUE)
+\usage{MODISSummaries(LoadDat, FileSep=NULL, Dir=".", Band, ValidRange, 
+NoDataValue, ScaleFactor, QualityControl=0, Mean=TRUE, SD=TRUE, Min=TRUE, 
+Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE)
 }
 \arguments{
-  \item{LoadDat}{Input dataset: either a file to be read or an R object that has location data, dates (end date, and optionally start date) and study ID for each location. For required data organisation.
+  \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, dates (end date, and optionally start date) and study ID for each location.
   }
   \item{LoadMethod}{Logical; if Quality=True, mean and sd will be calculated only for pixels with high reliability. For quality screening to be used, the pixel reliability for each pixel must have been downloaded.
   }
@@ -32,7 +32,7 @@ SD=TRUE, Min=TRUE, Max=TRUE, Yield=TRUE, NoFill=TRUE, PoorQuality=TRUE)
   Max,
   Yield,
   NoFill,
-  PoorQuality}{Logical; optional arguments that allow selecting which summaries will be included in the summary file that gets written. Mean is arithmetic mean. SD is standard deviation. Min and Max are minimum and maximum band values. Yield is the average annual yield (may not be sensible for all band types). NoFill and PoorQuality show the percentage of values in each time-series that were NoDataValue and omitted by QualityControl respectively. All summary statistics are included by default.
+  PoorQuality}{Logical; optional arguments that allow selecting which summaries will be included in the summary file that gets written. Mean is arithmetic mean. SD is standard deviation. Min and Max are minimum and maximum band values. Yield is the average annual yield (may not be sensible for all band types). NoFill and PoorQuality show the percentage of values in each time-series that were NoDataValue and omitted by QualityControl respectively. All summary statistics, except yield, are included by default.
   }
 }
 \details{Subsets to be processed should include a pixel reliability layer, so the data can be screened for high quality data only, using linear interpolation between high quality values.
@@ -52,10 +52,10 @@ SD=TRUE, Min=TRUE, Max=TRUE, Yield=TRUE, NoFill=TRUE, PoorQuality=TRUE)
 \dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
 data(SubsetExample)
 
-MODISSubsets(LoadDat=SubsetExample, LoadMethod='object', Product='MOD13Q1',     
+MODISSubsets(LoadDat=SubsetExample, Product='MOD13Q1',     
     Bands=c('250m_16_days_EVI','250m_16_days_pixel_reliability'), 
     Size=c(0,0), StartDate=TRUE, DateFormat='year')
 
-MODISSummaries(LoadDat=SubsetExample, LoadMethod='object', Band='250m_16_days_EVI', 
+MODISSummaries(LoadDat=SubsetExample, Band='250m_16_days_EVI', 
     ValidRange=c(-2000,10000), NoDataValue=-3000, ScaleFactor=0.0001)}  
 }

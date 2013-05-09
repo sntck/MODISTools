@@ -3,16 +3,13 @@
 \title{MODIS Transect Subset Tool}
 \description{A function that downloads batches of MODIS data transects.
 }
-\usage{MODISTransects(LoadData, LoadMethod = "object" | "ext.file", 
-FileSep = NULL, Product, Bands, Size = c(), SaveDir = "./", StartDate = FALSE, 
-TimeSeriesLength = 2, DateFormat = "year" | "posixt")
+\usage{MODISTransects(LoadData, FileSep = NULL, Product, Bands, Size = c(), 
+SaveDir = "./", StartDate = FALSE, TimeSeriesLength = 2, DateFormat = "year" | "posixt")
 }
 \arguments{
-  \item{LoadData}{Input data: file or object in R environment. For data input requirements, see details. All arguments to be passed to MODISSubsets(); see ?MODISSubsets for more information.
+  \item{LoadData}{Input data: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string. For data input requirements, see details. All arguments to be passed to MODISSubsets(); see ?MODISSubsets for more information.
   }
-  \item{LoadMethod}{Character string; method of location data input. If LoadData is a text file LoadMethod="ext.file", if LoadData is an object LoadMethod="object".
-  }
-  \item{FileSep}{If LoadMethod="ext.file", choose the field separator character.
+  \item{FileSep}{If LoadData is a character string that corresponds to a file path, choose the delimiter character for that file (e.g. "," for comma separated).
   }
   \item{Product}{Character string; code denoting which MODIS product to be requested.
   }
@@ -50,7 +47,7 @@ The transects lengths requested must be longer than the requested pixel size. Th
 \dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
 data(TransectExample)
 
-MODISTransects(LoadData=TransectExample, LoadMethod='object', Product='MOD13Q1',     
+MODISTransects(LoadData=TransectExample, Product='MOD13Q1',     
     Bands=c('250m_16_days_EVI','250m_16_days_pixel_reliability'), 
     Size=c(0,0), StartDate=TRUE, DateFormat='year')}
 }

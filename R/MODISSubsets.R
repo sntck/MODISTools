@@ -1,10 +1,17 @@
 MODISSubsets <-
-function(LoadDat, LoadMethod="object" | "ext.file", FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt", Transect=FALSE)
+function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt", Transect=FALSE)
 {
     # Load data of locations; external data file, or an R object.
-    if( (LoadMethod == "object" | LoadMethod == "ext.file") == FALSE) stop("Choose a load method.")
-    if(LoadMethod == "object") { dat<- data.frame(LoadDat) }
-    if(LoadMethod == "ext.file") { dat<- read.delim(LoadDat, sep=FileSep) }
+    if(is.object(LoadDat)) { dat<- data.frame(LoadDat) }
+    if(is.character(LoadDat)) {
+      if(FileSep == NULL){
+        stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
+      }
+      dat<- read.delim(LoadDat, sep=FileSep) 
+    }
+    if(!is.object(LoadDat) & !is.character(LoadDat)){
+      stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
+    }
     
     # Test for missing lat/long data
     if(any(is.na(dat$lat) != is.na(dat$long)) == TRUE) { stop("Not equal amount of lats and longs: there must be locations with incomplete coordinate information.") }
