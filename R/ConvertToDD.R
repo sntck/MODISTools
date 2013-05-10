@@ -151,10 +151,10 @@ ConvertToDD <-
       print(XY[which(M.lat > 0 & M.lat < 60), ])
       stop("Range of valid minutes is from 0 to 60.")
     }
-    if(DM.or.DMS.lat[i] == 2){
-      if(any(S.lat < 0 & S.lat > 60)){
+    if(any(DM.or.DMS.lat == 2)){
+      if(any(S.lat[which(DM.or.DMS.lat == 2)] < 0 & S.lat[which(DM.or.DMS.lat == 2)] > 60)){
         print("Invalid seconds entries:")
-        print(XY[which(S.lat > 0 & S.lat < 60), ])
+        print(XY[which(S.lat[which(DM.or.DMS.lat == 2)] > 0 & S.lat[which(DM.or.DMS.lat == 2)] < 60), ])
         stop("Range of valid seconds is from 0 to 60.")
       }
     }  
@@ -169,10 +169,10 @@ ConvertToDD <-
       print(XY[which(M.long > 0 & M.long < 60), ])
       stop("Range of valid minutes is from 0 to 60.")
     }
-    if(DM.or.DMS.lat[i] == 2){
-      if(any(S.long < 0 & S.long > 60)){
+    if(any(DM.or.DMS.lat == 2)){
+      if(any(S.long[which(DM.or.DMS.lat == 2)] < 0 & S.long[which(DM.or.DMS.lat == 2)] > 60)){
         print("Invalid seconds entries:")
-        print(XY[which(S.long > 0 & S.long < 60), ])
+        print(XY[which(S.long[which(DM.or.DMS.lat == 2)] > 0 & S.long[which(DM.or.DMS.lat == 2)] < 60), ])
         stop("Range of valid seconds is from 0 to 60.")
       }
     }
