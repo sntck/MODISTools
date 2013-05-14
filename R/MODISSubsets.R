@@ -105,12 +105,24 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     }
     
     if(DateFormat == "posixt") {
+      posix.compatible <- try(as.POSIXlt(dat$end.date), silent=TRUE)
+      if(class(posix.compatible) == "try-error"){
+        stop("POSIX date format selected, but end.date are not all unambiguously in standard POSIXt format.
+             See ?POSIXt for help.")
+      }
+      end.date <- strptime(lat.long[ ,4], "%Y-%m-%d")
+      
       if(StartDate == FALSE){
-        start.date <- strptime(paste(lat.long[ ,4] - TimeSeriesLength, "-01-01", sep=""), "%Y-%m-%d")
+        start.date <- strptime(paste((end.date$year + 1900) - TimeSeriesLength, "-01-01", sep=""), "%Y-%m-%d")
       } else if(StartDate == TRUE){
+        posix.compatible <- try(as.POSIXlt(dat$start.date), silent=TRUE)
+        if(class(posix.compatible) == "try-error"){
+          stop("POSIX date format selected, but start.date are not all unambiguously in standard POSIXt format.
+             See ?POSIXt for help.")
+        }
         start.date <- strptime(lat.long[ ,5], "%Y-%m-%d")
       } 
-      end.date <- strptime(lat.long[ ,4], "%Y-%m-%d")
+      
       start.day <- start.date$yday
       start.day[nchar(start.day) == 2] <- paste(0, start.day[nchar(start.day) == 2], sep="")
       start.day[nchar(start.day) == 1] <- paste(0, 0, start.day[nchar(start.day) == 1], sep="")
@@ -144,7 +156,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     if(abs(Size[1] - round(Size[1])) > .Machine$double.eps^0.5 & 
                   abs(Size[2] - round(Size[2])) > .Machine$double.eps^0.5){
       stop("Size input must be integers.")
-    } 
+    }
     #####
     
     # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.

@@ -9,12 +9,12 @@
 
 EndCoordinates <- function(LoadDat, FileSep = NULL, Distance = 1000, Angle = 90, AngleUnits = 'radians'|'degrees', Dir = ".", FileName = "Transect Coordinates")
 {
-  if(is.object(LoadDat)) { x<- data.frame(LoadDat) }
+  if(is.object(LoadDat)) { x <- data.frame(LoadDat) }
   if(is.character(LoadDat)) {
     if(FileSep == NULL){
       stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
     }
-    x<- read.delim(LoadDat, sep=FileSep) 
+    x <- read.delim(LoadDat, sep=FileSep) 
   }
   if(!is.object(LoadDat) & !is.character(LoadDat)){
     stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")

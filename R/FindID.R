@@ -1,8 +1,8 @@
 FindID <-
-function(x,dat)
+function(ID, Data)
 {
-  match.set<- dat[,match(names(x), names(dat))]
-  row.matches<- apply(match.set,1,match,x)
-  return(unique(dat$ID[which(!is.na(apply(row.matches,2,sum)))]))
+  match.set <- Data[ ,match(names(ID), names(Data))]
+  row.matches <- apply(match.set, 1, match, ID)
+  return(unique(Data$ID[which(!is.na(apply(row.matches, 2, sum)))]))
 }
 

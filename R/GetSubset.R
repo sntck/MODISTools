@@ -1,4 +1,29 @@
 GetSubset<- function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow, KmLeftRight){
+  if(length(Product) != 1){
+    stop("Incorrect length of Product input. Give only one data product at a time.")
+  }
+  if(!any(Product == GetProducts())){
+    stop("The product name entered does not match any available products. 
+           See GetProducts() for available products.")
+  }
+  if(length(Band) != 1){
+    stop("Incorrect length of Band input. Give only one data band at a time.")
+  }
+  if(!any(Band == GetBands(Product))){
+    stop("Band input must correspond to product input. See GetBands() for band names available within each product.")
+  }
+  
+  
+  if(!is.numeric(Lat) | !is.numeric(Long)){
+    stop("Lat and Long inputs must be numeric.")
+  }
+  if(length(Lat) != 1 | length(Long) != 1){
+    stop("Incorrect number of Lats and Longs supplied. Input only 1 coordinate (Lat and Long) at a time.")
+  }
+  if(abs(Lat) > 90 | abs(Long) > 180){
+    stop("Detected a lat or long beyond the range of valid coordinates.")
+  }
+  
   getsubset.xml<- paste('
     <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daac.ornl.gov/MODIS_webservice">
                         <soapenv:Header/>

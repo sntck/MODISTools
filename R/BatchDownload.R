@@ -1,10 +1,8 @@
 BatchDownload <- 
 function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDate, Transect, SaveDir)
-{
-    
+{   
+    # Loop set up to make request and write a subset file for each location.
     for(i in 1:nrow(lat.long)){
-      # Loop set up to make request and write a subset file for each location.
-      
       # Find the start date and end date specific for each subset.
       start.dates <- which(dates >= MODIS.start[i])
       end.dates <- which(dates >= MODIS.end[i])

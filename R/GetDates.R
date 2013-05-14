@@ -1,4 +1,19 @@
 GetDates<- function(Lat, Long, Product){
+  if(!any(Product == GetProducts())){
+    stop("The product name entered does not match any available products. 
+           See GetProducts() for available products.")
+  }
+  
+  if(!is.numeric(Lat) | !is.numeric(Long)){
+    stop("Lat and Long inputs must be numeric.")
+  }
+  if(length(Lat) != 1 | length(Long) != 1){
+    stop("Incorrect number of Lats and Longs supplied. Input only 1 coordinate (Lat and Long) at a time.")
+  }
+  if(abs(Lat) > 90 | abs(Long) > 180){
+    stop("Detected a lat or long beyond the range of valid coordinates.")
+  } 
+  
   getdates.xml<- paste('
     <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daac.ornl.gov/MODIS_webservice">
       <soapenv:Header/>
