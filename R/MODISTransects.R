@@ -9,6 +9,9 @@ MODISTransects <-
     MODPRJ_EXTENT_X = 20015109.354 + 20015109.354    # Absolute horizontal extent of grid (-20015109.354,20015109.354). 
     LONG_EQTR_M = 111.2 * 1000                       # A degree at equator is 111.2km in distance.
     
+    if(!is.object(LoadData) & !is.character(LoadData)){
+      stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
+    }
     # Load data of locations; external data file, or an R object.
     if(is.object(LoadData)) { dat <- data.frame(LoadData) }
     if(is.character(LoadData)) {
@@ -17,15 +20,13 @@ MODISTransects <-
       }
       dat <- read.delim(LoadData, sep=FileSep) 
     }
-    if(!is.object(LoadData) & !is.character(LoadData)){
-      stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
-    }
+    
     # Check input dataset has variables named as necessary.
     if(!any(names(dat) == "transect") | !any(names(dat) == "start.lat") | 
        !any(names(dat) == "end.lat") | !any(names(dat) == "start.long") | 
        !any(names(dat) == "end.long") | !any(names(dat) == "end.date")){
       stop("Could not find some information that is necessary. May either be missing or incorrectly named.
-           See ?MODISTransects for help on data requirements.")                                    
+           See ?MODISTransects for help on data requirements. If data file is loaded, make sure FileSep is sensible.")                                    
     }   
     
     # Check argument inputs are sensible.
@@ -42,6 +43,9 @@ MODISTransects <-
     }
     # If Size is not two dimensions or are not integers (greater than expected after rounding, with tolerance around
     # computing precision), stop with error.
+    if(!is.numeric(Size)){
+      stop("Size should be numeric class. Two integers.")
+    }
     if(length(Size) != 2){
       stop("Size input must be a vector of integers, with two elements.")
     }
@@ -50,17 +54,30 @@ MODISTransects <-
       stop("Size input must be integers.")
     }
     
+    # Check StartDate is logial.
+    if(!is.logical(StartDate)){
+      stop("StartDate confirms whether start dates for time-series are included in the dataset. Must be logical.")
+    }
+    
     # Check the dates are valid.
     if(DateFormat != "year" & DateFormat != "posixt"){
       stop("DateFormat option incorrectly set.")
     }
     if(DateFormat == "year"){
-      if(!is.numeric(dat$end.date) | any(nchar(dat$end.date) != 4)){
-        stop("end.date is not matching year format. Dates should be numeric class and have 4 numeric characters.")
+      char.compatible <- as.character(dat$end.date)
+      if(!is.character(char.compatible) | all(is.na(char.compatible))){
+        stop("Year date format selected, but end.date are not all coercible to character class.")
+      }
+      if(any(nchar(dat$end.date) != 4)){
+        stop("end.date is not matching year format - dates should have 4 numeric characters.")
       }
       if(StartDate == TRUE){
-        if(!is.numeric(dat$start.date) | any(nchar(dat$start.date) != 4)){
-          stop("start.date is not matching year format. Dates should be numeric class and have 4 numeric characters.")
+        char.compatible <- as.character(dat$start.date)
+        if(!is.character(char.compatible) | all(is.na(char.compatible))){
+          stop("Year date format selected, but start.date are not all coercible to character class.")
+        }
+        if(any(nchar(dat$start.date) != 4)){
+          stop("start.date is not matching year format - dates should have 4 numeric characters.")
         }
       }
     } else if(DateFormat == "posixt"){

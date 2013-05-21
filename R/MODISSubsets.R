@@ -1,6 +1,9 @@
 MODISSubsets <-
 function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt", Transect=FALSE)
 {
+    if(!is.object(LoadDat) & !is.character(LoadDat)){
+      stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
+    }
     # Load data of locations; external data file, or an R object.
     if(is.object(LoadDat)) { dat <- data.frame(LoadDat) }
     if(is.character(LoadDat)) {
@@ -8,9 +11,6 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
         stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
       }
       dat <- read.delim(LoadDat, sep=FileSep) 
-    }
-    if(!is.object(LoadDat) & !is.character(LoadDat)){
-      stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
     }
     
     # Check lat and long data frame columns are named "lat" and "long" as necessary.
@@ -37,6 +37,10 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
       stop("Not all coordinates have a corresponding date. All time-series must have location and time information.")
     }
     
+    # Check StartDate is logial.
+    if(!is.logical(StartDate)){
+      stop("StartDate confirms whether start dates for time-series are included in the dataset. Must be logical.")
+    }
     # Set of stop-if-nots to run if StartDate=TRUE.
     if(StartDate == TRUE){
       # Check that the input data set contains start dates, named start.date.
@@ -48,7 +52,20 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
       if(any(is.na(dat$lat) != is.na(dat$start.date))){
         stop("Not all coordinates have a corresponding start date. If start.date is incomplete, consider StartDate=FALSE.")
       }
-    }  
+    }
+    if(StartDate == FALSE){
+      # Check TimeSeriesLength is correctly inputted.
+      if(!is.numeric(TimeSeriesLength)){
+        stop("TimeSeriesLength should be numeric class.")
+      }
+      if(length(TimeSeriesLength) != 1){
+        stop("TimeSeriesLength must be one numeric element.")
+      }
+      if(abs(Size[1] - round(Size[1])) > .Machine$double.eps^0.5 & 
+           abs(Size[2] - round(Size[2])) > .Machine$double.eps^0.5){
+        stop("TimeSeriesLength must be an integer.")
+      }
+    }
     
     # Find all unique time-series wanted, for each unique location.
     Start <- rep(StartDate, length(dat$lat[!is.na(dat$lat)]))
@@ -80,15 +97,23 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     # date codes (Julian format).
     if(DateFormat == "year") {
       # Check the years are valid.
-      if(!is.numeric(lat.long[ ,4]) | any(nchar(lat.long[ ,4]) != 4)){
-        stop("end.date is not matching year format. Dates should be numeric class and have 4 numeric characters.")
+      char.compatible <- as.character(lat.long[ ,4])
+      if(!is.character(char.compatible) | all(is.na(char.compatible))){
+        stop("Year date format selected, but end.date are not all coercible to character class.")
+      }
+      if(any(nchar(lat.long[ ,4]) != 4)){
+        stop("end.date is not matching year format - dates should have 4 numeric characters.")
       }    
       if(StartDate == FALSE){
         start.date <- strptime(paste(lat.long[ ,4] - TimeSeriesLength, "-01-01", sep=""), "%Y-%m-%d")
       } else if(StartDate == TRUE){
         start.date <- strptime(paste(lat.long[ ,5], "-01-01", sep=""), "%Y-%m-%d")
-        if(!is.numeric(lat.long[ ,5]) | any(nchar(lat.long[ ,5]) != 4)){
-          stop("start.date is not matching year format. Dates should be numeric class and have 4 numeric characters.")
+        char.compatible <- as.character(lat.long[ ,5])
+        if(!is.character(char.compatible) | all(is.na(char.compatible))){
+          stop("Year date format selected, but start.date are not all coercible to character class.")
+        }
+        if(any(nchar(lat.long[ ,5]) != 4)){
+          stop("start.date is not matching year format - dates should have 4 numeric characters.")
         }
       }
       # Put start and end dates in POSIXlt format.
@@ -105,7 +130,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     }
     
     if(DateFormat == "posixt") {
-      posix.compatible <- try(as.POSIXlt(dat$end.date), silent=TRUE)
+      posix.compatible <- try(as.POSIXlt(lat.long[ ,4]), silent=TRUE)
       if(class(posix.compatible) == "try-error"){
         stop("POSIX date format selected, but end.date are not all unambiguously in standard POSIXt format.
              See ?POSIXt for help.")
@@ -115,7 +140,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
       if(StartDate == FALSE){
         start.date <- strptime(paste((end.date$year + 1900) - TimeSeriesLength, "-01-01", sep=""), "%Y-%m-%d")
       } else if(StartDate == TRUE){
-        posix.compatible <- try(as.POSIXlt(dat$start.date), silent=TRUE)
+        posix.compatible <- try(as.POSIXlt(lat.long[ ,5]), silent=TRUE)
         if(class(posix.compatible) == "try-error"){
           stop("POSIX date format selected, but start.date are not all unambiguously in standard POSIXt format.
              See ?POSIXt for help.")
@@ -150,6 +175,9 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     }
     # If Size is not two dimensions or are not integers (greater than expected after rounding, with tolerance around
     # computing precision), stop with error.
+    if(!is.numeric(Size)){
+      stop("Size should be numeric class. Two integers.")
+    }
     if(length(Size) != 2){
       stop("Size input must be a vector of integers, with two elements.")
     }
