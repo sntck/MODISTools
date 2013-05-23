@@ -10,11 +10,9 @@ Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE)
 \arguments{
   \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, dates (end date, and optionally start date) and study ID for each location.
   }
-  \item{LoadMethod}{Logical; if Quality=True, mean and sd will be calculated only for pixels with high reliability. For quality screening to be used, the pixel reliability for each pixel must have been downloaded.
+  \item{FileSep}{If LoadDat is a character string that corresponds to a file path, choose the delimiter character for that file (e.g. "," for comma separated).
   }
-  \item{FileSep}{Logical; if Save=TRUE, a csv file containing the output of the function call will be written to Dir.
-  }
-  \item{Dir}{Character string; an optional argument to specify the subdirectory where downloaded ascii files to be processed are located and written: default Dir='.' extracts files from the working directory.
+  \item{Dir}{Character string; an optional argument to specify the subdirectory where downloaded ascii files to be processed are located and written: default Dir="." extracts files from the working directory.
   }
   \item{Band}{Character string; the code that identifies from which band type is the data to be processed. In the input file (LoadDat), alongside the data for this band type, there should be a corresponding set of pixel reliability values included for quality control.
   }

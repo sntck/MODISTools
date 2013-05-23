@@ -10,7 +10,7 @@
   \item{LatColName}{Character string; the name of the column in XY containing latitude data.}
   \item{LongColName}{Character string; the name of the column in XY containing longitude data.}
 }
-\details{There is flexibility in the layout of each degrees input format. For example, N-S/E-W can be described by positive-negative coordinates or by using respective letters at the end of each coordinate. For coordinates in degrees minutes seconds to be converted requires three numbers - degrees, minutes, and seconds - each separated by a single non-numeric character (e.g. 51°24'51.106"N 0°38'56.018"W). For coordinates in degrees minutes to be converted requires just two numbers - degrees and minutes (e.g. 51°24.106'N 0°38.018'W). Coordinates should not contain spaces in between the numbers. The degrees format does not have to be consistent throughout the data set.}
+\details{There is flexibility in the layout of each degrees input format. For example, N-S/E-W can be described by positive-negative coordinates or by using respective letters at the end of each coordinate. For coordinates in degrees minutes seconds to be converted requires three numbers - degrees, minutes, and seconds - each separated by a single non-numeric character (e.g. 51d24'51.106"N 0d38'56.018"W). For coordinates in degrees minutes to be converted requires just two numbers - degrees and minutes (e.g. 51d24.106'N 0d38.018'W). Coordinates should not contain spaces in between the numbers. The degrees format does not have to be consistent throughout the data set.}
 \value{Output is a data frame of same dimensions as input, with each value converted to decimal degrees, named "DD.lat" and "DD.long".}
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}

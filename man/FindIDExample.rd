@@ -15,7 +15,7 @@ This file can be used in the example for the function that takes a set of time-s
     \item{ID}{A numeric vector; a unique ID code for each unique time-series (either unique in time or in space).}
   }
 }
-\details{Rows in x do not need to be the same order as in dat, but the variables in dat to be looked in must have the same names as those in x. Date information can include one date, or optionally a start and end date. Any information in x must be included in dat.}
+\details{Rows in ID do not need to be the same order as in Data, but the variables in Data to be looked in must have the same names as those in ID. Date information can include one date, or optionally a start and end date. Any information in ID must be included in Data.}
 \source{Locations were arbitrarily drawn from the grounds of Silwood Park Campus, Imperial College London.}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
 \keyword{datasets}
