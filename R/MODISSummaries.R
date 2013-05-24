@@ -4,6 +4,9 @@ MODISSummaries <-
     # Load input time-series data file; external data file, or an R object.
     if(is.object(LoadDat)) { details<- data.frame(LoadDat) }
     if(is.character(LoadDat)) {
+      if(!file.exists(LoadDat)){
+        stop("Character string input for LoadDat argument does not resemble an existing file path.")
+      }
       if(FileSep == NULL){
         stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
       }
@@ -11,6 +14,10 @@ MODISSummaries <-
     }
     if(!is.object(LoadDat) & !is.character(LoadDat)){
       stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
+    }
+    
+    if(!file.exists(Dir)){
+      stop("Character string input for Dir argument does not resemble an existing file path.")
     }
     
     # Get a list of all downloaded subset (.asc) files in the data directory.

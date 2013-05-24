@@ -5,7 +5,7 @@
 function for maintaining transparency in the data collection and processing chain.}
 \usage{FindID(ID, Data)}
 \arguments{
-  \item{ID}{A data frame with one or a set of rows containing a time-series definition, in term of lat, long, and dates information.}
+  \item{ID}{A data frame with one or a set of rows containing a time-series definition, in terms of lat, long, and dates information.}
   \item{Data}{A larger data frame consisting of at least the same information as ID, which is to be looked in to find matches.}
 }
 \details{Rows in ID do not need to be the same order as in Data, but the variables in dat to be looked in must have the same names as those in ID. Date information can include one date, or optionally a start and end date. Any information in ID must be included in Data.}

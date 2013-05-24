@@ -15,6 +15,9 @@ MODISTransects <-
     # Load data of locations; external data file, or an R object.
     if(is.object(LoadData)) { dat <- data.frame(LoadData) }
     if(is.character(LoadData)) {
+      if(!file.exists(LoadDat)){
+        stop("Character string input for LoadDat argument does not resemble an existing file path.")
+      }
       if(FileSep == NULL){
         stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
       }
@@ -27,7 +30,12 @@ MODISTransects <-
        !any(names(dat) == "end.long") | !any(names(dat) == "end.date")){
       stop("Could not find some information that is necessary. May either be missing or incorrectly named.
            See ?MODISTransects for help on data requirements. If data file is loaded, make sure FileSep is sensible.")                                    
-    }   
+    } 
+    
+    # Check SaveDir matches an existing directory.
+    if(!file.exists(SaveDir)){
+      stop("Character string input for SaveDir argument does not resemble an existing file path.")
+    }
     
     # Check argument inputs are sensible.
     # If the Product input does not match any product codes in the list output from GetProducts(), stop with error.

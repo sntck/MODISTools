@@ -11,6 +11,9 @@ EndCoordinates <- function(LoadDat, FileSep = NULL, Distance = 1000, Angle = 90,
 {
   if(is.object(LoadDat)) { x <- data.frame(LoadDat) }
   if(is.character(LoadDat)) {
+    if(!file.exists(LoadDat)){
+      stop("Character string input for LoadDat argument does not resemble an existing file path.")
+    }
     if(FileSep == NULL){
       stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
     }
@@ -18,6 +21,9 @@ EndCoordinates <- function(LoadDat, FileSep = NULL, Distance = 1000, Angle = 90,
   }
   if(!is.object(LoadDat) & !is.character(LoadDat)){
     stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
+  }
+  if(!file.exists(Dir)){
+    stop("Character string input for Dir argument does not resemble an existing file path.")
   }
     
   if(AngleUnits == 'radians'){

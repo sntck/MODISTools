@@ -3,6 +3,9 @@ ConvertToDD <-
   {
     if(is.object(XY)) { XY<- data.frame(XY) }
     if(is.character(XY)) {
+      if(!file.exists(XY)){
+        stop("Character string input for XY argument does not resemble an existing file path.")
+      }
       if(FileSep == NULL){
         stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
       }

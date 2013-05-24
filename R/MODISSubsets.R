@@ -7,6 +7,9 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     # Load data of locations; external data file, or an R object.
     if(is.object(LoadDat)) { dat <- data.frame(LoadDat) }
     if(is.character(LoadDat)) {
+      if(!file.exists(LoadDat)){
+        stop("Character string input for LoadDat argument does not resemble an existing file path.")
+      }
       if(FileSep == NULL){
         stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
       }
@@ -35,6 +38,11 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     # Now that incomplete coordinates have been checked for, check also that each coordinate has date information.
     if(any(is.na(dat$lat) != is.na(dat$end.date))){
       stop("Not all coordinates have a corresponding date. All time-series must have location and time information.")
+    }
+    
+    # Check SaveDir matches an existing directory.
+    if(!file.exists(SaveDir)){
+      stop("Character string input for SaveDir argument does not resemble an existing file path.")
     }
     
     # Check StartDate is logial.
