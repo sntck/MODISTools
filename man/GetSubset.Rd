@@ -1,15 +1,15 @@
 \name{GetSubset}
 \alias{GetSubset}
 \title{Subset download using MODIS web service method.}
-\description{Uses the MODIS SOAP Web Service (see references) getsubset method to download a requested time-series subset of a MODIS product for a given area surrounding many locations. This function is used by the MODISSubsets function, which is the main subset download tool for the user.}
+\description{Internal function that uses the MODIS SOAP Web Service (see references) getsubset method to download a requested time-series subset of a MODIS product for a given area surrounding many locations. This function is used by the MODISSubsets function, which is the main subset download tool for the user.}
 \usage{GetSubset(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow, KmLeftRight)}
 \arguments{
-  \item{Lat}{A numeric vector; decimal degrees latitudes in WGS-1984 coordinate system.}
-  \item{Long}{A numeric vector; decimal degrees latitudes in WGS-1984 coordinate system.}
+  \item{Lat}{Numeric; a decimal degrees latitude in WGS-1984 coordinate system.}
+  \item{Long}{Numeric; a decimal degrees longitude in WGS-1984 coordinate system.}
   \item{Product}{A character string; a product code to request the subset from. The MODIS product table shows all available products and their respective product titles (see references).}
-  \item{Band}{A character string; a code to retrieve the desired data band within the specified product to be requested. To get a list of the available bands in a product of interest use GetBands().}
-  \item{StartDate}{A numeric vector; listing the date to begin the time-series for each corresponding location.}
-  \item{EndDate}{A numeric vector; listing the date to end the time-series for each corresponding location.}
+  \item{Band}{A character string; a code or vector of codes to retrieve the desired data band(s) within the specified product to be requested. To get a list of the available bands in a product of interest use GetBands().}
+  \item{StartDate}{Character; in MODIS date format, listing the date to begin the time-series for each corresponding location.}
+  \item{EndDate}{Character; in MODIS date format, listing the date to end the time-series for each corresponding location.}
   \item{KmAboveBelow}{An integer; the distance, in kilometres, from the centre of the tile of pixels to the top and bottom of the tile. So, if KmAboveBelow=1, the total distance from top to bottom of the tile will be 2km.}
   \item{KmLeftRight}{An integer; the distance, in kilometres, from the centre of the tile of pixels to the left and right sides of the tile. So, if KmLeftRight=1, the total distance from side to side of the tile will be 2km.}
 }
@@ -38,7 +38,6 @@ This data frame is then passed to MODISSubsets.}
 \examples{
 \dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
 data(SubsetExample)
-
-GetSubset(Lat=SubsetExample[,1], Long=SubsetExample[,2], Product="MOD13Q1", Band="250m_16_days_EVI", 
+GetSubset(Lat=SubsetExample[ ,1], Long=SubsetExample[ ,2], Product="MOD13Q1", Band="250m_16_days_EVI", 
                StartDate="A2001001", EndDate="A2001025", KmAboveBelow=0, KmLeftRight=0)}
 }

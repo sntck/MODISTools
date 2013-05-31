@@ -14,7 +14,7 @@ EndCoordinates <- function(LoadDat, FileSep = NULL, Distance = 1000, Angle = 90,
     if(!file.exists(LoadDat)){
       stop("Character string input for LoadDat argument does not resemble an existing file path.")
     }
-    if(FileSep == NULL){
+    if(is.null(FileSep)){
       stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
     }
     x <- read.delim(LoadDat, sep=FileSep) 

@@ -1,7 +1,7 @@
 \name{GetBands}
 \alias{GetBands}
 \title{Get MODIS Product Data Band Names}
-\description{Function that uses the MODIS SOAP Web Service to retrieve a list of all of the codes to identify the data bands within a specified MODIS product.}
+\description{Internal function that uses the MODIS SOAP Web Service to retrieve a list of all of the codes to identify the data bands within a specified MODIS product.}
 \usage{GetBands(Product)}
 \arguments{
   \item{Product}{Character string; the unique code for a given MODIS product. Will only accept one product code. See references for the product list.}
@@ -18,5 +18,5 @@
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
 \examples{
 \dontrun{ # dontrun() used because running the example requires internet access.
-GetBands('MOD13Q1')} 
+GetBands("MOD13Q1")} 
 }

@@ -6,7 +6,7 @@ ConvertToDD <-
       if(!file.exists(XY)){
         stop("Character string input for XY argument does not resemble an existing file path.")
       }
-      if(FileSep == NULL){
+      if(is.null(FileSep)){
         stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
       }
       XY<- read.delim(XY, sep=FileSep) 

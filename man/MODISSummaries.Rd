@@ -4,8 +4,8 @@
 \description{A function to run time-series analysis and compute summary statistics for a downloaded MODIS subset, writing a summary file and another file with processed MODIS data tagged onto the original file inputted to MODISSubsets(). This function allows the user to easily explore the characteristics of the downloaded data, and then process them into a form that is ready for use in modelling.
 }
 \usage{MODISSummaries(LoadDat, FileSep=NULL, Dir=".", Band, ValidRange, 
-NoDataValue, ScaleFactor, QualityControl=0, Mean=TRUE, SD=TRUE, Min=TRUE, 
-Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE)
+NoDataValue, ScaleFactor, StartDate=FALSE, QualityControl=0, Mean=TRUE, SD=TRUE, 
+Min=TRUE, Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE)
 }
 \arguments{
   \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, dates (end date, and optionally start date) and study ID for each location.
@@ -21,6 +21,8 @@ Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE)
   \item{NoDataValue}{States what is used to identify missing values in the subset data to be processed.
   }
   \item{ScaleFactor}{Numeric; The specified scaling for the given band type, which the data is to be multiplied by.
+  }
+  \item{StartDate}{Logical; indicate whether the input dataset contains information on the time-series start date. If StartDate=TRUE, start dates will be taken from the input data and will expect the data frame to have a column named start.date. Default is StartDate=FALSE, whereby the input data is assumed to have only time-series end date. This should be the same as that used in the relevant call to MODISSubsets.
   }
   \item{QualityControl}{The pixel reliability value that marks the threshold for quality control: any band values with a corresponding reliability value > QualityControl will be ommitted. Therefore, if QualityControl=3, all band values will be kept. Default is 0, where only the highest quality values are kept and used in linear interpolation.
   }
@@ -50,10 +52,11 @@ Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE)
 \dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
 data(SubsetExample)
 
-MODISSubsets(LoadDat=SubsetExample, Product='MOD13Q1',     
-    Bands=c('250m_16_days_EVI','250m_16_days_pixel_reliability'), 
-    Size=c(0,0), StartDate=TRUE, DateFormat='year')
+MODISSubsets(LoadDat=SubsetExample, Product="MOD13Q1",     
+    Bands=c("250m_16_days_EVI","250m_16_days_pixel_reliability"), 
+    Size=c(0,0), StartDate=TRUE, DateFormat="year")
 
-MODISSummaries(LoadDat=SubsetExample, Band='250m_16_days_EVI', 
-    ValidRange=c(-2000,10000), NoDataValue=-3000, ScaleFactor=0.0001)}  
+MODISSummaries(LoadDat=SubsetExample, Band="250m_16_days_EVI", 
+    ValidRange=c(-2000,10000), NoDataValue=-3000, ScaleFactor=0.0001, 
+    StartDate=TRUE)}  
 }

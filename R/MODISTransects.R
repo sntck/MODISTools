@@ -15,10 +15,10 @@ MODISTransects <-
     # Load data of locations; external data file, or an R object.
     if(is.object(LoadData)) { dat <- data.frame(LoadData) }
     if(is.character(LoadData)) {
-      if(!file.exists(LoadDat)){
-        stop("Character string input for LoadDat argument does not resemble an existing file path.")
+      if(!file.exists(LoadData)){
+        stop("Character string input for LoadData argument does not resemble an existing file path.")
       }
-      if(FileSep == NULL){
+      if(is.null(FileSep)){
         stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
       }
       dat <- read.delim(LoadData, sep=FileSep) 

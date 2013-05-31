@@ -1,11 +1,11 @@
 \name{GetDates}
 \alias{GetDates}
 \title{Get list of available dates for requested time-series}
-\description{Function that uses the MODIS SOAP Web Service to retrieve a list of all dates when the requested data, specified by MODIS product and a location, are available for download.}
+\description{Internal function that uses the MODIS SOAP Web Service to retrieve a list of all dates when the requested data, specified by MODIS product and a location, are available for download.}
 \usage{GetDates(Lat, Long, Product)}
 \arguments{
-  \item{Lat}{A numeric vector; decimal degrees latitudes in WGS-1984 coordinate system.}
-  \item{Long}{A numeric vector; decimal degrees latitudes in WGS-1984 coordinate system.}
+  \item{Lat}{Numeric; a decimal degrees latitude in WGS-1984 coordinate system.}
+  \item{Long}{Numeric; a decimal degrees longitude in WGS-1984 coordinate system.}
   \item{Product}{Character string; a product code to request subsets from. The MODIS product table shows all available products and their respective product titles (see references).}
 }
 \value{A character vector; each element representing a time-step (in MODIS date format) where data is available.}
