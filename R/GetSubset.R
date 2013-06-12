@@ -63,8 +63,12 @@ GetSubset<- function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow,
                                     function(x) xmlSApply(x,xmlValue))) 
   )
   
-  modisres<- as.data.frame(t(unname(modisres[-c(7,11)])))
-  names(modisres)<- c("xll", "yll", "pixelsize", "nrow", "ncol", "band", "scale", "lat", "long", "subset")
-  
-  return(modisres)
+  if(colnames(modisres) == "Fault"){
+    return(0)
+  } else{
+    modisres<- as.data.frame(t(unname(modisres[-c(7,11)])))
+    names(modisres)<- c("xll", "yll", "pixelsize", "nrow", "ncol", "band", "scale", "lat", "long", "subset")
+    
+    return(modisres)
+  }
 }

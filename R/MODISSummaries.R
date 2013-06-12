@@ -1,5 +1,5 @@
 MODISSummaries <-
-  function(LoadDat, FileSep=NULL, Dir=".", Band, ValidRange, NoDataValue, ScaleFactor, StartDate=FALSE, QualityControl=0, Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE) 
+  function(LoadDat, FileSep=NULL, Dir=".", Band, ValidRange, NoDataValue, ScaleFactor, StartDate=FALSE, QualityScreen=FALSE, QualityControl=NULL, Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE) 
   { 
     # Load input time-series data file; external data file, or an R object.
     if(is.object(LoadDat)) { details <- data.frame(LoadDat) }
@@ -19,6 +19,21 @@ MODISSummaries <-
     if(!file.exists(Dir)){
       stop("Character string input for Dir argument does not resemble an existing file path.")
     }
+    
+    # Check valid inputs for the quality screening process.
+    if(!is.logical(QualityScreen)){
+      stop("QualityScreen argument should be a logical input. See help ?MODISSummaries.")
+    }
+    print(paste("QualityScreen=", QualityScreen, ": This sets whether the data will be screened for high reliability.",
+                sep=""))
+    
+    if(QualityScreen == TRUE){
+      if(is.null(QualityControl)){
+        stop("QualityScreen=TRUE but there is not a valid QualityControl input. Seek information for the requested 
+             product to know what QualityControl should be set to.")
+      }
+    }
+    # If QualityScreen = TRUE, check a band input has been given that includes either qc, reliability, etc.
     
     # Year or posixt date format?
     Year <- FALSE
@@ -57,7 +72,7 @@ MODISSummaries <-
       names(ds) <- c("row.id", "land.product.code", "MODIS.acq.date", "where", "MODIS.proc.date", 1:(ncol(ds) - 5))
       print(paste("Processing file ", counter, " of ", length(filelist), "...", sep=""))
       
-      ##### Section that uses the files metadata strings [,1:5] for each time-series to extract necessary information.
+      ##### Section that uses the files metadata strings [ ,1:5] for each time-series to extract necessary information.
       # Find location information from metadata string attached at the beginning of each downloaded set of pixels (i.e.
       # each time-step in the time-series), using regular expression.        
       # Extract lat and long data from the metadata string.
@@ -67,7 +82,12 @@ MODISSummaries <-
       long <- as.numeric(substr(ds$where[1], wherelong + 3, whereSamp - 1))
       
       # Identify which rows in ds correspond to the product band and which are reliability data.
-      which.are.band <- grep(Band, ds$row.id)
+      if(any(grepl(Band, ds$row.id))){
+        which.are.band <- grep(Band, ds$row.id)
+      } else{
+        stop("Cannot find which rows in LoadDat are band data. Make sure files from MODISSubsets are the input.")
+      }
+      
       which.are.reliability <- grep("reliability", ds$row.id)
       #####
       
@@ -78,12 +98,19 @@ MODISSummaries <-
       # Screen the pixel values in band.time.series: any pixels whose value correspond to NoDataValue, or whose
       # corresponding pixel in rel.time.series is below the QualityControl threshold, will be replaced with NA so they
       # are not included in time-series analysis.
-      band.time.series <- matrix(
-        ifelse(band.time.series != NoDataValue & rel.time.series <= QualityControl, band.time.series, NA),
-        nrow=length(which.are.band))
+      if(QualityScreen == TRUE){
+        band.time.series <- matrix(
+          ifelse(band.time.series != NoDataValue & rel.time.series <= QualityControl, band.time.series, NA),
+          nrow=length(which.are.band))
+      } else if(QualityScreen == FALSE){
+        band.time.series <- matrix(
+          ifelse(band.time.series != NoDataValue, band.time.series, NA),
+          nrow=length(which.are.band))
+      }
+      
       # Final check, that band values all fall within the ValidRange (as defined for given MODIS product band).
       if(any((band.time.series >= ValidRange[1] && band.time.series <= ValidRange[2]) == FALSE, na.rm=TRUE)) { 
-        print("Warning! Some values fall outside the valid range") 
+        stop("Some values fall outside the valid range, after no fill values should have been removed.") 
       }
       
       # Extract year and day from the metadata and make POSIXlt dates (YYYY-MM-DD), ready for time-series analysis.
@@ -108,10 +135,15 @@ MODISSummaries <-
         maxobsband <- max(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm = TRUE)
         
         # Assess the quality of data at this time-step by counting the number of data left after screening, and use this
-        # assessment to decide how to proceed with analysis for each time-step. 
-        good <- sum(!is.na(band.time.series[ ,i]))
-        if(good >= 2) {
-          # Linearly interpolate between screened data points, for each pixel, over time.
+        # assessment to decide how to proceed with analysis for each time-step.
+        if(QualityScreen == TRUE){
+          data.quality <- sum(!is.na(band.time.series[ ,i]))
+        } else if(QualityScreen == FALSE){
+          data.quality <- 2
+        }
+        
+        if(data.quality >= 2) {
+          # Linearly interpolate between screened data points, for each pixel, over time (daily from first to last date).
           sout <- approx(x=ds$date[which.are.band], y=as.numeric(band.time.series[ ,i]) * ScaleFactor, method="linear", 
                          n=((max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])) - 1))
           
@@ -120,11 +152,11 @@ MODISSummaries <-
           if(Mean == TRUE){ mean.band[i] <- mean(sout$y) }
           if(SD == TRUE){ sd.band[i] <- sd(sout$y) }
         }
-        if(good == 1){
-          warning("Only single good value: cannot summarise", immediate.=TRUE)
+        if(data.quality == 1){
+          warning("Only single data point that passed the quality screen: cannot summarise", immediate.=TRUE)
           if(Mean == TRUE){ mean.band[i] <- mean(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE) } 
         }
-        if(good == 0){
+        if(data.quality == 0){
           warning("No reliable data for this pixel", immediate.=TRUE)
         }
         
@@ -209,7 +241,9 @@ MODISSummaries <-
     for(i in 1:nrow(ID.match)){
       match.subscripts <- FindID(ID.match[i, ], details)
       if(all(match.subscripts != "No matches found.")){
-        res[match.subscripts,(ncol(details) + 1):ncol(res)] <- band[i, ]
+        for(x in 1:length(match.subscripts)){
+          res[match.subscripts[x],(ncol(details) + 1):ncol(res)] <- band[i, ]
+        }
       }
     } 
     any(is.na(res[ ,(ncol(details) + 1):ncol(res)]))

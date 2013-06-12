@@ -28,6 +28,10 @@ GetProducts<- function(){
                                                  function(x) xmlSApply(x,xmlValue)) 
   )
   
-  return(as.vector(productsres))
+  if(colnames(productsres) == "Fault"){
+    return(0)
+  } else{
+    return(as.vector(productsres))
+  }
 }
 

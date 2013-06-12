@@ -47,6 +47,9 @@ GetDates<- function(Lat, Long, Product){
                                               function(x) xmlSApply(x,
                                                                     function(x) xmlSApply(x,xmlValue))) 
   )
-  
-  return(as.vector(datesres))
+  if(colnames(datesres) == "Fault"){
+    return(0)
+  } else{
+    return(as.vector(datesres))
+  }
 }
