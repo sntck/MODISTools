@@ -4,8 +4,8 @@
 \description{A function to run time-series analysis and compute summary statistics for a downloaded MODIS subset, writing a summary file and another file with processed MODIS data tagged onto the original file inputted to MODISSubsets(). This function allows the user to easily explore the characteristics of the downloaded data, and then process them into a form that is ready for use in modelling.
 }
 \usage{MODISSummaries(LoadDat, FileSep=NULL, Dir=".", Band, ValidRange, 
-NoDataValue, ScaleFactor, StartDate=FALSE, QualityControl=0, Mean=TRUE, SD=TRUE, 
-Min=TRUE, Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE)
+NoDataValue, ScaleFactor, StartDate=FALSE, QualityScreen=FALSE, QualityControl=NULL, 
+Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE)
 }
 \arguments{
   \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, dates (end date, and optionally start date) and study ID for each location.
