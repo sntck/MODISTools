@@ -24,7 +24,9 @@ Min=TRUE, Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE)
   }
   \item{StartDate}{Logical; indicate whether the input dataset contains information on the time-series start date. If StartDate=TRUE, start dates will be taken from the input data and will expect the data frame to have a column named start.date. Default is StartDate=FALSE, whereby the input data is assumed to have only time-series end date. This should be the same as that used in the relevant call to MODISSubsets.
   }
-  \item{QualityControl}{The pixel reliability value that marks the threshold for quality control: any band values with a corresponding reliability value > QualityControl will be ommitted. Therefore, if QualityControl=3, all band values will be kept. Default is 0, where only the highest quality values are kept and used in linear interpolation.
+  \item{QualityScreen}{Logical; optional argument for screening the band data for unreliable pixels. If QualityScreen=TRUE, band data must be downloaded from MODISSubsets with the pixel reliability data corresponding to the same product included. Therefore, both band data and reliability data will be in the same ascii files for each time-series downloaded. QualityControl must also be set, 0-3 (integers), 0 being highest quality, 3 being lowest. The default for QualityScreen is FALSE, meaning the function will omit data equal to NoDataValue, but will not omit poor quality data.
+  }
+  \item{QualityControl}{The pixel reliability value that marks the threshold for quality control: any band values with a corresponding reliability value > QualityControl will be omitted. Therefore, if QualityControl=3, all band values will be kept. Default is 0, where only the highest quality values are kept and used in linear interpolation.
   }
   \item{Mean,
   SD,
