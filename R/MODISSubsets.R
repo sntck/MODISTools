@@ -1,5 +1,5 @@
 MODISSubsets <-
-function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt", Transect=FALSE)
+function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, Transect=FALSE)
 {
     if(!is.object(LoadDat) & !is.character(LoadDat)){
       stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
@@ -83,28 +83,34 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
                                     end.date=dat$end.date[!is.na(dat$lat)])))
     print(paste("Found ", nrow(lat.long), " unique time-series to download.", sep=""))
     
-    # Check DateFormat option has been entered correctly.
-    if(DateFormat != "year" & DateFormat != "posixt"){
-      stop("DateFormat option incorrectly set.")
+    # Year or posixt date format?
+    Year <- FALSE
+    POSIXt <- FALSE
+    char.compatible <- as.character(lat.long[ ,3])
+    if(!is.character(char.compatible) | all(is.na(char.compatible)) & any(nchar(char.compatible) != 4)){
+      POSIXt <- TRUE
     }
+    posix.compatible <- try(as.POSIXlt(lat.long[ ,3]), silent=TRUE)
+    if(class(posix.compatible) == "try-error"){
+      Year <- TRUE
+    }
+    if(Year == FALSE & POSIXt == FALSE){
+      stop("Date information in LoadDat is not recognised as years or as POSIXt format. Check dates conform to one of these.")
+    }
+    if(Year == TRUE & POSIXt == TRUE){
+      stop("Date information in LoadDat is recognised as both year and POSIXt formats. Check dates conform to one of these.")
+    }
+    
     # Take date information for each time-series, in either 'year' or 'posixt', and turn them into MODIS 
     # date codes (Julian format).
-    if(DateFormat == "year") {
-      # Check the years are valid.
-      char.compatible <- as.character(lat.long[ ,3])
-      if(!is.character(char.compatible) | all(is.na(char.compatible))){
-        stop("Year date format selected, but end.date are not all coercible to character class.")
-      }
-      if(any(nchar(lat.long[ ,3]) != 4)){
-        stop("end.date is not matching year format - dates should have 4 numeric characters.")
-      }    
+    if(Year == TRUE) {  
       if(StartDate == FALSE){
         start.date <- strptime(paste(lat.long[ ,3] - TimeSeriesLength, "-01-01", sep=""), "%Y-%m-%d")
       } else if(StartDate == TRUE){
         start.date <- strptime(paste(lat.long[ ,4], "-01-01", sep=""), "%Y-%m-%d")
         char.compatible <- as.character(lat.long[ ,4])
         if(!is.character(char.compatible) | all(is.na(char.compatible))){
-          stop("Year date format selected, but start.date are not all coercible to character class.")
+          stop("Year date format detected, start.date are not all compatible.")
         }
         if(any(nchar(lat.long[ ,4]) != 4)){
           stop("start.date is not matching year format - dates should have 4 numeric characters.")
@@ -123,32 +129,24 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
       MODIS.end <- paste("A", substr(end.date, 1, 4), end.day, sep="")
     }
     
-    if(DateFormat == "posixt") {
-      posix.compatible <- try(as.POSIXlt(lat.long[ ,3]), silent=TRUE)
-      if(class(posix.compatible) == "try-error"){
-        stop("POSIX date format selected, but end.date are not all unambiguously in standard POSIXt format.
-             See ?POSIXt for help.")
-      }
-      end.date <- strptime(lat.long[ ,3], "%Y-%m-%d")
-      
+    if(POSIXt == TRUE) {
+      end.date <- strptime(lat.long[ ,3], "%Y-%m-%d")     
       if(StartDate == FALSE){
         start.date <- strptime(paste((end.date$year + 1900) - TimeSeriesLength, "-01-01", sep=""), "%Y-%m-%d")
       } else if(StartDate == TRUE){
         posix.compatible <- try(as.POSIXlt(lat.long[ ,4]), silent=TRUE)
         if(class(posix.compatible) == "try-error"){
-          stop("POSIX date format selected, but start.date are not all unambiguously in standard POSIXt format.
+          stop("POSIX date format detected, but start.date are not all unambiguously in standard POSIXt format.
              See ?POSIXt for help.")
         }
         start.date <- strptime(lat.long[ ,4], "%Y-%m-%d")
-      } 
-      
+      }     
       start.day <- start.date$yday
       start.day[nchar(start.day) == 2] <- paste(0, start.day[nchar(start.day) == 2], sep="")
       start.day[nchar(start.day) == 1] <- paste(0, 0, start.day[nchar(start.day) == 1], sep="")
       end.day <- end.date$yday
       end.day[nchar(end.day) == 2] <- paste(0, end.day[nchar(end.day) == 2], sep="")
       end.day[nchar(end.day) == 1] <- paste(0, 0, end.day[nchar(end.day) == 1], sep="")
-      # Write dates into format compatible with MODIS date IDs (Julian format: YYYYDDD).
       MODIS.start <- paste("A", substr(start.date, 1, 4), start.day, sep="")
       MODIS.end <- paste("A", substr(end.date, 1, 4), end.day, sep="")
     }

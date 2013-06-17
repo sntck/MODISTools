@@ -1,5 +1,5 @@
 MODISTransects <-
-  function(LoadData, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt")
+  function(LoadData, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2)
   {
     # Define:  
     # Data are gridded in equal-area tiles in a sinusoidal projection. Each tile consists of a 1200x1200 km data 
@@ -67,41 +67,41 @@ MODISTransects <-
       stop("StartDate confirms whether start dates for time-series are included in the dataset. Must be logical.")
     }
     
-    # Check the dates are valid.
-    if(DateFormat != "year" & DateFormat != "posixt"){
-      stop("DateFormat option incorrectly set.")
+    # Year or posixt date format?
+    Year <- FALSE
+    POSIXt <- FALSE
+    char.compatible <- as.character(dat$end.date)
+    if(!is.character(char.compatible) | all(is.na(char.compatible)) & any(nchar(char.compatible) != 4)){
+      POSIXt <- TRUE
     }
-    if(DateFormat == "year"){
-      char.compatible <- as.character(dat$end.date)
-      if(!is.character(char.compatible) | all(is.na(char.compatible))){
-        stop("Year date format selected, but end.date are not all coercible to character class.")
-      }
-      if(any(nchar(dat$end.date) != 4)){
-        stop("end.date is not matching year format - dates should have 4 numeric characters.")
-      }
-      if(StartDate == TRUE){
+    posix.compatible <- try(as.POSIXlt(dat$end.date), silent=TRUE)
+    if(class(posix.compatible) == "try-error"){
+      Year <- TRUE
+    }
+    if(Year == FALSE & POSIXt == FALSE){
+      stop("Date information in LoadDat is not recognised as years or as POSIXt format. Check dates conform to one of these.")
+    }
+    if(Year == TRUE & POSIXt == TRUE){
+      stop("Date information in LoadDat is recognised as both year and POSIXt formats. Check dates conform to one of these.")
+    }   
+    # Check the start dates are valid.
+    if(StartDate == TRUE){
+      if(Year == TRUE){
         char.compatible <- as.character(dat$start.date)
         if(!is.character(char.compatible) | all(is.na(char.compatible))){
-          stop("Year date format selected, but start.date are not all coercible to character class.")
+          stop("Year date format detected, but start.date are not compatible with numeric class.")
         }
         if(any(nchar(dat$start.date) != 4)){
           stop("start.date is not matching year format - dates should have 4 numeric characters.")
         }
-      }
-    } else if(DateFormat == "posixt"){
-      posix.compatible <- try(as.POSIXlt(dat$end.date), silent=TRUE)
-      if(class(posix.compatible) == "try-error"){
-        stop("POSIX date format selected, but end.date are not all unambiguously in standard POSIXt format.
-             See ?POSIXt for help.")
-      }
-      if(StartDate == TRUE){
+      } else if(POSIXt == TRUE){
         posix.compatible <- try(as.POSIXlt(dat$start.date), silent=TRUE)
         if(class(posix.compatible) == "try-error"){
           stop("POSIX date format selected, but start.date are not all unambiguously in standard POSIXt format.
-             See ?POSIXt for help.")
+               See ?POSIXt for help.")
         }
-      }
-    }    
+      }    
+    }
     
     # Check latitude and longitude inputs are valid coordinate data.
     # Check for missing lat/long data
@@ -257,6 +257,6 @@ MODISTransects <-
       # Transect pixels found, checked, and time-series information organised. Now run MODISSubsets to retrieve subset
       # for this transect of pixels.
       MODISSubsets(LoadDat=t.subset, Product=Product, Bands=Bands, Size=Size, SaveDir=SaveDir,
-                   StartDate=StartDate, TimeSeriesLength=TimeSeriesLength, DateFormat=DateFormat, Transect=TRUE)
+                   StartDate=StartDate, TimeSeriesLength=TimeSeriesLength, Transect=TRUE)
     } # End of loop that reiterates download for each transect.
   }

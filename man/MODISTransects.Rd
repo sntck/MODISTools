@@ -4,7 +4,7 @@
 \description{A function that downloads batches of MODIS data transects.
 }
 \usage{MODISTransects(LoadData, FileSep = NULL, Product, Bands, Size = c(), 
-SaveDir = "./", StartDate = FALSE, TimeSeriesLength = 2, DateFormat = "year" | "posixt")
+SaveDir = "./", StartDate = FALSE, TimeSeriesLength = 2)
 }
 \arguments{
   \item{LoadData}{Input data: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string. For data input requirements, see details. All arguments to be passed to MODISSubsets(); see ?MODISSubsets for more information.
@@ -22,8 +22,6 @@ SaveDir = "./", StartDate = FALSE, TimeSeriesLength = 2, DateFormat = "year" | "
   \item{StartDate}{Logical; indicate whether the input dataset contains information on the time-series start date. If StartDate=TRUE, start dates will be taken from the input data and will expect the data frame to have a column named start.date. Default is StartDate=FALSE, whereby the input data is assumed to have only time-series end date and the length of time-series recorded prior to that date is determined by another optional argument, TimeSeriesLength.
   }
   \item{TimeSeriesLength}{Non-negative integer; if StartDate=FALSE specified the length of time-series. Default TimeSeriesLength=2, giving a time-series length of 3 years, taken from the beginning of the first year, to the end of the last year.
-  }
-  \item{DateFormat}{If DateFormat="year", date information is expected to be given as years. If DateFormat="posixt", date information is expected to be given in a POSIXt format (YYYY-MM-DD). If DateFormat="posixt" and StartDate=FALSE, the start date is set to the first day of end date-TimeSeries (YYYY-01-01).
   }
 }
 \details{File input requirements are a transect ID, a start lat and long, and an end lat and long for each transect, and an end date (start date optional) for the requested time-series for each transect. These fields must be labelled with headers: "transect"; "start.lat"; "start.long"; "end.lat"; "end.long"; "start.date", and; "end.date" respectively.
@@ -47,7 +45,7 @@ The transects lengths requested must be longer than the requested pixel size. Th
 \dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
 data(TransectExample)
 
-MODISTransects(LoadData=TransectExample, Product='MOD13Q1',     
-    Bands=c('250m_16_days_EVI','250m_16_days_pixel_reliability'), 
-    Size=c(0,0), StartDate=TRUE, DateFormat='year')}
+MODISTransects(LoadData=TransectExample, Product="MOD13Q1",     
+    Bands=c("250m_16_days_EVI", "250m_16_days_pixel_reliability"), 
+    Size=c(0,0), StartDate=TRUE)}
 }
