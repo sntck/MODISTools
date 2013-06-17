@@ -1,5 +1,5 @@
 MODISSummaries <-
-  function(LoadDat, FileSep=NULL, Dir=".", Band, ValidRange, NoDataValue, ScaleFactor, StartDate=FALSE, QualityScreen=FALSE, QualityControl=NULL, Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=FALSE, NoFill=TRUE, PoorQuality=TRUE) 
+  function(LoadDat, FileSep=NULL, Dir=".", Product, Band, ValidRange, NoDataFill, ScaleFactor, StartDate=FALSE, QualityScreen=FALSE, QualityBand=NULL, QualityThreshold=NULL, Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=FALSE, Interpolate=TRUE) 
   { 
     # Load input time-series data file; external data file, or an R object.
     if(is.object(LoadDat)) { details <- data.frame(LoadDat) }
@@ -24,16 +24,40 @@ MODISSummaries <-
     if(!is.logical(QualityScreen)){
       stop("QualityScreen argument should be a logical input. See help ?MODISSummaries.")
     }
-    print(paste("QualityScreen=", QualityScreen, ": This sets whether the data will be screened for high reliability.",
-                sep=""))
-    
     if(QualityScreen == TRUE){
-      if(is.null(QualityControl)){
-        stop("QualityScreen=TRUE but there is not a valid QualityControl input. Seek information for the requested 
-             product to know what QualityControl should be set to.")
+      if(is.null(QualityBand) | is.null(QualityThreshold)){
+        stop("QualityScreen=TRUE, but not all optional arguments the QualityCheck function needs are added. See help.")
       }
     }
-    # If QualityScreen = TRUE, check a band input has been given that includes either qc, reliability, etc.
+    
+    if(!any(GetBands(Product) == Band)){
+      stop("Band does not match with the Product entered.")
+    }
+    
+    # NoDataFill should be one integer.
+    if(length(NoDataFill) != 1){
+      stop("NoDataFill input must be one integer.")
+    }
+    if(!is.numeric(NoDataFill)){
+      stop("NoDataFill should be numeric class. One integer.")
+    }
+    if(abs(NoDataFill - round(NoDataFill)) > .Machine$double.eps^0.5){
+      stop("NoDataFill input must be one integer.")
+    }
+    # ValidRange should be a numeric vector, length 2.
+    if(length(ValidRange) != 2){
+      stop("ValidRange input must be a numeric vector - an upper and lower bound.")
+    }
+    if(!is.numeric(ValidRange)){
+      stop("ValidRange should be numeric class.")
+    }
+    # ScaleFactor should be numeric, length 1.
+    if(length(ScaleFactor) != 1){
+      stop("ValidRange input must be a numeric vector - an upper and lower bound.")
+    }
+    if(!is.numeric(ScaleFactor)){
+      stop("ValidRange should be numeric class.")
+    }
     
     # Year or posixt date format?
     Year <- FALSE
@@ -84,27 +108,35 @@ MODISSummaries <-
       # Identify which rows in ds correspond to the product band and which are reliability data.
       if(any(grepl(Band, ds$row.id))){
         which.are.band <- grep(Band, ds$row.id)
-      } else{
-        stop("Cannot find which rows in LoadDat are band data. Make sure files from MODISSubsets are the input.")
+      } else {
+        stop("Cannot find which rows in LoadDat are band data. Make sure the only ascii files in the directory are 
+             those downloaded from MODISSubsets.")
       }
       
-      which.are.reliability <- grep("reliability", ds$row.id)
+      if(QualityScreen == TRUE){
+        if(any(grepl(QualityBand, ds$row.id))){
+          which.are.reliability <- grep(QualityBand, ds$row.id)
+        } else {
+          stop("Cannot find which rows in LoadDat are quality data. Download quality data with band data in MODISSubsets
+               if you want to check for poor quality data.")
+        }
+      }
       #####
       
       #  Organise data into matrices containing product band data and another for corresponding reliability data.
       band.time.series <- as.matrix(ds[which.are.band,6:ncol(ds)], nrow=length(which.are.band), ncol=length(6:ncol(ds)))
       rel.time.series <- as.matrix(ds[which.are.reliability,6:ncol(ds)], nrow=length(which.are.reliability), ncol=length(6:ncol(ds))) 
       
-      # Screen the pixel values in band.time.series: any pixels whose value correspond to NoDataValue, or whose
-      # corresponding pixel in rel.time.series is below the QualityControl threshold, will be replaced with NA so they
+      # Screen the pixel values in band.time.series: any pixels whose value correspond to NoDataFill, or whose
+      # corresponding pixel in rel.time.series is below QualityThreshold, will be replaced with NA so they
       # are not included in time-series analysis.
       if(QualityScreen == TRUE){
-        band.time.series <- matrix(
-          ifelse(band.time.series != NoDataValue & rel.time.series <= QualityControl, band.time.series, NA),
-          nrow=length(which.are.band))
+        band.time.series <- QualityCheck(Data=band.time.series, QualityScores=rel.time.series, 
+                                         Band=Band, NoDataFill=NoDataFill, QualityBand=QualityBand,
+                                         Product=Product, QualityThreshold=QualityThreshold)
       } else if(QualityScreen == FALSE){
         band.time.series <- matrix(
-          ifelse(band.time.series != NoDataValue, band.time.series, NA),
+          ifelse(band.time.series != NoDataFill, band.time.series, NA),
           nrow=length(which.are.band))
       }
       
@@ -149,8 +181,20 @@ MODISSummaries <-
           
           # Carry out all the relevant summary analyses, set by options in the function call.
           if(Yield == TRUE){ band.yield[i] <- (sum(sout$y) - minobsband * length(sout$x)) / length(sout$x) }    # (((365*length(years))-16)*365) = average annual yield  (i.e. work out daily yield * 365).
-          if(Mean == TRUE){ mean.band[i] <- mean(sout$y) }
-          if(SD == TRUE){ sd.band[i] <- sd(sout$y) }
+          if(Mean == TRUE){ 
+            if(Interpolate == TRUE){
+              mean.band[i] <- mean(sout$y)
+            } else if(Interpolate == FALSE){
+              mean.band[i] <- mean(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
+            }
+          }
+          if(SD == TRUE){
+            if(Interpolate == TRUE){
+              sd.band[i] <- sd(sout$y)
+            } else if(Interpolate == FALSE){
+              sd.band[i] <- sd(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
+            }  
+          }
         }
         if(data.quality == 1){
           warning("Only single data point that passed the quality screen: cannot summarise", immediate.=TRUE)
@@ -163,14 +207,10 @@ MODISSummaries <-
         # Complete final optional summaries, irrespective of data quality.
         if(Min == TRUE){ band.min[i] <- minobsband }
         if(Max == TRUE){ band.max[i] <- maxobsband }
-        if(NoFill == TRUE){ 
-          nofill[i] <- paste(round((sum(ds[ ,i + 5] == NoDataValue) / length(band.time.series[ ,i])) * 100, 2), "% (",
-                             sum(ds[ ,i + 5] == NoDataValue), "/", length(band.time.series[ ,i]), ")", sep="") 
-        }
-        if(PoorQuality == TRUE){ 
-          poorquality[i] <- paste(round((sum(rel.time.series[ ,i] != QualityControl) / length(rel.time.series[ ,i])) * 100, 2),
-                                  "% (", sum(rel.time.series[ ,i] != QualityControl), "/", length(rel.time.series[ ,i]), ")", sep="") 
-        }
+        nofill[i] <- paste(round((sum(ds[ ,i + 5] == NoDataFill) / length(band.time.series[ ,i])) * 100, 2), "% (",
+                             sum(ds[ ,i + 5] == NoDataFill), "/", length(band.time.series[ ,i]), ")", sep="")
+        poorquality[i] <- paste(round((sum(rel.time.series[ ,i] != QualityThreshold) / length(rel.time.series[ ,i])) * 100, 2),
+                                  "% (", sum(rel.time.series[ ,i] != QualityThreshold), "/", length(rel.time.series[ ,i]), ")", sep="")
       } # End of loop for time-series summary analysis for each pixel.
       
       # Extract ID for this .asc file time-series so it can be included in final summary output.
@@ -217,7 +257,7 @@ MODISSummaries <-
     lats <- as.numeric(substr(filelist, w.lat + 3, w.lon - 1))
     lons <- as.numeric(substr(filelist, w.lon + 3, w.start - 1))
     e.dates <- strptime(substr(filelist, w.end + 3, w.finish - 1), "%Y-%m-%d")
-    res <- data.frame(details, band.data=matrix(NA, nrow=nrow(details), ncol=ncol(band)))
+    res <- data.frame(details, band.pixels=matrix(NA, nrow=nrow(details), ncol=ncol(band)))
     
     if(Year == TRUE){
       e.dates <- as.numeric(e.dates$year + 1900)

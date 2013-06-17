@@ -4,7 +4,7 @@
 \description{Designed as an internal function for MODISSummaries, but can also be used independently. MODIS data of a given product band are screened for poor quality pixels, using the reliability data available for that product. The missing data values are also filtered out. The output is the same MODIS data, with screened poor quality and missing data converted to NAs.
 }
 \usage{
-QualityCheck(Data, Product, Band, NoDataFill, QualityScores, QualityThreshold)
+QualityCheck(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThreshold)
 }
 \arguments{
   \item{Data}{Numeric vector or matrix; the input MODIS data, for QualityCheck to screen for poor quality and missing data.
@@ -13,9 +13,9 @@ QualityCheck(Data, Product, Band, NoDataFill, QualityScores, QualityThreshold)
   }
   \item{Band}{Character; the shortname code for the data band that you are quality screening.
   }
-  \item{QualityBand}{Character; the shortname code for the quality data band that you are using to screen Band for poor quality data.
-  }
   \item{NoDataFill}{Numeric; the missing data fill value for the data band (Data) that you are screening.
+  }
+  \item{QualityBand}{Character; the shortname code for the quality data band that you are using to screen Band for poor quality data.
   }
   \item{QualityScores}{Numeric integer vector or matrix; the quality control control that matches your Data input. QualityScores should be the same length/dimensions as Data.
   }
@@ -40,5 +40,6 @@ data(QualityCheckExample)
 EVIdata <- QualityCheckExample[1:5, ]
 QAdata <- QualityCheckExample[6:10, ]
 
-QualityCheck(Data=EVIdat, Product="MOD13Q1", NoDataFill=-3000, QualityScores=QAdata, QualityThreshold=0)
+QualityCheck(Data=EVIdata, Product="MOD13Q1", Band="250m_16_days_EVI", NoDataFill=-3000, 
+      QualityBand="250m_16_days_pixel_reliability", QualityScores=QAdata, QualityThreshold=0)
 }

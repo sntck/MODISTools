@@ -1,5 +1,5 @@
 QualityCheck <- 
-function(Data, Product, Band, QualityBand, NoDataFill, QualityScores, QualityThreshold)
+function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThreshold)
 {
   ##### Define what valid ranges for quality bands should be for different products:
   # 1=lower range     2=upper range     3=no fill value
@@ -31,6 +31,14 @@ function(Data, Product, Band, QualityBand, NoDataFill, QualityScores, QualityThr
   if(!any(product.bands == QualityBand)){
     stop(paste("The QualityBand input does not correspond to an existing data band within the", Product, "product.", sep=" "))
   }
+  
+  # If dataframes , coerce to matrices.
+  if(is.data.frame(Data)){
+    Data <- as.matrix(Data)
+  }
+  if(is.data.frame(QualityScores)){
+    QualityScores <- as.matrix(QualityScores)
+  }  
   
   # Check that Data and QualityScores have matching length and, if a matrix, dimensions .
   if(is.matrix(Data) | is.matrix(QualityScores)){

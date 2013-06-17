@@ -65,3 +65,6 @@ MODISSubsets(LoadDat=SubsetExample, Product="MOD13Q1",
           Bands=c("250m_16_days_EVI","250m_16_days_pixel_reliability"),
           Size=c(0,0), StartDate=TRUE, DateFormat="year")
 
+# Check example run of MODISSummaries.
+MODISSummaries(LoadDat=SubsetExample, Band="250m_16_days_EVI", 
+               ValidRange=c(-2000,10000), NoDataValue=-3000, ScaleFactor=0.0001)

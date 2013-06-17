@@ -35,7 +35,7 @@ GetBands<- function(Product){
                                               function(x) xmlSApply(x,xmlValue)) 
   )
   
-  if(colnames(bandres) == "Fault"){
+  if(colnames(bandsres) == "Fault"){
     return(0)
   } else{
     return(as.vector(bandsres))
