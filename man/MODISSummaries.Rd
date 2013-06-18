@@ -65,14 +65,14 @@ data(SubsetExample)
 
 MODISSubsets(LoadDat=SubsetExample, Product="MOD13Q1",     
     Bands=c("250m_16_days_EVI","250m_16_days_pixel_reliability"), 
-    Size=c(0,0), StartDate=TRUE, DateFormat="year")
+    Size=c(0,0), StartDate=TRUE)
 
 # Without quality checking
 MODISSummaries(LoadDat=SubsetExample, Product="MOD13Q1", Band="250m_16_days_EVI", 
     ValidRange=c(-2000,10000), NoDataFill=-3000, ScaleFactor=0.0001, StartDate=TRUE)
 
 # With quality checking
-MODISSummaries(LoadDat=SubsetExample, Product="MOD13Q1," Band="250m_16_days_EVI", 
+MODISSummaries(LoadDat=SubsetExample, Product="MOD13Q1", Band="250m_16_days_EVI", 
     ValidRange=c(-2000,10000), NoDataFill=-3000, ScaleFactor=0.0001, StartDate=TRUE, 
     QualityScreen=TRUE, QualityBand="250m_16_days_pixel_reliability", QualityThreshold=0)
     }  

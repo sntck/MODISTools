@@ -125,7 +125,9 @@ MODISSummaries <-
       
       #  Organise data into matrices containing product band data and another for corresponding reliability data.
       band.time.series <- as.matrix(ds[which.are.band,6:ncol(ds)], nrow=length(which.are.band), ncol=length(6:ncol(ds)))
-      rel.time.series <- as.matrix(ds[which.are.reliability,6:ncol(ds)], nrow=length(which.are.reliability), ncol=length(6:ncol(ds))) 
+      if(QualityScreen == TRUE){
+        rel.time.series <- as.matrix(ds[which.are.reliability,6:ncol(ds)], nrow=length(which.are.reliability), ncol=length(6:ncol(ds))) 
+      }
       
       # Screen the pixel values in band.time.series: any pixels whose value correspond to NoDataFill, or whose
       # corresponding pixel in rel.time.series is below QualityThreshold, will be replaced with NA so they
