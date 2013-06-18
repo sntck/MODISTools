@@ -211,8 +211,13 @@ MODISSummaries <-
         if(Max == TRUE){ band.max[i] <- maxobsband }
         nofill[i] <- paste(round((sum(ds[ ,i + 5] == NoDataFill) / length(band.time.series[ ,i])) * 100, 2), "% (",
                              sum(ds[ ,i + 5] == NoDataFill), "/", length(band.time.series[ ,i]), ")", sep="")
-        poorquality[i] <- paste(round((sum(rel.time.series[ ,i] != QualityThreshold) / length(rel.time.series[ ,i])) * 100, 2),
+        if(QualityScreen == TRUE){
+          poorquality[i] <- paste(round((sum(rel.time.series[ ,i] != QualityThreshold) / length(rel.time.series[ ,i])) * 100, 2),
                                   "% (", sum(rel.time.series[ ,i] != QualityThreshold), "/", length(rel.time.series[ ,i]), ")", sep="")
+        } else if(QualityScreen == FALSE){
+          poorquality[i] <- NA
+        }
+
       } # End of loop for time-series summary analysis for each pixel.
       
       # Extract ID for this .asc file time-series so it can be included in final summary output.
