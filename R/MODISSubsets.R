@@ -1,5 +1,5 @@
 MODISSubsets <-
-function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, Transect=FALSE)
+function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, Transect=FALSE)
 {
     if(!is.object(LoadDat) & !is.character(LoadDat)){
       stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")

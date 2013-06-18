@@ -36,7 +36,7 @@ GetBands<- function(Product){
   )
   
   if(colnames(bandsres) == "Fault"){
-    return(0)
+    return(NA)
   } else{
     return(as.vector(bandsres))
   }

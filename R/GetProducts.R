@@ -29,9 +29,8 @@ GetProducts<- function(){
   )
   
   if(colnames(productsres) == "Fault"){
-    return(0)
+    return(NA)
   } else{
     return(as.vector(productsres))
   }
 }
-
