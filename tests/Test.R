@@ -3,7 +3,8 @@
 # MODISTools.
 
 # Load data to be used for testing.
-data(SubsetExample)
+data(SubsetExample, FindIDExample, QualityCheckExample, TransectExample, 
+     EndCoordinatesExample, ConvertExample)
 
 # Check for internet capability.
 if(!capabilities()["http/ftp"]) q()
@@ -60,11 +61,41 @@ Dates <- GetDates(SubsetExample$lat, SubsetExample$long, Product)[1:2]
 GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product=Product, Band=Band, 
           StartDate=Dates[1], EndDate=Dates[1], KmAboveBelow=0, KmLeftRight=0)
 
+# Check FindID example
+FindID(ID=SubsetExample, Data=FindIDExample)
+
+# Check QualityCheck example
+EVIdata <- QualityCheckExample[1:5, ]
+QAdata <- QualityCheckExample[6:10, ]
+
+QualityCheck(Data=EVIdata, Product="MOD13Q1", Band="250m_16_days_EVI", NoDataFill=-3000, 
+          QualityBand="250m_16_days_pixel_reliability", QualityScores=QAdata, QualityThreshold=0)
+
 # Check MODIS subset uses this output to produce correctly downloaded files.
 MODISSubsets(LoadDat=SubsetExample, Product="MOD13Q1",
           Bands=c("250m_16_days_EVI","250m_16_days_pixel_reliability"),
-          Size=c(0,0), StartDate=TRUE, DateFormat="year")
+          Size=c(0,0), StartDate=TRUE)
 
 # Check example run of MODISSummaries.
-MODISSummaries(LoadDat=SubsetExample, Band="250m_16_days_EVI", 
-               ValidRange=c(-2000,10000), NoDataValue=-3000, ScaleFactor=0.0001)
+MODISSummaries(LoadDat=SubsetExample, Product="MOD13Q1", Band="250m_16_days_EVI", 
+          ValidRange=c(-2000,10000), NoDataFill=-3000, ScaleFactor=0.0001, StartDate=TRUE,
+          QualityScreen=TRUE, QualityBand="250m_16_days_pixel_reliability", QualityThreshold=0)
+
+# Check the MODISSummaries file outputs are consistent.
+SummaryFile <- read.csv(list.files(pattern="MODIS Summary"))
+DataFile <- read.csv(list.files(pattern="MODIS Data"))
+# Take mean.band column from summary and arrange into matrix byrow=T, to put pixels in each tile to each
+# row, like data file. Take all unique rows, based on band.pzels columns, from data file to make the matrix
+# as that made from summary file. If all points in matrix match, then bingo.
+
+# Check example of MODISTransects
+MODISTransects(LoadData=TransectExample, Product="MOD13Q1",     
+          Bands=c("250m_16_days_EVI", "250m_16_days_pixel_reliability"), 
+          Size=c(0,0), StartDate=TRUE)
+
+# Check EndCoordinates example
+EndCoordinates(LoadDat=EndCoordinatesExample, Distance = 2000, Angle = 90, AngleUnits = "degrees")
+
+# Check ConvertToDD example
+ConvertToDD(XY=ConvertExample, LatColName="lat", LongColName="long")
+
