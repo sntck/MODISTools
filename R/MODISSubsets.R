@@ -154,15 +154,9 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir="./", StartDate=FA
     #####
     # Code has now identified which subscripts in the larger data file correspond to unique locations,
     # making sure all are considered, so that corresponding information specific to each location 
-    # such as date and ID can be easily retrieved. If the number of unique IDs identified does not equal the number
-    # of unique time-series, then IDs are created using each time-series's unique information.
-    if(nrow(lat.long) != length(unique(dat$ID))) {
-      ID <- paste("Lat", lat.long[ ,1], "Lon", lat.long[ ,2], "Start", start.date, "End", end.date, sep='')
-      lat.long <- data.frame(SubsetID=ID, lat.long, Status=rep(NA, nrow(lat.long)))
-      print("IDs are not found, or do not denote unique time-series: using subset IDs instead.")           
-    } else {
-      lat.long <- data.frame(SubsetID=unique(dat$ID), lat.long, Status=rep(NA,nrow(lat.long)))
-    }
+    # such as date and ID can be easily retrieved.
+    ID <- paste("Lat", lat.long[ ,1], "Lon", lat.long[ ,2], "Start", start.date, "End", end.date, sep="")
+    lat.long <- data.frame(SubsetID=ID, lat.long, Status=rep(NA, nrow(lat.long)))
     
     ##### Some sanity checks.
     # If the Product input does not match any product codes in the list output from GetProducts(), stop with error.
