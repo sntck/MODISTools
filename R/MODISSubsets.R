@@ -245,7 +245,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir="./", StartDate=FA
       }
       if(any(DirList == paste(SaveDir, transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""))){ 
         write.table(lat.long, file=paste(SaveDir, transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""), 
-              col.names=FALSE, row.names=FALSE, sep=",",append=TRUE) 
+              col.names=FALSE, row.names=FALSE, sep=",", append=TRUE) 
       }
     }
     

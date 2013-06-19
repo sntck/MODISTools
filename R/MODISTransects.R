@@ -1,5 +1,5 @@
 MODISTransects <-
-  function(LoadData, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2)
+  function(LoadData, FileSep=NULL, Product, Bands, Size, SaveDir="./", StartDate=FALSE, TimeSeriesLength=2)
   {
     # Define:  
     # Data are gridded in equal-area tiles in a sinusoidal projection. Each tile consists of a 1200x1200 km data 
