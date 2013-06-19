@@ -18,10 +18,11 @@ Installation
 The most up-to-date dev version of `MODISTools` can be installed from this github repository. To do this, install the package `devtools` if you haven't already done so.
 ```
 install.packages("devtools")
+library(devtools)
 ```
-Then use `install_git`, with this repository URL, to install `MODISTools` straight from github.
+Then use `install_github`, with this repository name, to install `MODISTools` straight from github.
 ```
-install_git("https://github.com/seantuck12/MODISTools")
+install_github("MODISTools", "seantuck12")
 ```
 
 
