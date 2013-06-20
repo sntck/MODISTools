@@ -236,7 +236,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
     if(Transect == FALSE){ write.table(lat.long, file=paste(SaveDir, "/", "Subset Download ", Sys.Date(), ".csv", sep=""), 
           col.names=TRUE, row.names=FALSE, sep=",") }
     if(Transect == TRUE){
-      DirList <- list.files(path=SaveDir))
+      DirList <- list.files(path=SaveDir)
       w.transect <- regexpr("Point", dat$ID[1])
       transect.id <- substr(dat$ID[1], 1, w.transect - 1)
       if(!any(DirList == paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""))){ 
