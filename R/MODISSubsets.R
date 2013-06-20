@@ -1,5 +1,5 @@
 MODISSubsets <-
-function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, Transect=FALSE)
+function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FALSE, TimeSeriesLength=2, Transect=FALSE)
 {
     if(!is.object(LoadDat) & !is.character(LoadDat)){
       stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
@@ -233,18 +233,18 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir="./", StartDate=FA
     }
     
     # Write a summary file with IDs and unique time-series information .
-    if(Transect == FALSE){ write.table(lat.long, file=paste(SaveDir, "Subset Download ", Sys.Date(), ".csv", sep=""), 
+    if(Transect == FALSE){ write.table(lat.long, file=paste(SaveDir, "/", "Subset Download ", Sys.Date(), ".csv", sep=""), 
           col.names=TRUE, row.names=FALSE, sep=",") }
     if(Transect == TRUE){
-      ifelse(SaveDir == "./", DirList <- list.files(), DirList <- list.files(path=SaveDir))
+      DirList <- list.files(path=SaveDir))
       w.transect <- regexpr("Point", dat$ID[1])
       transect.id <- substr(dat$ID[1], 1, w.transect - 1)
-      if(!any(DirList == paste(SaveDir, transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""))){ 
-        write.table(lat.long, file=paste(SaveDir, transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""), 
+      if(!any(DirList == paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""))){ 
+        write.table(lat.long, file=paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""), 
               col.names=TRUE, row.names=FALSE, sep=",") 
       }
-      if(any(DirList == paste(SaveDir, transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""))){ 
-        write.table(lat.long, file=paste(SaveDir, transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""), 
+      if(any(DirList == paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""))){ 
+        write.table(lat.long, file=paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep=""), 
               col.names=FALSE, row.names=FALSE, sep=",", append=TRUE) 
       }
     }

@@ -91,8 +91,7 @@ MODISSummaries <-
     band <- c()
     for(counter in 1:length(filelist)){
       # Load selected .asc file into a data frame, name columns and tell user what's being processed.
-      ifelse(Dir == ".", ds <- read.csv(filelist[counter], header=FALSE, as.is=TRUE), 
-             ds <- read.csv(paste(Dir, filelist[counter], sep=""), header=FALSE, as.is=TRUE))
+      ds <- read.csv(paste(Dir, "/", filelist[counter], sep=""), header=FALSE, as.is=TRUE)
       names(ds) <- c("row.id", "land.product.code", "MODIS.acq.date", "where", "MODIS.proc.date", 1:(ncol(ds) - 5))
       print(paste("Processing file ", counter, " of ", length(filelist), "...", sep=""))
       
@@ -235,23 +234,13 @@ MODISSummaries <-
     
     # Write output summary file by appending summary data from all files, producing one file of summary stats output.
     print("Writing summaries and collecting data...")
-    if(Dir != ".") {
-      write.table(band.data.by.site[[1]], file=paste(Dir, "MODIS Summary ", Sys.Date(), ".csv", sep=""),
-                  sep=",", row.names=FALSE)
-      if(length(filelist) > 1){ 
-        for(i in 2:length(filelist)){ 
-          write.table(band.data.by.site[[i]], file=paste(Dir, "MODIS Summary.csv", sep=""), sep=",", append=TRUE,
-                      row.names=FALSE, col.names=FALSE) 
-        } 
-      }
-    } else {
-      write.table(band.data.by.site[[1]], file=paste("MODIS Summary ", Sys.Date(), ".csv", sep=""), sep=",", row.names=FALSE)
-      if(length(filelist) > 1){ 
-        for(i in 2:length(filelist)){ 
-          write.table(band.data.by.site[[i]], file=paste("MODIS Summary ", Sys.Date(), ".csv", sep=""), sep=",",
-                      append=TRUE, row.names=FALSE, col.names=FALSE) 
-        } 
-      }
+    write.table(band.data.by.site[[1]], file=paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep=""),
+                sep=",", row.names=FALSE)
+    if(length(filelist) > 1){ 
+      for(i in 2:length(filelist)){ 
+        write.table(band.data.by.site[[i]], file=paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep=""), 
+                      sep=",", append=TRUE, row.names=FALSE, col.names=FALSE) 
+      } 
     }
     
     # Following code will append the mean (time-averaged) band values for each pixel, for each time-series, to the
@@ -296,11 +285,6 @@ MODISSummaries <-
     any(is.na(res[ ,(ncol(details) + 1):ncol(res)]))
     
     # Write the final appended dataset to a csv file, ready for use, in Dir.
-    if(Dir != "."){
-      write.table(res, file=paste(Dir, "MODIS Data ", Sys.Date(), ".csv", sep=""), sep=",", col.names=TRUE, row.names=FALSE)
-    } else {
-      write.table(res, file=paste("MODIS Data ", Sys.Date(), ".csv", sep=""), sep=",", col.names=TRUE, row.names=FALSE)
-    }
-    
+    write.table(res, file=paste(Dir, "/", "MODIS Data ", Sys.Date(), ".csv", sep=""), sep=",", col.names=TRUE, row.names=FALSE)
     print(paste("Done! Check files 'MODIS Summary ", Sys.Date(), ".csv' and 'MODIS Data ", Sys.Date(), ".csv'.", sep=""))  
   }

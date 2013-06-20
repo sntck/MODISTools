@@ -107,10 +107,10 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
       }
       
       # Write an ascii file with all dates for each band at a given location into the working directory.
-      if(Transect == FALSE){ write(subsets, file=paste(SaveDir, lat.long[i,1], "_", Product, ".asc", sep=""), sep="") }
+      if(Transect == FALSE){ write(subsets, file=paste(SaveDir, "/", lat.long[i,1], "_", Product, ".asc", sep=""), sep="") }
       if(Transect == TRUE){
-        if(i == 1){ write(subsets, file=paste(SaveDir, lat.long[i,1], "_", Product, ".asc", sep=""), sep="") }
-        if(i != 1){ write(subsets, file=paste(SaveDir, lat.long[i,1], "_", Product, ".asc", sep=""), sep="", append=TRUE) }
+        if(i == 1){ write(subsets, file=paste(SaveDir, "/", lat.long[i,1], "_", Product, ".asc", sep=""), sep="") }
+        if(i != 1){ write(subsets, file=paste(SaveDir, "/", lat.long[i,1], "_", Product, ".asc", sep=""), sep="", append=TRUE) }
       }
       if(i == nrow(lat.long)) { print("Full subset download complete. Writing the subset download file...") }
     }
