@@ -3,8 +3,7 @@ GetSubset<- function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow,
     stop("Incorrect length of Product input. Give only one data product at a time.")
   }
   if(!any(Product == GetProducts())){
-    stop("The product name entered does not match any available products. 
-           See GetProducts() for available products.")
+    stop("The product name entered does not match any available products. See GetProducts() for available products.")
   }
   if(length(Band) != 1){
     stop("Incorrect length of Band input. Give only one data band at a time.")
@@ -12,8 +11,6 @@ GetSubset<- function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow,
   if(!any(Band == GetBands(Product))){
     stop("Band input must correspond to product input. See GetBands() for band names available within each product.")
   }
-  
-  
   if(!is.numeric(Lat) | !is.numeric(Long)){
     stop("Lat and Long inputs must be numeric.")
   }
@@ -68,7 +65,6 @@ GetSubset<- function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow,
   } else{
     modisres<- as.data.frame(t(unname(modisres[-c(7,11)])))
     names(modisres)<- c("xll", "yll", "pixelsize", "nrow", "ncol", "band", "scale", "lat", "long", "subset")
-    
     return(modisres)
   }
 }

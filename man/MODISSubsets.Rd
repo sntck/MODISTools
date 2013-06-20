@@ -3,7 +3,7 @@
 \title{MODIS Subset Tool}
 \description{Uses the MODIS SOAP Web Service (see references) as a batch process to remotely extract and locally download time-series subsets of a MODIS product for a given area surrounding many locations.
 }
-\usage{MODISSubsets(LoadDat, FileSep = NULL, Product, Bands, Size = c(), 
+\usage{MODISSubsets(LoadDat, FileSep = NULL, Product, Bands, Size, 
 SaveDir = "./", StartDate = FALSE, TimeSeriesLength = 2, Transect=FALSE)
 }
 \arguments{

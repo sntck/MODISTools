@@ -178,7 +178,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir="./", StartDate=FA
     if(length(Size) != 2){
       stop("Size input must be a vector of integers, with two elements.")
     }
-    if(abs(Size[1] - round(Size[1])) > .Machine$double.eps^0.5 & 
+    if(abs(Size[1] - round(Size[1])) > .Machine$double.eps^0.5 | 
                   abs(Size[2] - round(Size[2])) > .Machine$double.eps^0.5){
       stop("Size input must be integers.")
     }

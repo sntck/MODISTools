@@ -8,12 +8,12 @@ MODISSummaries <-
         stop("Character string input for LoadDat argument does not resemble an existing file path.")
       }
       if(is.null(FileSep)){
-        stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
+        stop("LoadDat is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
       }
       details <- read.delim(LoadDat, sep=FileSep) 
     }
     if(!is.object(LoadDat) & !is.character(LoadDat)){
-      stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
+      stop("LoadDat is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
     }
     
     if(!file.exists(Dir)){
