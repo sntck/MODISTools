@@ -13,11 +13,11 @@ Interpolate=TRUE)
   }
   \item{FileSep}{If LoadDat is a character string that corresponds to a file path, choose the delimiter character for that file (e.g. "," for comma separated).
   }
-  \item{Dir}{Character string; an optional argument to specify the subdirectory where downloaded ascii files to be processed are located and written: default Dir="." extracts files from the working directory.
+  \item{Dir}{Character string; an optional argument to specify the subdirectory where downloaded ascii files to be processed are located and the output is written: default Dir="." extracts files from the working directory.
   }
   \item{Product}{Character; The product shortname code, that the data band input belongs to. The MODIS product table shows all available products and their respective product shortname codes (see references).
   }
-  \item{Band}{Character; the code that identifies from which band type is the data to be processed. In the input file (LoadDat), alongside the data for this band type, there should be a corresponding set of pixel reliability values included for quality control.
+  \item{Band}{Character; the code that identifies from which band type is the data to be processed. In the input file (LoadDat), alongside the data for this band type, there may optionally be a corresponding set of pixel reliability values included for quality control.
   }
   \item{ValidRange}{Numeric vector of two elements; states the lower (ValidRange[1]) and upper (ValidRange[2]) bounds within which the data to be processed should be found.
   }

@@ -211,8 +211,8 @@ MODISSummaries <-
         nofill[i] <- paste(round((sum(ds[ ,i + 5] == NoDataFill) / length(band.time.series[ ,i])) * 100, 2), "% (",
                              sum(ds[ ,i + 5] == NoDataFill), "/", length(band.time.series[ ,i]), ")", sep="")
         if(QualityScreen == TRUE){
-          poorquality[i] <- paste(round((sum(rel.time.series[ ,i] != QualityThreshold) / length(rel.time.series[ ,i])) * 100, 2),
-                                  "% (", sum(rel.time.series[ ,i] != QualityThreshold), "/", length(rel.time.series[ ,i]), ")", sep="")
+          poorquality[i] <- paste(round((sum(rel.time.series[ ,i] > QualityThreshold) / length(rel.time.series[ ,i])) * 100, 2),
+                                  "% (", sum(rel.time.series[ ,i] > QualityThreshold), "/", length(rel.time.series[ ,i]), ")", sep="")
         } else if(QualityScreen == FALSE){
           poorquality[i] <- NA
         }
