@@ -31,7 +31,9 @@ function(Dir=".", Band)
     stop("Found no ascii files in Dir. The function wants downloaded MODIS Land Cover .asc files.")
   }
   if(any(!grepl("MCD12Q1", file.list))){
-    stop("This function is for land cover data. Downloaded files should be for the MCD12Q1 product.")
+    print("Some .asc files found in Dir that weren't MODIS downloads of MCD12Q1 product.
+          Selecting only ascii files from MCD12Q1 downloads.")
+    file.list <- file.list[which(grepl("MCD12Q1", file.list))]
   }
   if(!any(GetBands("MCD12Q1") == Band)){
     stop("This function is for land cover data. Downloaded files should be for the MCD12Q1 product.
