@@ -30,19 +30,22 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
             result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
                                          date.list[1,x], date.list[10,x], Size[1], Size[2]))
             
+            busy <- grepl("Server is busy handling other requests", result$subset[1])
+            if(busy == TRUE, print("The server is busy handling other requests..."))
+            
             # Check data was actually downloaded. If not, wait 30 secs and then try again. If retrieval fails 50 times
             # consecutively, then the download will time out and the function call will abort.
-            if(class(result) == "try-error" || is.na(result)){
+            if(class(result) == "try-error" || is.na(result) || busy == TRUE){
               timer <- 1
-              while(timer <= 50){
+              while(timer <= 30){
                 print(paste("Connection to the MODIS Web Service failed: trying again in 30secs...attempt ", timer, sep=""))
                 Sys.sleep(30)
                 result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
                                              date.list[1,x], date.list[10,x], Size[1], Size[2]))
                 timer <- timer + 1
-                ifelse(class(result) == "try-error" || is.na(result), next, break)
+                ifelse(class(result) == "try-error" || is.na(result) || busy == TRUE, next, break)
               }
-              ifelse(class(result) == "try-error" || is.na(result),
+              ifelse(class(result) == "try-error" || is.na(result) || busy == TRUE,
                      print("Connection to the MODIS Web Service failed: 
                            Subset requested timed out after 10 failed attempts...stopping subset download."),
                      break)
@@ -63,10 +66,13 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
         # Final batch of dates request, which finishes at end.date removing any recycled dates at the end of matrix 
         # (if total no. of dates is not a multiple of 10).
         
+        busy <- grepl("Server is busy handling other requests", result$subset[1])
+        if(busy == TRUE, print("The server is busy handling other requests..."))
+        
         # The same download check (see there for comments) as above, for final data retrieval for a given product band.
-        if(class(result) == "try-error" || is.na(result)){
+        if(class(result) == "try-error" || is.na(result) || busy == TRUE){
           timer <- 1
-          while(timer <= 50){
+          while(timer <= 30){
             print(paste("Connection to the MODIS Web Service failed: trying again in 30secs...attempt ", timer, sep=""))
             Sys.sleep(30)
             # Final batch of dates, finishes at end.date.
@@ -74,9 +80,9 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
                                          date.list[1,ncol(date.list)], date.list[which(date.list[ ,ncol(date.list)] >= dates[max(date.res)]), 
                                                                                  ncol(date.list)], Size[1], Size[2]))
             timer <- timer + 1
-            ifelse(class(result) == "try-error" || is.na(result), next, break)
+            ifelse(class(result) == "try-error" || is.na(result) || busy == TRUE, next, break)
           }
-          ifelse(class(result) == "try-error" || is.na(result), 
+          ifelse(class(result) == "try-error" || is.na(result) || busy == TRUE, 
                  print("Connection to the MODIS Web Service failed: 
                        Subset requested timed out after 10 failed attempts...stopping subset download."), 
                  break)
