@@ -24,7 +24,7 @@ MODISSummaries <-
     if(!is.logical(QualityScreen)){
       stop("QualityScreen argument should be a logical input. See help ?MODISSummaries.")
     }
-    if(QualityScreen == TRUE){
+    if(QualityScreen){
       if(is.null(QualityBand) | is.null(QualityThreshold)){
         stop("QualityScreen=TRUE, but not all optional arguments the QualityCheck function needs are added. See help.")
       }
@@ -70,14 +70,14 @@ MODISSummaries <-
     if(class(posix.compatible) == "try-error"){
       Year <- TRUE
     }
-    if(Year == FALSE & POSIXt == FALSE){
+    if(!Year & !POSIXt){
       stop("Date information in LoadDat is not recognised as years or as POSIXt format. Check dates conform to one of these.")
     }
-    if(Year == TRUE & POSIXt == TRUE){
+    if(Year & POSIXt){
       stop("Date information in LoadDat is recognised as both year and POSIXt formats. Check dates conform to one of these.")
     }
     
-    if(StartDate == TRUE){
+    if(StartDate){
       if(!any(names(details) == "start.date")){
         stop("StartDate == TRUE, but no start.date field found in LoadDat.")
       }
@@ -112,7 +112,7 @@ MODISSummaries <-
              those downloaded from MODISSubsets.")
       }
       
-      if(QualityScreen == TRUE){
+      if(QualityScreen){
         if(any(grepl(QualityBand, ds$row.id))){
           which.are.reliability <- grep(QualityBand, ds$row.id)
         } else {
@@ -124,25 +124,25 @@ MODISSummaries <-
       
       #  Organise data into matrices containing product band data and another for corresponding reliability data.
       band.time.series <- as.matrix(ds[which.are.band,6:ncol(ds)], nrow=length(which.are.band), ncol=length(6:ncol(ds)))
-      if(QualityScreen == TRUE){
+      if(QualityScreen){
         rel.time.series <- as.matrix(ds[which.are.reliability,6:ncol(ds)], nrow=length(which.are.reliability), ncol=length(6:ncol(ds))) 
       }
       
       # Screen the pixel values in band.time.series: any pixels whose value correspond to NoDataFill, or whose
       # corresponding pixel in rel.time.series is below QualityThreshold, will be replaced with NA so they
       # are not included in time-series analysis.
-      if(QualityScreen == TRUE){
+      if(QualityScreen){
         band.time.series <- QualityCheck(Data=band.time.series, QualityScores=rel.time.series, 
                                          Band=Band, NoDataFill=NoDataFill, QualityBand=QualityBand,
                                          Product=Product, QualityThreshold=QualityThreshold)
-      } else if(QualityScreen == FALSE){
+      } else if(!QualityScreen){
         band.time.series <- matrix(
           ifelse(band.time.series != NoDataFill, band.time.series, NA),
           nrow=length(which.are.band))
       }
       
       # Final check, that band values all fall within the ValidRange (as defined for given MODIS product band).
-      if(any((band.time.series >= ValidRange[1] && band.time.series <= ValidRange[2]) == FALSE, na.rm=TRUE)) { 
+      if(any(!(band.time.series >= ValidRange[1] && band.time.series <= ValidRange[2]), na.rm=TRUE)) { 
         stop("Some values fall outside the valid range, after no fill values should have been removed.") 
       }
       
@@ -164,14 +164,14 @@ MODISSummaries <-
       # Run time-series analysis for the ith pixel.
       for(i in 1:ncol(band.time.series)) {
         # Minimum and maximum band values observed.
-        minobsband <- min(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm = TRUE)    
-        maxobsband <- max(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm = TRUE)
+        minobsband <- min(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)    
+        maxobsband <- max(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
         
         # Assess the quality of data at this time-step by counting the number of data left after screening, and use this
         # assessment to decide how to proceed with analysis for each time-step.
-        if(QualityScreen == TRUE){
+        if(QualityScreen){
           data.quality <- sum(!is.na(band.time.series[ ,i]))
-        } else if(QualityScreen == FALSE){
+        } else if(!QualityScreen){
           data.quality <- 2
         }
         
@@ -181,39 +181,39 @@ MODISSummaries <-
                          n=((max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])) - 1))
           
           # Carry out all the relevant summary analyses, set by options in the function call.
-          if(Yield == TRUE){ band.yield[i] <- (sum(sout$y) - minobsband * length(sout$x)) / length(sout$x) }    # (((365*length(years))-16)*365) = average annual yield  (i.e. work out daily yield * 365).
-          if(Mean == TRUE){ 
-            if(Interpolate == TRUE){
+          if(Yield){ band.yield[i] <- (sum(sout$y) - minobsband * length(sout$x)) / length(sout$x) }    # (((365*length(years))-16)*365) = average annual yield  (i.e. work out daily yield * 365).
+          if(Mean){ 
+            if(Interpolate){
               mean.band[i] <- mean(sout$y)
-            } else if(Interpolate == FALSE){
+            } else if(!Interpolate){
               mean.band[i] <- mean(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
             }
           }
-          if(SD == TRUE){
-            if(Interpolate == TRUE){
+          if(SD){
+            if(Interpolate){
               sd.band[i] <- sd(sout$y)
-            } else if(Interpolate == FALSE){
+            } else if(!Interpolate){
               sd.band[i] <- sd(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
             }  
           }
         }
         if(data.quality == 1){
           warning("Only single data point that passed the quality screen: cannot summarise", immediate.=TRUE)
-          if(Mean == TRUE){ mean.band[i] <- mean(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE) } 
+          if(Mean){ mean.band[i] <- mean(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE) } 
         }
         if(data.quality == 0){
           warning("No reliable data for this pixel", immediate.=TRUE)
         }
         
         # Complete final optional summaries, irrespective of data quality.
-        if(Min == TRUE){ band.min[i] <- minobsband }
-        if(Max == TRUE){ band.max[i] <- maxobsband }
+        if(Min){ band.min[i] <- minobsband }
+        if(Max){ band.max[i] <- maxobsband }
         nofill[i] <- paste(round((sum(ds[ ,i + 5] == NoDataFill) / length(band.time.series[ ,i])) * 100, 2), "% (",
                              sum(ds[ ,i + 5] == NoDataFill), "/", length(band.time.series[ ,i]), ")", sep="")
-        if(QualityScreen == TRUE){
+        if(QualityScreen){
           poorquality[i] <- paste(round((sum(rel.time.series[ ,i] > QualityThreshold) / length(rel.time.series[ ,i])) * 100, 2),
                                   "% (", sum(rel.time.series[ ,i] > QualityThreshold), "/", length(rel.time.series[ ,i]), ")", sep="")
-        } else if(QualityScreen == FALSE){
+        } else if(!QualityScreen){
           poorquality[i] <- NA
         }
 
@@ -255,19 +255,19 @@ MODISSummaries <-
     e.dates <- strptime(substr(filelist, w.end + 3, w.finish - 1), "%Y-%m-%d")
     res <- data.frame(details, band.pixels=matrix(NA, nrow=nrow(details), ncol=ncol(band)))
     
-    if(Year == TRUE){
+    if(Year){
       e.dates <- as.numeric(e.dates$year + 1900)
-      if(StartDate == TRUE){
+      if(StartDate){
         s.dates <- as.numeric(strptime(substr(filelist, w.start + 5, w.end - 1), "%Y-%m-%d")$year + 1900)
         ID.match <- data.frame(lat=lats, long=lons, end.date=e.dates, start.date=s.dates)
-      } else if(StartDate == FALSE){
+      } else if(!StartDate){
         ID.match <- data.frame(lat=lats, long=lons, end.date=e.dates)
       }
-    } else if(POSIXt == TRUE){
-      if(StartDate == TRUE){
+    } else if(POSIXt){
+      if(StartDate){
         s.dates <- strptime(substr(filelist, w.start + 5, w.end - 1), "%Y-%m-%d")
         ID.match <- data.frame(lat=lats, long=lons, end.date=e.dates, start.date=s.dates)
-      } else if(StartDate == FALSE){
+      } else if(!StartDate){
         ID.match <- data.frame(lat=lats, long=lons, end.date=e.dates)
       }
     }

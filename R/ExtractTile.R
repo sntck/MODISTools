@@ -59,10 +59,10 @@ function(Data, Rows, Cols, Grid=FALSE)
   col.range <- (centre[2] - Cols[2]):(centre[2] + Cols[2])
   
   # Put output in either array or matrix format.
-  if(Grid == TRUE){
+  if(Grid){
     res <- array(dim=c( ((Rows[2] * 2) + 1), ((Cols[2] * 2) + 1), nrow(Data)))
     for(i in 1:nrow(Data)) res[ , ,i] <- full.tile[[i]][[1]][row.range,col.range]
-  } else if(Grid == FALSE){
+  } else if(!Grid){
     res <- matrix(nrow=nrow(Data), ncol=length(matrix(nrow=((Rows[2] * 2) + 1), ncol=((Cols[2] * 2) + 1))))
     for(i in 1:nrow(Data)) res[i, ] <- as.vector(full.tile[[i]][[1]][row.range,col.range])
   }

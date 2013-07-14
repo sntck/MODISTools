@@ -45,7 +45,7 @@ MODISTransects <-
     }
     # If the Bands input does not match with the Product input, stop with error.
     band.test <- lapply(Bands, function(x) !any(x == GetBands(Product)))
-    if(any(band.test == TRUE)){ 
+    if(any(band.test)){ 
       stop("At least one band name entered does not match the product name entered. 
            See GetBands() for band names available within each product.")
     }
@@ -78,15 +78,15 @@ MODISTransects <-
     if(class(posix.compatible) == "try-error"){
       Year <- TRUE
     }
-    if(Year == FALSE & POSIXt == FALSE){
+    if(!Year & !POSIXt){
       stop("Date information in LoadDat is not recognised as years or as POSIXt format. Check dates conform to one of these.")
     }
-    if(Year == TRUE & POSIXt == TRUE){
+    if(Year & POSIXt){
       stop("Date information in LoadDat is recognised as both year and POSIXt formats. Check dates conform to one of these.")
     }   
     # Check the start dates are valid.
-    if(StartDate == TRUE){
-      if(Year == TRUE){
+    if(StartDate){
+      if(Year){
         char.compatible <- as.character(dat$start.date)
         if(!is.character(char.compatible) | all(is.na(char.compatible))){
           stop("Year date format detected, but start.date are not compatible with numeric class.")
@@ -94,7 +94,7 @@ MODISTransects <-
         if(any(nchar(dat$start.date) != 4)){
           stop("start.date is not matching year format - dates should have 4 numeric characters.")
         }
-      } else if(POSIXt == TRUE){
+      } else if(POSIXt){
         posix.compatible <- try(as.POSIXlt(dat$start.date), silent=TRUE)
         if(class(posix.compatible) == "try-error"){
           stop("POSIX date format selected, but start.date are not all unambiguously in standard POSIXt format.
@@ -113,7 +113,7 @@ MODISTransects <-
       stop("Detected some lats or longs beyond the range of valid coordinates.")
     }
     
-    if(StartDate == TRUE){
+    if(StartDate){
       if(!any(names(dat) == "start.date")){
         stop("StartDate == TRUE, so input dataset must contain variable named 'start.date'. See ?MODISTransects
              for help on data requirements.")
@@ -135,7 +135,7 @@ MODISTransects <-
     #####
     
     # Find all unique transects to download pixels for.
-    t.dat <- dat[duplicated(dat$transect) == FALSE, ]
+    t.dat <- dat[!duplicated(dat$transect), ]
     print(paste("Found ", nrow(t.dat), " transects. Downloading time-series sets for each transect...", sep=""))
     
     # Loop that reiterates download for each transect.
@@ -204,7 +204,7 @@ MODISTransects <-
       
       # Organise time-series information, with new by-transect IDs for each pixel, for input into MODISSubsets call
       # with optional start date as well as end date.
-      if(StartDate == TRUE) {
+      if(StartDate) {
         start.date <- rep(t.dat$start.date[i], length(lat))                            
         t.subset <- data.frame(ID, lat, long, start.date, end.date)
       } else {
@@ -228,28 +228,26 @@ MODISTransects <-
       check.equal.x <- signif(xll[1:length(xll) - 1], digits=6) == signif(xll[2:length(xll)], digits=6)
       check.equal.y <- signif(yll[1:length(yll) - 1], digits=5) == signif(yll[2:length(yll)], digits=5) 
       # From remaining pixels, check if they are +/- 1 pixel width (i.e. adjacent pixel) away.
-      check.new.x <- ifelse(xll[which(check.equal.x == FALSE)] < xll[which(check.equal.x == FALSE) + 1], 
-            round(xll[which(check.equal.x == FALSE)]) == round(xll[which(check.equal.x == FALSE)+1] - cell.size), 
-            round(xll[which(check.equal.x == FALSE)]) == round(xll[which(check.equal.x == FALSE)+1] + cell.size))
-      check.new.y <- ifelse(yll[which(check.equal.y == FALSE)] < yll[which(check.equal.y == FALSE) + 1], 
-            round(yll[which(check.equal.y == FALSE)]) == round(yll[which(check.equal.y == FALSE)+1] - cell.size), 
-            round(yll[which(check.equal.y == FALSE)]) == round(yll[which(check.equal.y == FALSE)+1] + cell.size))    
+      check.new.x <- ifelse(xll[which(!check.equal.x)] < xll[which(!check.equal.x) + 1], 
+            round(xll[which(!check.equal.x)]) == round(xll[which(!check.equal.x) + 1] - cell.size), 
+            round(xll[which(!check.equal.x)]) == round(xll[which(!check.equal.x) + 1] + cell.size))
+      check.new.y <- ifelse(yll[which(!check.equal.y)] < yll[which(!check.equal.y) + 1], 
+            round(yll[which(!check.equal.y)]) == round(yll[which(!check.equal.y) + 1] - cell.size), 
+            round(yll[which(!check.equal.y)]) == round(yll[which(!check.equal.y) + 1] + cell.size))    
       
       # Check if there are any remaining pixels whose distance from previous pixel doesn't meet above criteria.
-      if(any(check.new.x == FALSE) | any(check.new.y == FALSE)) {
+      if(!all(check.new.x) | !all(check.new.y)) {
         # Check if this unaccounted for distance between pixels is small enough that it can be attributed to rounding
         # error or MODIS projection location uncertainty.
-        check.error.x <- ifelse(xll[which(check.equal.x == FALSE)] < xll[which(check.equal.x == FALSE) + 1], 
-              signif(xll[which(check.equal.x == FALSE) + 1] - xll[which(check.equal.x == FALSE)], digits=3) == 
-              signif(cell.size, digits=3), signif(xll[which(check.equal.x == FALSE) + 1] - xll[which(check.equal.x == 
-              FALSE)], digits=3) == -signif(cell.size, digits=3))    
-        check.error.y <- ifelse(yll[which(check.equal.y == FALSE)] < yll[which(check.equal.y == FALSE) + 1], 
-              signif(yll[which(check.equal.y == FALSE) + 1] - yll[which(check.equal.y == FALSE)], digits=3) == 
-              signif(cell.size, digits=3), signif(yll[which(check.equal.y == FALSE) + 1] - yll[which(check.equal.y == 
-              FALSE)], digits=3) == -signif(cell.size, digits=3)) 
+        check.error.x <- ifelse(xll[which(!check.equal.x)] < xll[which(!check.equal.x) + 1], 
+              signif(xll[which(!check.equal.x) + 1] - xll[which(!check.equal.x)], digits=3) == signif(cell.size, digits=3), 
+              signif(xll[which(!check.equal.x) + 1] - xll[which(!check.equal.x)], digits=3) == -signif(cell.size, digits=3))    
+        check.error.y <- ifelse(yll[which(!check.equal.y)] < yll[which(!check.equal.y) + 1], 
+              signif(yll[which(!check.equal.y) + 1] - yll[which(!check.equal.y)], digits=3) == signif(cell.size, digits=3), 
+              signif(yll[which(!check.equal.y) + 1] - yll[which(!check.equal.y)], digits=3) == -signif(cell.size, digits=3)) 
         # If differences between pixel is greater than would be expected from checks, then abort the function call
         # and produce an error message stating there are gaps in this transect.
-        if(any(check.error.x == FALSE) | any(check.error.y == FALSE)){ 
+        if(any(!check.error.x) | any(!check.error.y)){ 
           stop("Error: Gap in transect pixels") 
         } 
       }

@@ -50,7 +50,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
       stop("StartDate confirms whether start dates for time-series are included in the dataset. Must be logical.")
     }
     # Set of stop-if-nots to run if StartDate=TRUE.
-    if(StartDate == TRUE){
+    if(StartDate){
       # Check that the input data set contains start dates, named start.date.
       if(!any(names(dat) == "start.date")){
         stop("StartDate=TRUE, but no start date has been found in the data set. Start dates must be named 'start.date'.
@@ -61,7 +61,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
         stop("Not all coordinates have a corresponding start date. If start.date is incomplete, consider StartDate=FALSE.")
       }
     }
-    if(StartDate == FALSE){
+    if(!StartDate){
       # Check TimeSeriesLength is correctly inputted.
       if(!is.numeric(TimeSeriesLength)){
         stop("TimeSeriesLength should be numeric class.")
@@ -77,7 +77,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
     ##########
     # Find all unique time-series wanted, for each unique location.
     Start <- rep(StartDate, length(dat$lat[!is.na(dat$lat)]))
-    ifelse(Start == TRUE, lat.long <- unique(cbind(lat=dat$lat[!is.na(dat$lat)], long=dat$long[!is.na(dat$lat)],
+    ifelse(Start, lat.long <- unique(cbind(lat=dat$lat[!is.na(dat$lat)], long=dat$long[!is.na(dat$lat)],
                                                    end.date=dat$end.date[!is.na(dat$lat)], start.date=dat$start.date[!is.na(dat$lat)])), 
            lat.long <- unique(cbind(lat=dat$lat[!is.na(dat$lat)], long=dat$long[!is.na(dat$lat)], 
                                     end.date=dat$end.date[!is.na(dat$lat)])))
@@ -94,19 +94,19 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
     if(class(posix.compatible) == "try-error"){
       Year <- TRUE
     }
-    if(Year == FALSE & POSIXt == FALSE){
+    if(!Year & !POSIXt){
       stop("Date information in LoadDat is not recognised as years or as POSIXt format. Check dates conform to one of these.")
     }
-    if(Year == TRUE & POSIXt == TRUE){
+    if(Year & POSIXt){
       stop("Date information in LoadDat is recognised as both year and POSIXt formats. Check dates conform to one of these.")
     }
     
     # Take date information for each time-series, in either 'year' or 'posixt', and turn them into MODIS 
     # date codes (Julian format).
-    if(Year == TRUE) {  
-      if(StartDate == FALSE){
+    if(Year) {  
+      if(!StartDate){
         start.date <- strptime(paste(lat.long[ ,3] - TimeSeriesLength, "-01-01", sep=""), "%Y-%m-%d")
-      } else if(StartDate == TRUE){
+      } else if(StartDate){
         start.date <- strptime(paste(lat.long[ ,4], "-01-01", sep=""), "%Y-%m-%d")
         char.compatible <- as.character(lat.long[ ,4])
         if(!is.character(char.compatible) | all(is.na(char.compatible))){
@@ -129,11 +129,11 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
       MODIS.end <- paste("A", substr(end.date, 1, 4), end.day, sep="")
     }
     
-    if(POSIXt == TRUE) {
+    if(POSIXt) {
       end.date <- strptime(lat.long[ ,3], "%Y-%m-%d")     
-      if(StartDate == FALSE){
+      if(!StartDate){
         start.date <- strptime(paste((end.date$year + 1900) - TimeSeriesLength, "-01-01", sep=""), "%Y-%m-%d")
-      } else if(StartDate == TRUE){
+      } else if(StartDate){
         posix.compatible <- try(as.POSIXlt(lat.long[ ,4]), silent=TRUE)
         if(class(posix.compatible) == "try-error"){
           stop("POSIX date format detected, but start.date are not all unambiguously in standard POSIXt format.
@@ -166,7 +166,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
     }
     # If the Bands input does not match with the Product input, stop with error.
     band.test <- lapply(Bands, function(x) !any(x == GetBands(Product)))
-    if(any(band.test == TRUE)){ 
+    if(any(band.test)){ 
       stop("At least one band name entered does not match the product name entered. 
            See GetBands() for band names available within each product.")
     }
@@ -233,9 +233,9 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
     }
     
     # Write a summary file with IDs and unique time-series information .
-    if(Transect == FALSE){ write.table(lat.long, file=paste(SaveDir, "/", "Subset Download ", Sys.Date(), ".csv", sep=""), 
+    if(!Transect){ write.table(lat.long, file=paste(SaveDir, "/", "Subset Download ", Sys.Date(), ".csv", sep=""), 
           col.names=TRUE, row.names=FALSE, sep=",") }
-    if(Transect == TRUE){
+    if(Transect){
       DirList <- list.files(path=SaveDir)
       w.transect <- regexpr("Point", dat$ID[1])
       transect.id <- substr(dat$ID[1], 1, w.transect - 1)
@@ -250,7 +250,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
     }
     
     # Print message to confirm downloads are complete and to remind the user to check summary file for any missing data.
-    if(Transect == FALSE){ 
+    if(!Transect){ 
       print("Done! Check the subset download file for correct subset information and any download messages.") 
     }                                                                                    
 }
