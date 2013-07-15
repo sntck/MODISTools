@@ -3,6 +3,7 @@
 # MODISTools.
 
 # Load data to be used for testing.
+library(MODISTools)
 data(SubsetExample, FindIDExample, QualityCheckExample, TransectExample, 
      EndCoordinatesExample, ConvertExample)
 library(RCurl)  # Will use some RCurl and XML functions explicitly in testing.
