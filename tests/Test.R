@@ -5,7 +5,8 @@
 # Load data to be used for testing.
 data(SubsetExample, FindIDExample, QualityCheckExample, TransectExample, 
      EndCoordinatesExample, ConvertExample)
-library(RCurl)  # Will use some RCurl functions explicitly in testing.
+library(RCurl)  # Will use some RCurl and XML functions explicitly in testing.
+library(XML)
 
 # Check for internet capability.
 if(!capabilities()["http/ftp"]) q()
