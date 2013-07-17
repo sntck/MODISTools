@@ -1,8 +1,8 @@
 Package: MODISTools
 Type: Package
 Title: MODIS Subsetting Tools
-Version: 0.93.0
-Date: 2013-04-14
+Version: 0.93.1
+Date: 2013-07-17
 Author: Sean Tuck, Helen Phillips
 Imports: RCurl, XML
 Maintainer: Sean Tuck <sean.tuck@plants.ox.ac.uk>

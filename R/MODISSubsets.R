@@ -69,9 +69,11 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
       if(length(TimeSeriesLength) != 1){
         stop("TimeSeriesLength must be one numeric element.")
       }
-      if(abs(Size[1] - round(Size[1])) > .Machine$double.eps^0.5 & 
-           abs(Size[2] - round(Size[2])) > .Machine$double.eps^0.5){
-        stop("TimeSeriesLength must be an integer.")
+      if(abs(TimeSeriesLength[1] - round(TimeSeriesLength[1])) > .Machine$double.eps^0.5){
+        stop("TimeSeriesLength must be a positive integer.")
+      }
+      if(TimeSeriesLength <= 0){
+        stop("TimeSeriesLength must be a positive integer.")
       }
     }
     ##########

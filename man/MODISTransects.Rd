@@ -4,7 +4,7 @@
 \description{A function that downloads batches of MODIS data transects.
 }
 \usage{MODISTransects(LoadData, FileSep = NULL, Product, Bands, Size, 
-SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 2)
+SaveDir = ".", StartDate = FALSE, TimeSeriesLength=2)
 }
 \arguments{
   \item{LoadData}{Input data: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string. For data input requirements, see details. All arguments to be passed to MODISSubsets(); see ?MODISSubsets for more information.

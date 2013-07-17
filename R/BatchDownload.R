@@ -30,8 +30,11 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
             result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
                                          date.list[1,x], date.list[10,x], Size[1], Size[2]))
             
-            busy <- grepl("Server is busy handling other requests", result$subset[1])
-            if(busy) print("The server is busy handling other requests...")
+            busy <- FALSE
+            if(class(result) != "try-error"){
+              busy <- grepl("Server is busy handling other requests", result$subset[1])
+              if(busy) print("The server is busy handling other requests...")
+            }
             
             # Check data was actually downloaded. If not, wait 30 secs and then try again. If retrieval fails 50 times
             # consecutively, then the download will time out and the function call will abort.
@@ -66,8 +69,11 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
         # Final batch of dates request, which finishes at end.date removing any recycled dates at the end of matrix 
         # (if total no. of dates is not a multiple of 10).
         
-        busy <- grepl("Server is busy handling other requests", result$subset[1])
-        if(busy) print("The server is busy handling other requests...")
+        busy <- FALSE
+        if(class(result) != "try-error"){
+          busy <- grepl("Server is busy handling other requests", result$subset[1])
+          if(busy) print("The server is busy handling other requests...")
+        }
         
         # The same download check (see there for comments) as above, for final data retrieval for a given product band.
         if(class(result) == "try-error" || is.na(result) || busy){
