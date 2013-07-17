@@ -11,3 +11,4 @@ Description: 	Provides several functions for extracting and dealing
 License: GPL-3
 LazyLoad: yes
 LazyData: yes
+URL: https://github.com/seantuck12/MODISTools/
