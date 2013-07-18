@@ -105,7 +105,7 @@ subset.string[1, ]
 A download log file will also be written, displaying all the unique subsets found in the dataset, and confirmation of download success for each.
 
 \subsection{MODISTransects}
-Alternatively, we may want transects of MODIS data. This is easily done by specifying start and end points ofr transects and calling \code{MODISTransects}. Our data here does not have coordinates that specify transect end points yet, so we need to calculate them using \code{EndCoordinates}.
+Alternatively, we may want transects of MODIS data. This is easily done by specifying start and end points for transects and calling \code{MODISTransects}. Our data here does not have coordinates that specify transect end points yet, so we need to calculate them using \code{EndCoordinates}.
 <<eval=FALSE>>=
 names(modis.subset) <- c("start.lat", "start.long", "start.date", "end.date")
 EndCoordinates(LoadDat = modis.subset, Distance = 1000, Angle = 60, 
