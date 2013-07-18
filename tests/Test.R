@@ -67,7 +67,7 @@ Dates <- GetDates(SubsetExample$lat, SubsetExample$long, Product)[1:2]
 if(grepl("Server is busy handling other requests", 
          GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MOD13Q1", 
                    Band="250m_16_days_EVI", StartDate="A2000049", EndDate="A2000049", 
-                   KmAboveBelow=0, KmLeftRight=0)$subset[1])
+                   KmAboveBelow=0, KmLeftRight=0)$subset[1])     
    ){
   q()
 } else {
@@ -85,8 +85,9 @@ QAdata <- QualityCheckExample[6:10, ]
 QualityCheck(Data=EVIdata, Product="MOD13Q1", Band="250m_16_days_EVI", NoDataFill=-3000, 
           QualityBand="250m_16_days_pixel_reliability", QualityScores=QAdata, QualityThreshold=0)
 
+# Check we can still reach the server for lpdaac modis web service before running functions that request.
+if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 # Check MODIS subset uses this output to produce correctly downloaded files.
-# NOTE: When the server is busy, the file output will be different to expected!
 if(grepl("Server is busy handling other requests", 
          GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MOD13Q1", 
                    Band="250m_16_days_EVI", StartDate="A2000049", EndDate="A2000049", 
@@ -99,6 +100,8 @@ if(grepl("Server is busy handling other requests",
                Size=c(1,1), StartDate=TRUE)
 }
 
+# Check we can still reach the server for lpdaac modis web service before running functions that request.
+if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 # Check example run of MODISSummaries.
 if(grepl("Server is busy handling other requests", 
          GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MOD13Q1", 
@@ -117,6 +120,8 @@ SummaryFile <- read.csv(list.files(pattern="MODIS Summary"))
 DataFile <- read.csv(list.files(pattern="MODIS Data"))
 all(SummaryFile$mean.band == DataFile[1,which(grepl("band.pixels", names(DataFile)))])
 
+# Check we can still reach the server for lpdaac modis web service before running functions that request.
+if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 # Check example of MODISTransects
 if(grepl("Server is busy handling other requests", 
          GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MOD13Q1", 
@@ -147,6 +152,8 @@ ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=FALSE)
 matrix(TileExample, nrow=9, ncol=9, byrow=TRUE)
 ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=TRUE)
 
+# Check we can still reach the server for lpdaac modis web service before running functions that request.
+if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 # Check LandCover example
 lc.test <- SubsetExample
 lc.test$start.date <- 2001

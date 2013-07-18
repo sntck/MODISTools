@@ -286,5 +286,5 @@ MODISSummaries <-
     
     # Write the final appended dataset to a csv file, ready for use, in Dir.
     write.table(res, file=paste(Dir, "/", "MODIS Data ", Sys.Date(), ".csv", sep=""), sep=",", col.names=TRUE, row.names=FALSE)
-    print(paste("Done! Check files 'MODIS Summary ", Sys.Date(), ".csv' and 'MODIS Data ", Sys.Date(), ".csv'.", sep=""))  
+    print(paste("Done! Check the 'MODIS Summary' and 'MODIS Data' output files.", sep=""))  
   }

@@ -37,11 +37,11 @@ EndCoordinates <- function(LoadDat, FileSep = NULL, Distance = 1000, Angle = 90,
   if (AngleUnits == 'radians'){ angle.rad <- Angle }
   if (AngleUnits == 'degrees'){ angle.rad <- Angle/(180/pi) }
   
-	lat.rad <- x$start.lat/(180/pi)
+	lat.rad <- x$start.lat / (180/pi)
 	delta.lat.metres <- round(Distance * cos(angle.rad))
 	delta.long.metres <- round(Distance * sin(angle.rad))
-	delta.lat.degrees <- delta.lat.metres/(111.2 * 1000)
-	delta.long.degrees <- delta.long.metres/((111.2 * 1000) * cos(lat.rad))
+	delta.lat.degrees <- delta.lat.metres / (111.2 * 1000)
+	delta.long.degrees <- delta.long.metres / ((111.2 * 1000) * cos(lat.rad))
 	end.lat <- x$start.lat + delta.lat.degrees
 	end.long <- x$start.long + delta.long.degrees
 	x <- cbind(x, end.lat, end.long)

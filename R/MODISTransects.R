@@ -45,7 +45,7 @@ MODISTransects <-
     }
     # If the Bands input does not match with the Product input, stop with error.
     band.test <- lapply(Bands, function(x) !any(x == GetBands(Product)))
-    if(any(band.test)){ 
+    if(any(band.test == TRUE)){ 
       stop("At least one band name entered does not match the product name entered. 
            See GetBands() for band names available within each product.")
     }
