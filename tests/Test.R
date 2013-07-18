@@ -9,6 +9,8 @@ data(SubsetExample, FindIDExample, QualityCheckExample, TransectExample,
 library(RCurl)  # Will use some RCurl and XML functions explicitly in testing.
 library(XML)
 
+## Following lines of code testing for internet connectivity and server access, are from
+## R testing: .../tests/internet.R
 # Check for internet capability.
 if(!capabilities()["http/ftp"]) q()
 
@@ -17,6 +19,7 @@ if(.Platform$OS.type == "unix" && is.null(nsl("cran.r-project.org"))) q()
 
 # Check we can reach the server for lpdaac modis web service.
 if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
+##
 
 urlCheck<- try(curlPerform(url="http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"))
 if(class(urlCheck) == "try-error") q()
