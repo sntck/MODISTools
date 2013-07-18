@@ -3,10 +3,7 @@ MODISTransects <-
   {
     # Define:  
     # Data are gridded in equal-area tiles in a sinusoidal projection. Each tile consists of a 1200x1200 km data 
-    # array (MODPRJ_TILE_KM) of pixels at a finer resolution (see http://modis-land.gsfc.nasa.gov/MODLAND_grid.html).                          
-    MODPRJ_TILE_M = 1200 * 1000                      # Define rounded width of each MODIS prj grid tile in metres.
-    NUM_TILES = 36                                   # No. of tiles spanning horizontally along the MODIS mapping grid.
-    MODPRJ_EXTENT_X = 20015109.354 + 20015109.354    # Absolute horizontal extent of grid (-20015109.354,20015109.354). 
+    # array of pixels at a finer resolution (see http://modis-land.gsfc.nasa.gov/MODLAND_grid.html).                          
     LONG_EQTR_M = 111.2 * 1000                       # A degree at equator is 111.2km in distance.
     
     if(!is.object(LoadData) & !is.character(LoadData)){
@@ -124,15 +121,13 @@ MODISTransects <-
       }
     } 
     
-    #####
-    # Actual width of each tile in the MODIS projection (in metres).
-    tile.width <- MODPRJ_EXTENT_X / NUM_TILES
-    # Identify resolution of requested product band and use it to work out actual cell size from projection info.
-    w.res <- regexpr("m_", Bands[1])
-    res <- as.numeric(substr(Bands[1], 1, w.res - 1))
     # Work out actual width of each pixel in the MODIS projection.
-    cell.size <- tile.width / (MODPRJ_TILE_M/res)
-    #####
+    cell.size.dates <- GetDates(Lat=LoadData$start.lat[1], Long=LoadData$start.long[1], Product=Product)[1:2]
+    cell.size <- as.numeric(unname(
+      GetSubset(Lat=LoadData$start.lat[1], Long=LoadData$start.long[1], Product=Product,
+                           Band=Bands[1], StartDate=cell.size.dates[1], EndDate=cell.size.dates[2],
+                           KmAboveBelow=0, KmLeftRight=0)$pixelsize[[1]]
+      ))
     
     # Find all unique transects to download pixels for.
     t.dat <- dat[!duplicated(dat$transect), ]
