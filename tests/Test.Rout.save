@@ -27,6 +27,8 @@ Type 'q()' to quit R.
 Loading required package: bitops
 > library(XML)
 > 
+> ## Following lines of code testing for internet connectivity and server access, are from
+> ## R testing: .../tests/internet.R
 > # Check for internet capability.
 > if(!capabilities()["http/ftp"]) q()
 > 
@@ -35,6 +37,7 @@ Loading required package: bitops
 > 
 > # Check we can reach the server for lpdaac modis web service.
 > if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
+> ##
 > 
 > urlCheck<- try(curlPerform(url="http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"))
 > if(class(urlCheck) == "try-error") q()
