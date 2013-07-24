@@ -97,10 +97,10 @@ function(Dir=".", Band)
       # Calculate Simpson's D diversity index 
       simp.d[x] <- 1 / lc.freq
       
-      lc.mode <- which.max(lc.freq)
+      lc.mode <- which.max(lc.tiles[x, ])
       lc.mode.class[x] <- names(which(lc.type.set == lc.mode))     
       # Calculate landscape richness
-      lc.richness[x] <- length(lc.freq)   
+      lc.richness[x] <- length(lc.tiles[x, ])   
           
       # Calculate Simpson's measure of evenness
       simp.even[x] <- simp.d[x] / lc.richness[x]
