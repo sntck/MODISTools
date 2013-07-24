@@ -1,20 +1,3 @@
-
-R version 3.0.1 (2013-05-16) -- "Good Sport"
-Copyright (C) 2013 The R Foundation for Statistical Computing
-Platform: x86_64-apple-darwin10.8.0 (64-bit)
-
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under certain conditions.
-Type 'license()' or 'licence()' for distribution details.
-
-R is a collaborative project with many contributors.
-Type 'contributors()' for more information and
-'citation()' on how to cite R or R packages in publications.
-
-Type 'demo()' for some demos, 'help()' for on-line help, or
-'help.start()' for an HTML browser interface to help.
-Type 'q()' to quit R.
-
 > # Testing for internet connectivity, the connection to the MODIS SOAP WSDL Server and it's Web Service
 > # Description Language, for the XML response from the Web Service method, and for the functions of
 > # MODISTools.
@@ -30,7 +13,7 @@ Loading required package: bitops
 > ## Following lines of code testing for internet connectivity and server access, are from
 > ## R testing: .../tests/internet.R
 > # Check for internet capability.
-> if(!capabilities()["http/ftp"]) q()
+> if(!capabilities("http/ftp")) q()
 > 
 > # Check for internet connectivity.
 > if(.Platform$OS.type == "unix" && is.null(nsl("cran.r-project.org"))) q()
