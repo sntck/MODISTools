@@ -12,7 +12,7 @@ library(XML)
 ## Following lines of code testing for internet connectivity and server access, are from
 ## R testing: .../tests/internet.R
 # Check for internet capability.
-if(!capabilities()["http/ftp"]) q()
+if(!capabilities("http/ftp")) q()
 
 # Check for internet connectivity.
 if(.Platform$OS.type == "unix" && is.null(nsl("cran.r-project.org"))) q()
