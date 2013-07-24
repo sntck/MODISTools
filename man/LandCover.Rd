@@ -24,6 +24,7 @@ LandCover(Dir=".", Band)
           \code{\link[MODISTools:MODISSummaries]{MODISSummaries}}
 }
 \examples{
+\dontrun{ # dontrun() used because running the example requires internet access.
 data(SubsetExample)
 # Extend the years to download for
 SubsetExample$start.date <- 2001
@@ -32,4 +33,5 @@ MODISSubsets(LoadDat=SubsetExample, Product="MCD12Q1", Bands=c("Land_Cover_Type_
              Size=c(3,3), StartDate=TRUE)
 
 LandCover(Band="Land_Cover_Type_1")
+        }
 }
