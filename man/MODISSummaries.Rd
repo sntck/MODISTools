@@ -60,7 +60,9 @@ The second file (MODIS Data...) that has the information from the original file 
           \code{\link[MODISTools:QualityCheck]{QualityCheck}}
 }
 \examples{
-\dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
+\dontrun{ 
+# dontrun() used because running the example requires internet access, 
+# and takes over a minute to run.
 data(SubsetExample)
 
 MODISSubsets(LoadDat=SubsetExample, Product="MOD13Q1",     

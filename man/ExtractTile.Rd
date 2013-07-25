@@ -31,7 +31,7 @@ MODISSummaries(LoadDat=SubsetExample, Product="MOD13Q1", Band="250m_16_days_EVI"
     QualityScreen=TRUE, QualityBand="250m_16_days_pixel_reliability", QualityThreshold=0)
 
 if(sum(grepl("MODIS Data", list.files())) != 1){
-  print("Wanted to find one 'MODIS Data' csv output file from MODISSummaries - has it gone or are there more?")
+  print("Could not identify 'MODIS Data' csv output file from MODISSummaries")
 } else {
   TileExample <- read.csv(list.files(pattern="MODIS Data"))
   TileExample <- TileExample[ ,which(grepl("band.pixels", names(TileExample)))]
