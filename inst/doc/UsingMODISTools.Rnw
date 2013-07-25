@@ -166,7 +166,7 @@ head(land.summary)
 <<echo=FALSE>>=
 land.summary <- read.csv(paste("./LandCover/",
                                list.files(path = "./LandCover/",
-                                          pattern = "MODIS Land Cover Summary"),
+                                          pattern = "LandCoverSummary"),
                                sep = ""))
 head(land.summary)
 @
