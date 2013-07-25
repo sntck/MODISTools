@@ -5,6 +5,7 @@
 \usepackage{url}
 \usepackage{hyperref}
 \usepackage[none]{hyphenat}     % No hyphens
+\usepackage[noae]{Sweave}
 %\VignetteIndexEntry{Using MODISTools}
 \newcommand{\code}[1]{\texttt{#1}}
 
