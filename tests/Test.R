@@ -57,23 +57,7 @@ curlPerform(url = "http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_
           verbose=FALSE)
 
 xmlRoot(xmlTreeParse(reader$value()))
-
-# Check GetSubset is producing the correct output.
-# Use GetProducts, GetBands, and GetDates, to specify the GetSubset request.
-Product <- GetProducts()[1]
-Band <- GetBands(Product)[1]
-Dates <- GetDates(SubsetExample$lat, SubsetExample$long, Product)[1:2]
-
-if(grepl("Server is busy handling other requests", 
-         GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MOD13Q1", 
-                   Band="250m_16_days_EVI", StartDate="A2000049", EndDate="A2000049", 
-                   KmAboveBelow=0, KmLeftRight=0)$subset[1])     
-   ){
-  q()
-} else {
-  GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product=Product, Band=Band, 
-            StartDate=Dates[1], EndDate=Dates[1], KmAboveBelow=0, KmLeftRight=0)
-}
+###
 
 # Check FindID example
 FindID(ID=SubsetExample, Data=FindIDExample)
@@ -84,19 +68,29 @@ QAdata <- QualityCheckExample[6:10, ]
 
 QualityCheck(Data=EVIdata, Product="MOD13Q1", Band="250m_16_days_EVI", NoDataFill=-3000, 
           QualityBand="250m_16_days_pixel_reliability", QualityScores=QAdata, QualityThreshold=0)
+###
 
 # Check we can still reach the server for lpdaac modis web service before running functions that request.
 if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 # Check MODIS subset uses this output to produce correctly downloaded files.
 if(grepl("Server is busy handling other requests", 
-         GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MOD13Q1", 
-                   Band="250m_16_days_EVI", StartDate="A2000049", EndDate="A2000049", 
+         GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MCD12Q1", 
+                   Band="Land_Cover_Type_1", StartDate="A2005001", EndDate="A2005001", 
                    KmAboveBelow=0, KmLeftRight=0)$subset[1])
 ){
   q()
 } else {
-  MODISSubsets(LoadDat=SubsetExample, Product="MOD13Q1",
-               Bands=c("250m_16_days_EVI","250m_16_days_pixel_reliability"),
+  # Check GetSubset is producing the correct output.
+  # Use GetProducts, GetBands, and GetDates, to specify the GetSubset request.
+  Product <- GetProducts()[1]
+  Band <- GetBands(Product)[1]
+  Dates <- GetDates(SubsetExample$lat, SubsetExample$long, Product)[1:2]
+  
+  GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product=Product, Band=Band, 
+            StartDate=Dates[1], EndDate=Dates[1], KmAboveBelow=0, KmLeftRight=0)
+  
+  MODISSubsets(LoadDat=SubsetExample, Product="MCD12Q1",
+               Bands=c("Land_Cover_Type_1"),
                Size=c(1,1), StartDate=TRUE)
 }
 
@@ -110,9 +104,8 @@ if(grepl("Server is busy handling other requests",
 ){
   q()
 } else {
-  MODISSummaries(LoadDat=SubsetExample, Product="MOD13Q1", Band="250m_16_days_EVI", 
-                 ValidRange=c(-2000,10000), NoDataFill=-3000, ScaleFactor=0.0001, StartDate=TRUE,
-                 QualityScreen=TRUE, QualityBand="250m_16_days_pixel_reliability", QualityThreshold=0)
+  MODISSummaries(LoadDat=SubsetExample, Product="MCD12Q1", Band="Land_Cover_Type_1", 
+                 ValidRange=c(0,254), NoDataFill=255, ScaleFactor=1, StartDate=TRUE)
 }
 
 # Check the MODISSummaries file outputs are consistent.
@@ -130,8 +123,8 @@ if(grepl("Server is busy handling other requests",
 ){
   q()
 } else {
-  MODISTransects(LoadData=TransectExample, Product="MOD13Q1",     
-          Bands=c("250m_16_days_EVI", "250m_16_days_pixel_reliability"), 
+  MODISTransects(LoadData=TransectExample, Product="MCD12Q1",     
+          Bands=c("Land_Cover_Type_1"), 
           Size=c(0,0), StartDate=TRUE)
 }
 
@@ -146,27 +139,11 @@ TileExample <- read.csv(list.files(pattern="MODIS Data"))
 TileExample <- TileExample[ ,which(grepl("band.pixels", names(TileExample)))]
 
 dim(TileExample)
-dim(ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=FALSE))
-ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=FALSE)
+dim(ExtractTile(Data=TileExample, Rows=c(5,1), Cols=c(5,1), Grid=FALSE))
+ExtractTile(Data=TileExample, Rows=c(5,1), Cols=c(5,1), Grid=FALSE)
 
-matrix(TileExample, nrow=9, ncol=9, byrow=TRUE)
-ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=TRUE)
+matrix(TileExample, nrow=5, ncol=5, byrow=TRUE)
+ExtractTile(Data=TileExample, Rows=c(5,1), Cols=c(5,1), Grid=TRUE)
 
-# Check we can still reach the server for lpdaac modis web service before running functions that request.
-if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
-# Check LandCover example
-lc.test <- SubsetExample
-lc.test$start.date <- 2001
-lc.test$end.date <- 2009
-if(grepl("Server is busy handling other requests", 
-         GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MOD13Q1", 
-                   Band="250m_16_days_EVI", StartDate="A2000049", EndDate="A2000049", 
-                   KmAboveBelow=0, KmLeftRight=0)$subset[1])
-){
-  q()
-} else{
-  MODISSubsets(LoadDat=lc.test, Product="MCD12Q1", Bands=c("Land_Cover_Type_1"),
-               Size=c(3,3), StartDate=TRUE)
-}
-
+# Check LandCover on previously downloaded data from MODISSubsets
 LandCover(Band="Land_Cover_Type_1")

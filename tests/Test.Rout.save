@@ -100,29 +100,7 @@ OK
   </getsubsetResponse>
  </soap:Body>
 </soap:Envelope>
-> 
-> # Check GetSubset is producing the correct output.
-> # Use GetProducts, GetBands, and GetDates, to specify the GetSubset request.
-> Product <- GetProducts()[1]
-> Band <- GetBands(Product)[1]
-> Dates <- GetDates(SubsetExample$lat, SubsetExample$long, Product)[1:2]
-> 
-> if(grepl("Server is busy handling other requests", 
-+          GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MOD13Q1", 
-+                    Band="250m_16_days_EVI", StartDate="A2000049", EndDate="A2000049", 
-+                    KmAboveBelow=0, KmLeftRight=0)$subset[1])     
-+    ){
-+   q()
-+ } else {
-+   GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product=Product, Band=Band, 
-+             StartDate=Dates[1], EndDate=Dates[1], KmAboveBelow=0, KmLeftRight=0)
-+ }
-        xll        yll     pixelsize nrow ncol          band scale      lat
-1 -45404.68 5716815.61 463.312716528    1    1 LC_Property_1     0 51.41363
-      long
-1 -0.64875
-                                                                                                                       subset
-1 MCD12Q1.A2001001.h17v03.005.2011055225725.LC_Property_1,MCD12Q1,A2001001,Lat51.41363Lon-0.64875Samp1Line1,2011055225725,255
+> ###
 > 
 > # Check FindID example
 > FindID(ID=SubsetExample, Data=FindIDExample)
@@ -140,19 +118,29 @@ OK
 3      NA      NA      NA      NA      NA
 4    3892    3890    4251    3248    3248
 5    4649    4038    3988    3986    4184
+> ###
 > 
 > # Check we can still reach the server for lpdaac modis web service before running functions that request.
 > if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 > # Check MODIS subset uses this output to produce correctly downloaded files.
 > if(grepl("Server is busy handling other requests", 
-+          GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MOD13Q1", 
-+                    Band="250m_16_days_EVI", StartDate="A2000049", EndDate="A2000049", 
++          GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MCD12Q1", 
++                    Band="Land_Cover_Type_1", StartDate="A2005001", EndDate="A2005001", 
 +                    KmAboveBelow=0, KmLeftRight=0)$subset[1])
 + ){
 +   q()
 + } else {
-+   MODISSubsets(LoadDat=SubsetExample, Product="MOD13Q1",
-+                Bands=c("250m_16_days_EVI","250m_16_days_pixel_reliability"),
++   # Check GetSubset is producing the correct output.
++   # Use GetProducts, GetBands, and GetDates, to specify the GetSubset request.
++   Product <- GetProducts()[1]
++   Band <- GetBands(Product)[1]
++   Dates <- GetDates(SubsetExample$lat, SubsetExample$long, Product)[1:2]
++   
++   GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product=Product, Band=Band, 
++             StartDate=Dates[1], EndDate=Dates[1], KmAboveBelow=0, KmLeftRight=0)
++   
++   MODISSubsets(LoadDat=SubsetExample, Product="MCD12Q1",
++                Bands=c("Land_Cover_Type_1"),
 +                Size=c(1,1), StartDate=TRUE)
 + }
 [1] "Found 1 unique time-series to download."
@@ -170,9 +158,8 @@ OK
 + ){
 +   q()
 + } else {
-+   MODISSummaries(LoadDat=SubsetExample, Product="MOD13Q1", Band="250m_16_days_EVI", 
-+                  ValidRange=c(-2000,10000), NoDataFill=-3000, ScaleFactor=0.0001, StartDate=TRUE,
-+                  QualityScreen=TRUE, QualityBand="250m_16_days_pixel_reliability", QualityThreshold=0)
++   MODISSummaries(LoadDat=SubsetExample, Product="MCD12Q1", Band="Land_Cover_Type_1", 
++                  ValidRange=c(0,254), NoDataFill=255, ScaleFactor=1, StartDate=TRUE)
 + }
 [1] "Processing file 1 of 1..."
 [1] "Writing summaries and collecting data..."
@@ -194,8 +181,8 @@ OK
 + ){
 +   q()
 + } else {
-+   MODISTransects(LoadData=TransectExample, Product="MOD13Q1",     
-+           Bands=c("250m_16_days_EVI", "250m_16_days_pixel_reliability"), 
++   MODISTransects(LoadData=TransectExample, Product="MCD12Q1",     
++           Bands=c("Land_Cover_Type_1"), 
 +           Size=c(0,0), StartDate=TRUE)
 + }
 [1] "Found 1 transects. Downloading time-series sets for each transect..."
@@ -224,77 +211,36 @@ OK
 > TileExample <- TileExample[ ,which(grepl("band.pixels", names(TileExample)))]
 > 
 > dim(TileExample)
-[1]  1 81
-> dim(ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=FALSE))
 [1]  1 25
-> ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=FALSE)
-          [,1]      [,2]     [,3]      [,4]      [,5]      [,6]      [,7]
-[1,] 0.3799335 0.4007456 0.376501 0.3894108 0.4138817 0.3705727 0.3742467
-          [,8]      [,9]     [,10]     [,11]     [,12]     [,13]     [,14]
-[1,] 0.3789888 0.4106913 0.3780576 0.3609897 0.3663994 0.3710234 0.3824075
-         [,15]     [,16]     [,17]     [,18]     [,19]     [,20]     [,21]
-[1,] 0.3700172 0.3378555 0.3804991 0.3618633 0.3780558 0.3691179 0.3618148
-         [,22]     [,23]     [,24]     [,25]
-[1,] 0.3925768 0.3905349 0.3734327 0.3689713
+> dim(ExtractTile(Data=TileExample, Rows=c(5,1), Cols=c(5,1), Grid=FALSE))
+[1] 1 9
+> ExtractTile(Data=TileExample, Rows=c(5,1), Cols=c(5,1), Grid=FALSE)
+     [,1] [,2] [,3] [,4]     [,5] [,6] [,7] [,8] [,9]
+[1,]    5    5    5    5 4.250343   14   14    5   14
 > 
-> matrix(TileExample, nrow=9, ncol=9, byrow=TRUE)
-      [,1]      [,2]      [,3]      [,4]      [,5]      [,6]      [,7]     
- [1,] 0.428423  0.4212475 0.3520026 0.4321288 0.5030634 0.5029173 0.4649371
- [2,] 0.4317894 0.4104946 0.3455521 0.3519144 0.4314157 0.4128186 0.39754  
- [3,] 0.4163453 0.4130639 0.3799335 0.3705727 0.3609897 0.3378555 0.3618148
- [4,] 0.4257619 0.418104  0.4007456 0.3742467 0.3663994 0.3804991 0.3925768
- [5,] 0.4042684 0.3831267 0.376501  0.3789888 0.3710234 0.3618633 0.3905349
- [6,] 0.3625021 0.3643448 0.3894108 0.4106913 0.3824075 0.3780558 0.3734327
- [7,] 0.3674653 0.3829601 0.4138817 0.3780576 0.3700172 0.3691179 0.3689713
- [8,] 0.4096427 0.3850499 0.3756149 0.3551992 0.3478013 0.3582401 0.3578968
- [9,] 0.4012113 0.3650902 0.3201863 0.3084471 0.3149235 0.3466468 0.3497902
-      [,8]      [,9]     
- [1,] 0.4322581 0.4057131
- [2,] 0.4036014 0.3811317
- [3,] 0.4113128 0.421878 
- [4,] 0.412866  0.4173266
- [5,] 0.3796605 0.389606 
- [6,] 0.3797351 0.3908229
- [7,] 0.3245291 0.3579076
- [8,] 0.3293719 0.3351998
- [9,] 0.3541456 0.3689591
-> ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=TRUE)
+> matrix(TileExample, nrow=5, ncol=5, byrow=TRUE)
+     [,1]     [,2]     [,3]     [,4] [,5]    
+[1,] 14       7.253086 11.74691 14   6.503429
+[2,] 14       5        5        14   5       
+[3,] 11.49657 5        4.250343 5    5       
+[4,] 14       5        14       14   11.49657
+[5,] 4.749657 5        5        5    13      
+> ExtractTile(Data=TileExample, Rows=c(5,1), Cols=c(5,1), Grid=TRUE)
 , , 1
 
-          [,1]      [,2]      [,3]      [,4]      [,5]
-[1,] 0.3799335 0.3705727 0.3609897 0.3378555 0.3618148
-[2,] 0.4007456 0.3742467 0.3663994 0.3804991 0.3925768
-[3,] 0.3765010 0.3789888 0.3710234 0.3618633 0.3905349
-[4,] 0.3894108 0.4106913 0.3824075 0.3780558 0.3734327
-[5,] 0.4138817 0.3780576 0.3700172 0.3691179 0.3689713
+     [,1]      [,2] [,3]
+[1,]    5  5.000000   14
+[2,]    5  4.250343    5
+[3,]    5 14.000000   14
 
 > 
-> # Check we can still reach the server for lpdaac modis web service before running functions that request.
-> if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
-> # Check LandCover example
-> lc.test <- SubsetExample
-> lc.test$start.date <- 2001
-> lc.test$end.date <- 2009
-> if(grepl("Server is busy handling other requests", 
-+          GetSubset(Lat=SubsetExample$lat, Long=SubsetExample$long, Product="MOD13Q1", 
-+                    Band="250m_16_days_EVI", StartDate="A2000049", EndDate="A2000049", 
-+                    KmAboveBelow=0, KmLeftRight=0)$subset[1])
-+ ){
-+   q()
-+ } else{
-+   MODISSubsets(LoadDat=lc.test, Product="MCD12Q1", Bands=c("Land_Cover_Type_1"),
-+                Size=c(3,3), StartDate=TRUE)
-+ }
-[1] "Found 1 unique time-series to download."
-[1] "Getting subset for location 1 of 1..."
-[1] "Full subset download complete. Writing the subset download file..."
-[1] "Done! Check the subset download file for correct subset information and any download messages."
-> 
+> # Check LandCover on previously downloaded data from MODISSubsets
 > LandCover(Band="Land_Cover_Type_1")
-[1] "Some .asc files found in Dir that weren't MODIS downloads of MCD12Q1 product. Selecting only ascii files from MCD12Q1 downloads."
-[1] "Processing file 1 of 1..."
+[1] "Processing file 1 of 3..."
+[1] "Processing file 2 of 3..."
+[1] "Processing file 3 of 3..."
 [1] "Done! Check the 'MODIS Land Cover Summary' output file."
 > 
 > proc.time()
    user  system elapsed 
-  4.014   0.229 265.683 
+  4.107   0.119  42.871 
