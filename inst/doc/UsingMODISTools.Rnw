@@ -72,7 +72,8 @@ We will download EVI data at 250m pixel resolution, which is available at 16-day
 
 We can check that the time-series of MODIS data we want is available for this data product by retrieving the dates for all available time-steps.
 <<>>=
-dates <- GetDates(Product = "MOD13Q1", Lat = modis.subset$lat[1], Long = modis.subset$long[1])
+dates <- 
+  GetDates(Product = "MOD13Q1", Lat = modis.subset$lat[1], Long = modis.subset$long[1])
 min(dates)
 max(dates)
 @
@@ -142,7 +143,8 @@ Pixels in a tile are on the same row. See that using \code{ExtractTile} takes aw
 <<>>=
 dim(TileExample)
 dim(ExtractTile(Data = TileExample, Rows = c(9,2), Cols = c(9,2), Grid = FALSE))
-head(ExtractTile(Data = TileExample, Rows = c(9,2), Cols = c(9,2), Grid = FALSE), n = 2)
+head(ExtractTile(Data = TileExample, Rows = c(9,2), Cols = c(9,2), Grid = FALSE), 
+     n = 2)
 @
 We can look at the first subset and arrange the pixels into a tile to visually show what \code{ExtractTile} has done.
 <<>>=
