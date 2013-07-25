@@ -1,9 +1,3 @@
-inst/doc/UsingMODISTools-concordance.tex
-inst/doc/UsingMODISTools.log
-inst/doc/UsingMODISTools.pdf
-inst/doc/UsingMODISTools.synctex.gz
-inst/doc/UsingMODISTools.tex
-inst/doc/UsingMODISTools.toc
 .gitignore
 .git
 .DS_Store
