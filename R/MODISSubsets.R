@@ -157,7 +157,8 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size, SaveDir=".", StartDate=FAL
     # Code has now identified which subscripts in the larger data file correspond to unique locations,
     # making sure all are considered, so that corresponding information specific to each location 
     # such as date and ID can be easily retrieved.
-    ID <- paste("Lat", lat.long[ ,1], "Lon", lat.long[ ,2], "Start", start.date, "End", end.date, sep="")
+    fmt <- '%.5f'
+    ID <- paste("Lat", sprintf(fmt, lat.long[ ,1]), "Lon", sprintf(fmt, lat.long[ ,2]), "Start", start.date, "End", end.date, sep="")
     lat.long <- data.frame(SubsetID=ID, lat.long, Status=rep(NA, nrow(lat.long)))
     
     ##### Some sanity checks.

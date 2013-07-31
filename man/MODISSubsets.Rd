@@ -40,7 +40,9 @@ SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 2, Transect=FALSE)
 \author{Sean Tuck}
 \seealso{\code{\link{help}}}
 \examples{
-\dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
+\dontrun{ 
+# dontrun() used because running the example requires internet access, 
+# and takes over a minute to run.
 data(SubsetExample)
 
 MODISSubsets(LoadDat=SubsetExample, Product="MOD13Q1", Bands=c("250m_16_days_EVI", 

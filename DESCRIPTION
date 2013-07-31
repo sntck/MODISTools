@@ -1,13 +1,13 @@
 Package: MODISTools
 Type: Package
 Title: MODIS Subsetting Tools
-Version: 0.93.1
-Date: 2013-07-17
+Version: 0.93.3
+Date: 2013-07-25
 Author: Sean Tuck, Helen Phillips
 Imports: RCurl, XML
 Maintainer: Sean Tuck <sean.tuck@plants.ox.ac.uk>
-Description: 	Provides several functions for extracting and dealing 
-		with subsets of MODIS Land Processes data as a batch process.
+Description: 	Provides several functions for downloading, storing and processing 
+		subsets of MODIS Land Processes data as a batch process.
 License: GPL-3
 LazyLoad: yes
 LazyData: yes

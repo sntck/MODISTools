@@ -4,7 +4,8 @@
 \description{Designed as an internal function for MODISSummaries, but can also be used independently. MODIS data of a given product band are screened for poor quality pixels, using the reliability data available for that product. The missing data values are also filtered out. The output is the same MODIS data, with screened poor quality and missing data converted to NAs.
 }
 \usage{
-QualityCheck(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThreshold)
+QualityCheck(Data, Product, Band, NoDataFill, QualityBand, QualityScores, 
+              QualityThreshold)
 }
 \arguments{
   \item{Data}{Numeric vector or matrix; the input MODIS data, for QualityCheck to screen for poor quality and missing data.
@@ -36,10 +37,14 @@ QualityCheck(Data, Product, Band, NoDataFill, QualityBand, QualityScores, Qualit
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSummaries]{MODISSummaries}}}
 \examples{
+\dontrun{ 
+# dontrun() used because running the example requires internet access.
 data(QualityCheckExample)
 EVIdata <- QualityCheckExample[1:5, ]
 QAdata <- QualityCheckExample[6:10, ]
 
-QualityCheck(Data=EVIdata, Product="MOD13Q1", Band="250m_16_days_EVI", NoDataFill=-3000, 
-      QualityBand="250m_16_days_pixel_reliability", QualityScores=QAdata, QualityThreshold=0)
+QualityCheck(Data=EVIdata, Product="MOD13Q1", Band="250m_16_days_EVI", 
+              NoDataFill=-3000, QualityBand="250m_16_days_pixel_reliability", 
+              QualityScores=QAdata, QualityThreshold=0)
+        }
 }

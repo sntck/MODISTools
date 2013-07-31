@@ -42,7 +42,9 @@ The transects lengths requested must be longer than the requested pixel size. Th
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
 \examples{
-\dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
+\dontrun{ 
+# dontrun() used because running the example requires internet access, 
+# and takes over a minute to run.
 data(TransectExample)
 
 MODISTransects(LoadData=TransectExample, Product="MOD13Q1",     

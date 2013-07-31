@@ -92,14 +92,18 @@ function(Dir=".", Band)
     for(x in 1:nrow(lc.tiles)){
       # Calculate mode - most frequent lc class
       lc.freq <- table(lc.tiles[x, ])
-      lc.mode <- which.max(lc.freq)
+      lc.freq <- lc.freq / ncol(lc.tiles)
+      lc.freq <- sum(lc.freq^2)
+      # Calculate Simpson's D diversity index 
+      simp.d[x] <- 1 / lc.freq
+      
+      lc.mode <- which.max(table(lc.tiles[x, ]))
       lc.mode.class[x] <- names(which(lc.type.set == lc.mode))     
       # Calculate landscape richness
-      lc.richness[x] <- length(lc.freq)   
-      # Calculate Simpson's D diversity index
-      simp.d[x] <- sum((lc.freq * (lc.freq - 1)) / (ncol(lc.tiles) * (ncol(lc.tiles) - 1)))      
+      lc.richness[x] <- length(table(lc.tiles[x, ]))   
+          
       # Calculate Simpson's measure of evenness
-      simp.even[x] <- (1 / simp.d[x]) / lc.richness[x]
+      simp.even[x] <- simp.d[x] / lc.richness[x]
       
       no.fill[x] <- paste(round((sum(lc.subset[x,6:ncol(lc.subset)] == NoDataFill) / length(lc.tiles[x, ])) * 100, 2), "% (",
                          sum(lc.subset[x,6:ncol(lc.subset)] == NoDataFill), "/", length(lc.tiles[x, ]), ")", sep="") 
