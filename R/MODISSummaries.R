@@ -30,9 +30,9 @@ MODISSummaries <-
       }
     }
     
-    if(!any(GetBands(Product) == Band)){
-      stop("Band does not match with the Product entered.")
-    }
+#    if(!any(GetBands(Product) == Band)){
+#      stop("Band does not match with the Product entered.")
+#    }
     
     # NoDataFill should be one integer.
     if(length(NoDataFill) != 1){
@@ -244,34 +244,22 @@ MODISSummaries <-
     }
     
     # Following code will append the mean (time-averaged) band values for each pixel, for each time-series, to the
-    # original input dataset (details) to produce one file that contains all necessary information.
-    w.lat <- regexpr("Lat", filelist)
-    w.lon <- regexpr("Lon", filelist)
-    w.start <- regexpr("Start", filelist)
-    w.end <- regexpr("End", filelist)
-    w.finish <- regexpr("_", filelist)
-    lats <- as.numeric(substr(filelist, w.lat + 3, w.lon - 1))
-    lons <- as.numeric(substr(filelist, w.lon + 3, w.start - 1))
-    e.dates <- strptime(substr(filelist, w.end + 3, w.finish - 1), "%Y-%m-%d")
+    # original input dataset (details) to produce one file that contains all necessary information.    
+    if(StartDate){
+      ID.match <- 
+        data.frame(
+        unique(cbind(lat=details$lat[!is.na(details$lat)],
+                     long=details$long[!is.na(details$lat)],
+                     end.date=details$end.date[!is.na(details$lat)],
+                     start.date=details$start.date[!is.na(details$lat)])))
+    } else {
+      ID.match <- 
+        data.frame(
+        unique(cbind(lat=details$lat[!is.na(details$lat)],
+                     long=details$long[!is.na(details$lat)],
+                     end.date=details$end.date[!is.na(details$lat)])))
+    }               
     res <- data.frame(details, band.pixels=matrix(NA, nrow=nrow(details), ncol=ncol(band)))
-    
-    if(Year){
-      e.dates <- as.numeric(e.dates$year + 1900)
-      if(StartDate){
-        s.dates <- as.numeric(strptime(substr(filelist, w.start + 5, w.end - 1), "%Y-%m-%d")$year + 1900)
-        ID.match <- data.frame(lat=lats, long=lons, end.date=e.dates, start.date=s.dates)
-      } else if(!StartDate){
-        ID.match <- data.frame(lat=lats, long=lons, end.date=e.dates)
-      }
-    } else if(POSIXt){
-      if(StartDate){
-        s.dates <- strptime(substr(filelist, w.start + 5, w.end - 1), "%Y-%m-%d")
-        ID.match <- data.frame(lat=lats, long=lons, end.date=e.dates, start.date=s.dates)
-      } else if(!StartDate){
-        ID.match <- data.frame(lat=lats, long=lons, end.date=e.dates)
-      }
-    }
-    
     
     # Use FindID for each row of ID.match, to add the right band subscripts to the right details subscripts.
     for(i in 1:nrow(ID.match)){
@@ -281,8 +269,7 @@ MODISSummaries <-
           res[match.subscripts[x],(ncol(details) + 1):ncol(res)] <- band[i, ]
         }
       }
-    } 
-    any(is.na(res[ ,(ncol(details) + 1):ncol(res)]))
+    }
     
     # Write the final appended dataset to a csv file, ready for use, in Dir.
     write.table(res, file=paste(Dir, "/", "MODIS Data ", Sys.Date(), ".csv", sep=""), sep=",", col.names=TRUE, row.names=FALSE)
