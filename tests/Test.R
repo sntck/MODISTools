@@ -9,6 +9,8 @@ data(SubsetExample, FindIDExample, QualityCheckExample, TransectExample,
 library(RCurl)  # Will use some RCurl and XML functions explicitly in testing.
 library(XML)
 
+options(warn=2)
+
 ## Following lines of code testing for internet connectivity and server access, are from
 ## R testing: .../tests/internet.R
 # Check for internet capability.
@@ -50,11 +52,15 @@ header.fields <- c(Accept = "text/xml",
 
 reader <- basicTextGatherer()
 header <- basicTextGatherer()
+
 curlPerform(url = "http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
           httpheader = header.fields,
           postfields = getsubset.xml,
           writefunction = reader$update,
           verbose=FALSE)
+
+# Check the server is not down by insepcting the XML response for internal server error message.
+if(grepl("Internal Server Error", reader$value())) q()
 
 xmlRoot(xmlTreeParse(reader$value()))
 ###
@@ -111,7 +117,13 @@ if(grepl("Server is busy handling other requests",
 # Check the MODISSummaries file outputs are consistent.
 SummaryFile <- read.csv(list.files(pattern="MODIS Summary"))
 DataFile <- read.csv(list.files(pattern="MODIS Data"))
-all(SummaryFile$mean.band == DataFile[1,which(grepl("band.pixels", names(DataFile)))])
+file.check <- all(SummaryFile$mean.band == DataFile[1,which(grepl("band.pixels", names(DataFile)))])
+if(is.na(file.check)){
+  warning("The two output files from MODISSummaries are not consistent.")
+}
+if(!file.check){
+  warning("The two output files from MODISSummaries are not consistent.")
+}
 
 # Check we can still reach the server for lpdaac modis web service before running functions that request.
 if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
@@ -147,3 +159,5 @@ ExtractTile(Data=TileExample, Rows=c(5,1), Cols=c(5,1), Grid=TRUE)
 
 # Check LandCover on previously downloaded data from MODISSubsets
 LandCover(Band="Land_Cover_Type_1")
+
+options(warn=0)
