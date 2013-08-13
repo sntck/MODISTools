@@ -27,6 +27,8 @@ Type 'q()' to quit R.
 Loading required package: bitops
 > library(XML)
 > 
+> options(warn=2)
+> 
 > ## Following lines of code testing for internet connectivity and server access, are from
 > ## R testing: .../tests/internet.R
 > # Check for internet capability.
@@ -38,9 +40,6 @@ Loading required package: bitops
 > # Check we can reach the server for lpdaac modis web service.
 > if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 > ##
-> 
-> urlCheck<- try(curlPerform(url="http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"))
-> if(class(urlCheck) == "try-error") q()
 > 
 > # Check the XML response is as expected.
 > getsubset.xml <- paste('
@@ -68,6 +67,7 @@ Loading required package: bitops
 > 
 > reader <- basicTextGatherer()
 > header <- basicTextGatherer()
+> 
 > curlPerform(url = "http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
 +           httpheader = header.fields,
 +           postfields = getsubset.xml,
@@ -75,6 +75,9 @@ Loading required package: bitops
 +           verbose=FALSE)
 OK 
  0 
+> 
+> # Check the server is not down by insepcting the XML response for internal server error message.
+> if(grepl("Internal Server Error", reader$value())) q()
 > 
 > xmlRoot(xmlTreeParse(reader$value()))
 <soap:Envelope encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns1="http://daac.ornl.gov/MODIS_webservice">
@@ -240,6 +243,8 @@ OK
 [1] "Processing file 2 of 3..."
 [1] "Processing file 3 of 3..."
 [1] "Done! Check the 'MODIS Land Cover Summary' output file."
+> 
+> options(warn=0)
 > 
 > proc.time()
    user  system elapsed 

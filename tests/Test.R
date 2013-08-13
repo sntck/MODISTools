@@ -23,9 +23,6 @@ if(.Platform$OS.type == "unix" && is.null(nsl("cran.r-project.org"))) q()
 if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 ##
 
-urlCheck<- try(curlPerform(url="http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"))
-if(class(urlCheck) == "try-error") q()
-
 # Check the XML response is as expected.
 getsubset.xml <- paste('
     <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daac.ornl.gov/MODIS_webservice">
