@@ -13,4 +13,4 @@
 \value{A dataframe containing any data for which a subset has not been downloaded.  This can then be used with MODISSubsets.}
 \author{Helen Phillips and Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
-\examples{}
+\examples{blah blah blah}
