@@ -173,11 +173,11 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     
     ##check that if two products have been specified they are for the correct products
     if(length(Product) > 2){
-    	stop("Multiple products can not be downloaded stoopid")
+    	stop("Multiple products can not be downloaded except for MCD43A4 and MCD43A2.")
     }
     if(length(Product) == 2){
     	if(!any(Product == "MCD43A4" | Product == "MCD43A2")){
-    		stop("Multiple products can only be downloaded for MCD43A4 and MCD43A2")
+    		stop("Multiple products can only be downloaded for MCD43A4 and MCD43A2.")
     	}
     	band.test <- lapply(Bands, function(x) !any(x == GetBands(Product[1])) & !any(x == GetBands(Product[2])))
     	if(any(band.test == TRUE)){ 
