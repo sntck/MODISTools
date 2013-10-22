@@ -36,8 +36,11 @@ This data frame is then passed to MODISSubsets.}
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
 \examples{
-\dontrun{ # dontrun() used because running the example requires internet access, and takes a minute or two to run.
+\dontrun{ 
+# dontrun() used because running the example requires internet access,
+# and takes over a minute to run.
 data(SubsetExample)
-GetSubset(Lat=SubsetExample[ ,1], Long=SubsetExample[ ,2], Product="MOD13Q1", Band="250m_16_days_EVI", 
-               StartDate="A2001001", EndDate="A2001025", KmAboveBelow=0, KmLeftRight=0)}
+GetSubset(Lat=SubsetExample[ ,1], Long=SubsetExample[ ,2], Product="MOD13Q1", 
+    Band="250m_16_days_EVI", StartDate="A2001001", EndDate="A2001025", 
+    KmAboveBelow=0, KmLeftRight=0)}
 }

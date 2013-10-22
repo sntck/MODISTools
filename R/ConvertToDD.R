@@ -183,7 +183,7 @@ ConvertToDD <-
     # Final checks that -90 <= decimal lat <= 90 and -180 <= decimal long <= 180, and then return the result.
     lat.res.check<- all(abs(DD.lat) <= 90)
     long.res.check<- all(abs(DD.long) <= 180)
-    if(lat.res.check == FALSE & long.res.check == FALSE){
+    if(!lat.res.check & !long.res.check){
       stop("It appears an invalid answer has been calculated. Check for values just beyond the valid ranges of lat and long.")
     } else {
       return(cbind(DD.lat, DD.long))

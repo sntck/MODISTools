@@ -3,8 +3,7 @@ GetSubset<- function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow,
     stop("Incorrect length of Product input. Give only one data product at a time.")
   }
   if(!any(Product == GetProducts())){
-    stop("The product name entered does not match any available products. 
-           See GetProducts() for available products.")
+    stop("The product name entered does not match any available products. See GetProducts() for available products.")
   }
   if(length(Band) != 1){
     stop("Incorrect length of Band input. Give only one data band at a time.")
@@ -12,8 +11,6 @@ GetSubset<- function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow,
   if(!any(Band == GetBands(Product))){
     stop("Band input must correspond to product input. See GetBands() for band names available within each product.")
   }
-  
-  
   if(!is.numeric(Lat) | !is.numeric(Long)){
     stop("Lat and Long inputs must be numeric.")
   }
@@ -50,11 +47,17 @@ GetSubset<- function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow,
   
   reader<- basicTextGatherer()
   header<- basicTextGatherer()
+  
   curlPerform(url = "http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
               httpheader = header.fields,
               postfields = getsubset.xml,
               writefunction = reader$update,
               verbose=FALSE)
+  
+  # Check the server is not down by insepcting the XML response for internal server error message.
+  if(grepl("Internal Server Error", reader$value())){
+    stop("Web service failure: the ORNL DAAC server seems to be down, please try again later. The online subsetting tool (http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl) will indicate when the server is up and running again.")
+  }
 
   xmlres<- xmlRoot(xmlTreeParse(reader$value()))
   modisres<- xmlSApply( xmlres[[1]], 
@@ -63,8 +66,11 @@ GetSubset<- function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow,
                                     function(x) xmlSApply(x,xmlValue))) 
   )
   
-  modisres<- as.data.frame(t(unname(modisres[-c(7,11)])))
-  names(modisres)<- c("xll", "yll", "pixelsize", "nrow", "ncol", "band", "scale", "lat", "long", "subset")
-  
-  return(modisres)
+  if(colnames(modisres) == "Fault"){
+    return(NA)
+  } else{
+    modisres<- as.data.frame(t(unname(modisres[-c(7,11)])))
+    names(modisres)<- c("xll", "yll", "pixelsize", "nrow", "ncol", "band", "scale", "lat", "long", "subset")
+    return(modisres)
+  }
 }

@@ -9,19 +9,25 @@ The main purpose of this package is to employ the MODIS SOAP Web Service to remo
 
 The functions were originally used for downloading vegetation indices data, but have been generalised to provide a package that performs the same functionality for any MODIS data for similar aims. For a list of all MODIS products, see [https://lpdaac.usgs.gov/products/modis_products_table](https://lpdaac.usgs.gov/products/modis_products_table). Other minor functions -- including a lat-long coordinate conversion tool -- are included to aid this process.
 
-Recent stable releases of this package have been checked and built on Windows, Mac, and Linux, and the dev version was last checked on R 3.0.0 on 14/04/2013. `EndCoordinates` and its documentation is written by [Helen Phillips](https://github.com/helenphillips). Rest written by [Sean Tuck](https://github.com/seantuck12). This package can be used under the terms of the GNU GPLv3 license; feel free to use and modify as you wish, but please cite my work where appropriate.
+Recent stable releases of this package have been checked and built on Windows, Mac, and Linux, and last checked on R 3.0.1 on 25/07/2013. `EndCoordinates` and its documentation is written by [Helen Phillips](https://github.com/helenphillips). Rest written by [Sean Tuck](https://github.com/seantuck12). This package can be used under the terms of the GNU GPLv3 license; feel free to use and modify as you wish, but please cite my work where appropriate.
 
 
 Installation
 ---------
+`MODISTools` is now available from CRAN. So, the most recent stable release can be installed from the CRAN repository, by running:
+```
+install.packages("MODISTools")
+```
+This is the recommended way to download.
 
-The most up-to-date dev version of `MODISTools` can be installed from this github repository. To do this, install the package `devtools` if you haven't already done so.
+Alternatively, the most up-to-date in-development version of `MODISTools` can be installed from this github repository. To do this, install the package `devtools` if you haven't already done so.
 ```
 install.packages("devtools")
+library(devtools)
 ```
-Then use `install_git`, with this repository URL, to install `MODISTools` straight from github.
+Then use `install_github`, with this repository name, to install `MODISTools` straight from github.
 ```
-install_git("https://github.com/seantuck12/MODISTools")
+install_github("MODISTools", "seantuck12")
 ```
 
 

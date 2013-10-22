@@ -1,9 +1,10 @@
 \name{ConvertToDD}
 \alias{ConvertToDD}
 \title{Degrees Minutes Seconds/Decimal Minutes - Decimal Degrees Converter}
-\description{Takes a set of coordinates in either degrees minutes seconds or degrees decimal minutes, and converts them to decimal degrees format (##.#####; -##.#####).
-  The function is flexible to take the input coordinates in several different formats.}
-\usage{ConvertToDD(XY, FileSep=NULL, LatColName, LongColName)}
+\description{Takes a set of coordinates in either degrees minutes seconds or degrees decimal minutes, and converts them to decimal degrees format (##.#####; -##.#####). The function is flexible to take the input coordinates in several different formats.
+}
+\usage{ConvertToDD(XY, FileSep=NULL, LatColName, LongColName)
+}
 \arguments{
   \item{XY}{Input dataset; either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string.}
   \item{FileSep}{If XY is a character string that corresponds to a file path, choose the delimiter character for that file (e.g. "," for comma separated).}
