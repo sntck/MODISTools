@@ -84,7 +84,7 @@ MODISSummaries <-
     }
     
     # Get a list of all downloaded subset (.asc) files in the data directory.
-    filelist <- list.files(path=Dir, pattern=".asc")
+    filelist <- list.files(path=Dir, pattern= paste(Product, ".asc", sep="")
     
     # Time-series analysis for each time-series (.asc file) consecutively.
     band.data.by.site <- list(NA)     # Initialise objects to store summarised data.
