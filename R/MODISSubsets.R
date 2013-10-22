@@ -1,4 +1,4 @@
-MODISSubsets<-
+MODISSubsets2<-
 function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt", Transect=FALSE)
 {
     if(!is.object(LoadDat) & !is.character(LoadDat)){
@@ -252,18 +252,22 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     
     
     ## Loop here for both product and band types
-    ## Would need different vectors?? or lat.long would need to be long enough to include all donwloads
     
-    if(length(Product) > 1){
-    	Bands1 <- Bands[which(Bands %in% GetBands(Product[1]))]
-    	Bands2 <- Bands[which(Bands %in% GetBands(Product[2]))]
+    
+    if(length(Product) >= 2){
+    	#list for each product. Index which band is in that product
+    	which.bands <- lapply(Product, function(x) which(Bands %in% GetBands(x)))
     	
-    	lat.long1 <- BatchDownload(lat.long=lat.long, dates=dates, MODIS.start=MODIS.start, MODIS.end=MODIS.end, Bands=Bands1, 
-                              Product=Product[1], Size=Size, StartDate=StartDate, Transect=Transect, SaveDir=SaveDir)
-       	lat.long2 <- BatchDownload(lat.long=lat.long, dates=dates, MODIS.start=MODIS.start, MODIS.end=MODIS.end, Bands=Bands2, 
-                              Product=Product[2], Size=Size, StartDate=StartDate, Transect=Transect, SaveDir=SaveDir)
+    	for (t in 1:length(Product))
+    	{
+    		lat.long[t] <- BatchDownload(lat.long=lat.long, dates=dates, MODIS.start=MODIS.start, MODIS.end=MODIS.end,
+    			 Bands=Bands[which.bands[[t]]], Product=Product[t], Size=Size, StartDate=StartDate, Transect=Transect, SaveDir=SaveDir)
+    			 
+    			 ## got completely stuck at this part ^^ pretty sure this wouldn't work.
+    	}
+    	
                          
-        lat.long <- rbind(lat.long1, lat.long2)
+        
     }else{
     
     lat.long <- BatchDownload(lat.long=lat.long, dates=dates, MODIS.start=MODIS.start, MODIS.end=MODIS.end, Bands=Bands, 
