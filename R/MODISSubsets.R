@@ -1,4 +1,4 @@
-MODISSubsets2<-
+MODISSubsets<-
 function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt", Transect=FALSE)
 {
     if(!is.object(LoadDat) & !is.character(LoadDat)){
@@ -179,7 +179,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     				See GetProducts() for products available.")
     	}
     	
-    	avail.bands <- unlist(lapply(Products, function(x) GetBands(x)))
+    	avail.bands <- unlist(lapply(Product, function(x) GetBands(x)))
     	band.test <- lapply(Bands, function(x) any(x %in% avail.bands))
     	if(any(band.test == FALSE)){ 
       	stop("At least one band name entered does not match at least one of the product names entered. 
@@ -223,7 +223,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     
     # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.
     # If multiple products download all dates for all products, and order
-    if(length(Product) >= 2){dates <- sort(unlist(lapply(Products, function(x) GetDates(lat.long[1,2], lat.long[1,3], x))))
+    if(length(Product) >= 2){dates <- sort(unlist(lapply(Product, function(x) GetDates(lat.long[1,2], lat.long[1,3], x))))
 	# just one product:   
     }else{dates <- GetDates(lat.long[1,2], lat.long[1,3], Product)}
     
