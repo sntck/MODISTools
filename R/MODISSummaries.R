@@ -1,5 +1,5 @@
 MODISSummaries <-
-  function(LoadDat, FileSep=NULL, Dir=".", Product, Band, ValidRange, NoDataFill, ScaleFactor, StartDate=FALSE, QualityScreen=FALSE, QualityBand=NULL, QualityThreshold=NULL, Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=FALSE, Interpolate=TRUE) 
+  function(LoadDat, FileSep=NULL, Dir=".", Product, Bands, ValidRange, NoDataFill, ScaleFactor, StartDate=FALSE, QualityScreen=FALSE, QualityBand=NULL, QualityThreshold=NULL, Mean=TRUE, SD=TRUE, Min=TRUE, Max=TRUE, Yield=FALSE, Interpolate=TRUE) 
   { 
     # Load input time-series data file; external data file, or an R object.
     if(is.object(LoadDat)) { details <- data.frame(LoadDat) }
@@ -87,13 +87,16 @@ MODISSummaries <-
     filelist <- list.files(path=Dir, pattern= paste(Product, ".asc", sep=""))
     
     # Time-series analysis for each time-series (.asc file) consecutively.
-    band.data.by.site <- list(NA)     # Initialise objects to store summarised data.
-    band <- c()
+    band.data.by.band <- list(NA)     # Initialise objects to store summarised data.
+    bands.extract <- c()
     for(counter in 1:length(filelist)){
+      
+      print(paste("Processing file ", counter, " of ", length(filelist), "...", sep=""))
+      
       # Load selected .asc file into a data frame, name columns and tell user what's being processed.
       ds <- read.csv(paste(Dir, "/", filelist[counter], sep=""), header=FALSE, as.is=TRUE)
       names(ds) <- c("row.id", "land.product.code", "MODIS.acq.date", "where", "MODIS.proc.date", 1:(ncol(ds) - 5))
-      print(paste("Processing file ", counter, " of ", length(filelist), "...", sep=""))
+      
       
       ##### Section that uses the files metadata strings [ ,1:5] for each time-series to extract necessary information.
       # Find location information from metadata string attached at the beginning of each downloaded set of pixels (i.e.
@@ -104,15 +107,16 @@ MODISSummaries <-
       lat <- as.numeric(substr(ds$where[1], 4, wherelong - 1))
       long <- as.numeric(substr(ds$where[1], wherelong + 3, whereSamp - 1))
       
-      # Identify which rows in ds correspond to the product band and which are reliability data.
-      if(any(grepl(Band, ds$row.id))){
-        which.are.band <- grep(Band, ds$row.id)
-      } else {
-        stop("Cannot find which rows in LoadDat are band data. Make sure the only ascii files in the directory are 
+      ## check that all bands listed for that product are in the .asc file
+      if(!any(grepl(Bands, ds$row.id)) == FALSE){
+      	stop("Not all Bands are represented in data file. Make sure the only ascii files in the directory are 
              those downloaded from MODISSubsets.")
       }
       
-      if(QualityScreen){
+      
+      
+      # Identify which rows in ds correspond to reliability data.
+       if(QualityScreen){
         if(any(grepl(QualityBand, ds$row.id))){
           which.are.reliability <- grep(QualityBand, ds$row.id)
         } else {
@@ -120,128 +124,146 @@ MODISSummaries <-
                if you want to check for poor quality data.")
         }
       }
-      #####
       
-      #  Organise data into matrices containing product band data and another for corresponding reliability data.
-      band.time.series <- as.matrix(ds[which.are.band,6:ncol(ds)], nrow=length(which.are.band), ncol=length(6:ncol(ds)))
-      if(QualityScreen){
-        rel.time.series <- as.matrix(ds[which.are.reliability,6:ncol(ds)], nrow=length(which.are.reliability), ncol=length(6:ncol(ds))) 
-      }
       
-      # Screen the pixel values in band.time.series: any pixels whose value correspond to NoDataFill, or whose
-      # corresponding pixel in rel.time.series is below QualityThreshold, will be replaced with NA so they
-      # are not included in time-series analysis.
-      if(QualityScreen){
-        band.time.series <- QualityCheck(Data=band.time.series, QualityScores=rel.time.series, 
-                                         Band=Band, NoDataFill=NoDataFill, QualityBand=QualityBand,
-                                         Product=Product, QualityThreshold=QualityThreshold)
-      } else if(!QualityScreen){
-        band.time.series <- matrix(
-          ifelse(band.time.series != NoDataFill, band.time.series, NA),
-          nrow=length(which.are.band))
-      }
+    for(band in 1:length(Bands)){
+     	 if(any(grepl(Bands[band], ds$row.id))){
+     	   which.are.band <- grep(Bands[band], ds$row.id)
+     	 } else {
+    	    stop("Cannot find which rows in LoadDat are band data. Make sure the only ascii files in the directory are 
+             those downloaded from MODISSubsets.")
+   		   }
       
-      # Final check, that band values all fall within the ValidRange (as defined for given MODIS product band).
-      if(any(!(band.time.series >= ValidRange[1] && band.time.series <= ValidRange[2]), na.rm=TRUE)) { 
-        stop("Some values fall outside the valid range, after no fill values should have been removed.") 
-      }
+     
+	      #####
+	      
+	      #  Organise data into matrices containing product band data and another for corresponding reliability data.
+	      band.time.series <- as.matrix(ds[which.are.band,6:ncol(ds)], nrow=length(which.are.band), ncol=length(6:ncol(ds)))
+	      if(QualityScreen){
+	        rel.time.series <- as.matrix(ds[which.are.reliability,6:ncol(ds)], nrow=length(which.are.reliability), ncol=length(6:ncol(ds))) 
+	      }
+	      
+	      # Screen the pixel values in band.time.series: any pixels whose value correspond to NoDataFill, or whose
+	      # corresponding pixel in rel.time.series is below QualityThreshold, will be replaced with NA so they
+	      # are not included in time-series analysis.
+	      if(QualityScreen){
+	        band.time.series <- QualityCheck(Data=band.time.series, QualityScores=rel.time.series, 
+	                                         Band=Bands[band], NoDataFill=NoDataFill, QualityBand=QualityBand,
+	                                         Product=Product, QualityThreshold=QualityThreshold)
+	      } else if(!QualityScreen){
+	        band.time.series <- matrix(
+	          ifelse(band.time.series != NoDataFill, band.time.series, NA),
+	          nrow=length(which.are.band))
+	      }
       
-      # Extract year and day from the metadata and make POSIXlt dates (YYYY-MM-DD), ready for time-series analysis.
-      ds$Year <- as.numeric(substr(ds$MODIS.acq.date, 2, 5))
-      ds$Day <- as.numeric(substr(ds$MODIS.acq.date, 6, 8))
-      ds$date <- strptime(paste(ds$Year, "-", ds$Day, sep=""), "%Y-%j")
+	      # Final check, that band values all fall within the ValidRange (as defined for given MODIS product band).
+	      if(any(!(band.time.series >= ValidRange[1] && band.time.series <= ValidRange[2]), na.rm=TRUE)) { 
+	        stop("Some values fall outside the valid range, after no fill values should have been removed.") 
+	      }
+	      
+	      # Extract year and day from the metadata and make POSIXlt dates (YYYY-MM-DD), ready for time-series analysis.
+	      ds$Year <- as.numeric(substr(ds$MODIS.acq.date[which.are.band,], 2, 5))
+	      ds$Day <- as.numeric(substr(ds$MODIS.acq.date[which.are.band,], 6, 8))
+	      ds$date <- strptime(paste(ds$Year, "-", ds$Day, sep=""), "%Y-%j")
       
-      ########## Interpolation
-      # Initialise objects for various summaries.
-      mean.band <- rep(NA, ncol(band.time.series))
-      sd.band <- rep(NA, ncol(band.time.series))
-      band.yield <- rep(NA, ncol(band.time.series))
-      nofill <- rep(NA, ncol(band.time.series))
-      poorquality <- rep(NA, ncol(band.time.series))
-      band.min <- rep(NA, ncol(band.time.series))
-      band.max <- rep(NA, ncol(band.time.series))
+	      ########## Interpolation
+	      # Initialise objects for various summaries.
+	      mean.band <- rep(NA, ncol(band.time.series))
+	      sd.band <- rep(NA, ncol(band.time.series))
+	      band.yield <- rep(NA, ncol(band.time.series))
+	      nofill <- rep(NA, ncol(band.time.series))
+	      poorquality <- rep(NA, ncol(band.time.series))
+	      band.min <- rep(NA, ncol(band.time.series))
+	      band.max <- rep(NA, ncol(band.time.series))
       
-      # Run time-series analysis for the ith pixel.
-      for(i in 1:ncol(band.time.series)) {
-        # Minimum and maximum band values observed.
-        minobsband <- min(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)    
-        maxobsband <- max(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
+	      # Run time-series analysis for the ith pixel.
+	      for(i in 1:ncol(band.time.series)) {
+	        # Minimum and maximum band values observed.
+	        minobsband <- min(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)    
+	        maxobsband <- max(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
         
-        # Assess the quality of data at this time-step by counting the number of data left after screening, and use this
-        # assessment to decide how to proceed with analysis for each time-step.
-        if(QualityScreen){
-          data.quality <- sum(!is.na(band.time.series[ ,i]))
-        } else if(!QualityScreen){
-          data.quality <- 2
-        }
+	        # Assess the quality of data at this time-step by counting the number of data left after screening, and use this
+	        # assessment to decide how to proceed with analysis for each time-step.
+	        if(QualityScreen){
+	          data.quality <- sum(!is.na(band.time.series[ ,i]))
+	        } else if(!QualityScreen){
+	          data.quality <- 2
+	        }
+	        
+	        if(data.quality >= 2) {
+	          # Linearly interpolate between screened data points, for each pixel, over time (daily from first to last date).
+	          sout <- approx(x=ds$date[which.are.band], y=as.numeric(band.time.series[ ,i]) * ScaleFactor, method="linear", 
+	                         n=((max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])) - 1))
+	          
+	          # Carry out all the relevant summary analyses, set by options in the function call.
+	          if(Yield){ band.yield[i] <- (sum(sout$y) - minobsband * length(sout$x)) / length(sout$x) }    # (((365*length(years))-16)*365) = average annual yield  (i.e. work out daily yield * 365).
+	          if(Mean){ 
+	            if(Interpolate){
+	              mean.band[i] <- mean(sout$y)
+	            } else if(!Interpolate){
+	              mean.band[i] <- mean(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
+	            }
+	          }
+	          if(SD){
+	            if(Interpolate){
+	              sd.band[i] <- sd(sout$y)
+	            } else if(!Interpolate){
+	              sd.band[i] <- sd(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
+	            }  
+	          }
+	        }
+	        if(data.quality == 1){
+	          warning("Only single data point that passed the quality screen: cannot summarise", immediate.=TRUE)
+	          if(Mean){ mean.band[i] <- mean(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE) } 
+	        }
+	        if(data.quality == 0){
+	          warning("No reliable data for this pixel", immediate.=TRUE)
+	        }
         
-        if(data.quality >= 2) {
-          # Linearly interpolate between screened data points, for each pixel, over time (daily from first to last date).
-          sout <- approx(x=ds$date[which.are.band], y=as.numeric(band.time.series[ ,i]) * ScaleFactor, method="linear", 
-                         n=((max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])) - 1))
-          
-          # Carry out all the relevant summary analyses, set by options in the function call.
-          if(Yield){ band.yield[i] <- (sum(sout$y) - minobsband * length(sout$x)) / length(sout$x) }    # (((365*length(years))-16)*365) = average annual yield  (i.e. work out daily yield * 365).
-          if(Mean){ 
-            if(Interpolate){
-              mean.band[i] <- mean(sout$y)
-            } else if(!Interpolate){
-              mean.band[i] <- mean(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
-            }
-          }
-          if(SD){
-            if(Interpolate){
-              sd.band[i] <- sd(sout$y)
-            } else if(!Interpolate){
-              sd.band[i] <- sd(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
-            }  
-          }
-        }
-        if(data.quality == 1){
-          warning("Only single data point that passed the quality screen: cannot summarise", immediate.=TRUE)
-          if(Mean){ mean.band[i] <- mean(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE) } 
-        }
-        if(data.quality == 0){
-          warning("No reliable data for this pixel", immediate.=TRUE)
-        }
-        
-        # Complete final optional summaries, irrespective of data quality.
-        if(Min){ band.min[i] <- minobsband }
-        if(Max){ band.max[i] <- maxobsband }
-        nofill[i] <- paste(round((sum(ds[ ,i + 5] == NoDataFill) / length(band.time.series[ ,i])) * 100, 2), "% (",
-                             sum(ds[ ,i + 5] == NoDataFill), "/", length(band.time.series[ ,i]), ")", sep="")
-        if(QualityScreen){
-          poorquality[i] <- paste(round((sum(rel.time.series[ ,i] > QualityThreshold) / length(rel.time.series[ ,i])) * 100, 2),
-                                  "% (", sum(rel.time.series[ ,i] > QualityThreshold), "/", length(rel.time.series[ ,i]), ")", sep="")
-        } else if(!QualityScreen){
-          poorquality[i] <- NA
-        }
-
-      } # End of loop for time-series summary analysis for each pixel.
+	        # Complete final optional summaries, irrespective of data quality.
+	        if(Min){ band.min[i] <- minobsband }
+	        if(Max){ band.max[i] <- maxobsband }
+	        nofill[i] <- paste(round((sum(ds[ ,i + 5] == NoDataFill) / length(band.time.series[ ,i])) * 100, 2), "% (",
+	                             sum(ds[ ,i + 5] == NoDataFill), "/", length(band.time.series[ ,i]), ")", sep="")
+	        if(QualityScreen){
+	          poorquality[i] <- paste(round((sum(rel.time.series[ ,i] > QualityThreshold) / length(rel.time.series[ ,i])) * 100, 2),
+	                                  "% (", sum(rel.time.series[ ,i] > QualityThreshold), "/", length(rel.time.series[ ,i]), ")", sep="")
+	        } else if(!QualityScreen){
+	          poorquality[i] <- NA
+	        }
+	
+	      } # End of loop for time-series summary analysis for each pixel.
+	            
+	      # Extract ID for this .asc file time-series so it can be included in final summary output.
+	      where.id <- regexpr("_", filelist[counter])
+	      id <- rep(substr(filelist[counter], 1, where.id - 1), length(mean.band))
       
-      # Extract ID for this .asc file time-series so it can be included in final summary output.
-      where.id <- regexpr("_", filelist[counter])
-      id <- rep(substr(filelist[counter], 1, where.id - 1), length(mean.band))
-      
-      # Compile time-series information and relevant summaries data into a final output listed by-sites (.asc files).
-      band.data.by.site[[counter]] <- data.frame(ID=id, lat=rep(lat,length(mean.band)), long=rep(long,length(mean.band)),
+	      # Compile time-series information and relevant summaries data into a final output listed by-sites (.asc files).
+	      band.data.by.band[[band]] <- data.frame(ID=id, Band = rep(Bands[band], length(mean.band), lat=rep(lat,length(mean.band)), long=rep(long,length(mean.band)),
                                                  start.date=rep(min(ds$date),length(mean.band)), end.date=rep(max(ds$date),length(mean.band)),
                                                  min.band=band.min, max.band=band.max, mean.band=mean.band, sd.band=sd.band, band.yield=band.yield, 
                                                  no.fill.data=nofill, poor.quality.data=poorquality)
-      # Extract mean band values.
-      band <- rbind(band,mean.band)
+      	  # Extract mean band values.
+      	  bands.extract <- rbind(bands.extract,mean.band)
+   
+   ### got to here ish
+    
+	      # Write output summary file by appending summary data from all files, producing one file of summary stats output.
+	    	print("Writing summaries and collecting data...")
+		    write.table(band.data.by.band[[1]], file=paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep=""),
+		                sep=",", row.names=FALSE)
+		    if(length(filelist) > 1){ 
+		      for(i in 2:length(filelist)){ 
+		        write.table(band.data.by.site[[i]], file=paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep=""), 
+		                      sep=",", append=TRUE, row.names=FALSE, col.names=FALSE) 
+		      } 
+		    }
+    	} ## end of band loop
+    
+    
+    
     } # End of loop that reitrates time-series summary for each .asc file.
     
-    # Write output summary file by appending summary data from all files, producing one file of summary stats output.
-    print("Writing summaries and collecting data...")
-    write.table(band.data.by.site[[1]], file=paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep=""),
-                sep=",", row.names=FALSE)
-    if(length(filelist) > 1){ 
-      for(i in 2:length(filelist)){ 
-        write.table(band.data.by.site[[i]], file=paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep=""), 
-                      sep=",", append=TRUE, row.names=FALSE, col.names=FALSE) 
-      } 
-    }
     
     # Following code will append the mean (time-averaged) band values for each pixel, for each time-series, to the
     # original input dataset (details) to produce one file that contains all necessary information.    
