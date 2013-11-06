@@ -87,8 +87,10 @@ MODISSummaries <-
     filelist <- list.files(path=Dir, pattern= paste(Product, ".asc", sep=""))
     
     # Time-series analysis for each time-series (.asc file) consecutively.
-    band.data.by.band <- list(NA)     # Initialise objects to store summarised data.
+    band.data.by.site <- list(NA)     # Initialise objects to store summarised data.
     bands.extract <- c()
+    data.all.bands <- c()
+    
     for(counter in 1:length(filelist)){
       
       print(paste("Processing file ", counter, " of ", length(filelist), "...", sep=""))
@@ -122,11 +124,11 @@ MODISSummaries <-
         } else {
           stop("Cannot find which rows in LoadDat are quality data. Download quality data with band data in MODISSubsets
                if you want to check for poor quality data.")
-        }
-      }
+      	  }
+    	}
       
       
-    for(band in 1:length(Bands)){
+      for(band in 1:length(Bands)){
      	 if(any(grepl(Bands[band], ds$row.id))){
      	   which.are.band <- grep(Bands[band], ds$row.id)
      	 } else {
@@ -230,7 +232,7 @@ MODISSummaries <-
 	                                  "% (", sum(rel.time.series[ ,i] > QualityThreshold), "/", length(rel.time.series[ ,i]), ")", sep="")
 	        } else if(!QualityScreen){
 	          poorquality[i] <- NA
-	        }
+	         }
 	
 	      } # End of loop for time-series summary analysis for each pixel.
 	            
@@ -239,31 +241,37 @@ MODISSummaries <-
 	      id <- rep(substr(filelist[counter], 1, where.id - 1), length(mean.band))
       
 	      # Compile time-series information and relevant summaries data into a final output listed by-sites (.asc files).
-	      band.data.by.band[[band]] <- data.frame(ID=id, Band = rep(Bands[band], length(mean.band), lat=rep(lat,length(mean.band)), long=rep(long,length(mean.band)),
-                                                 start.date=rep(min(ds$date),length(mean.band)), end.date=rep(max(ds$date),length(mean.band)),
-                                                 min.band=band.min, max.band=band.max, mean.band=mean.band, sd.band=sd.band, band.yield=band.yield, 
-                                                 no.fill.data=nofill, poor.quality.data=poorquality)
+	      data.by.band <- data.frame(ID=id, Band = rep(Bands[band], length(mean.band), lat=rep(lat,length(mean.band)), long=rep(long,length(mean.band)),
+                                    start.date=rep(min(ds$date),length(mean.band)), end.date=rep(max(ds$date),length(mean.band)),
+                                    min.band=band.min, max.band=band.max, mean.band=mean.band, sd.band=sd.band, band.yield=band.yield, 
+                                    no.fill.data=nofill, poor.quality.data=poorquality)
+      	  
+      	  data.all.bands <- rbind(data.all.bands, data.by.band)
+      	  
       	  # Extract mean band values.
-      	  bands.extract <- rbind(bands.extract,mean.band)
+      	  bands.extract <- cbind(bands.extract,mean.band)
    
-   ### got to here ish
-    
-	      # Write output summary file by appending summary data from all files, producing one file of summary stats output.
-	    	print("Writing summaries and collecting data...")
-		    write.table(band.data.by.band[[1]], file=paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep=""),
-		                sep=",", row.names=FALSE)
-		    if(length(filelist) > 1){ 
-		      for(i in 2:length(filelist)){ 
-		        write.table(band.data.by.site[[i]], file=paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep=""), 
-		                      sep=",", append=TRUE, row.names=FALSE, col.names=FALSE) 
-		      } 
-		    }
     	} ## end of band loop
-    
-    
-    
+    	
+    	band.extract.site <- rbind(band.extract.site, bands.extract)
+    	
+	    band.data.by.site[[counter]] <- data.all.bands 
+	         
     } # End of loop that reitrates time-series summary for each .asc file.
     
+    
+    
+	# Write output summary file by appending summary data from all files, producing one file of summary stats output.
+	print("Writing summaries and collecting data...")
+	    write.table(band.data.by.site[[1]], file=paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep=""),
+	                sep=",", row.names=FALSE)
+	if(length(filelist) > 1){ 
+	  for(i in 2:length(filelist)){ 
+	      write.table(band.data.by.site[[i]], file=paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep=""), 
+	                  sep=",", append=TRUE, row.names=FALSE, col.names=FALSE) 
+	  } 
+	}
+
     
     # Following code will append the mean (time-averaged) band values for each pixel, for each time-series, to the
     # original input dataset (details) to produce one file that contains all necessary information.    
@@ -281,14 +289,14 @@ MODISSummaries <-
                      long=details$long[!is.na(details$lat)],
                      end.date=details$end.date[!is.na(details$lat)])))
     }               
-    res <- data.frame(details, band.pixels=matrix(NA, nrow=nrow(details), ncol=ncol(band)))
+    res <- data.frame(details, band.pixels=matrix(NA, nrow=nrow(details), ncol=ncol(band.extract.site)))
     
     # Use FindID for each row of ID.match, to add the right band subscripts to the right details subscripts.
     for(i in 1:nrow(ID.match)){
       match.subscripts <- FindID(ID.match[i, ], details)
       if(all(match.subscripts != "No matches found.")){
         for(x in 1:length(match.subscripts)){
-          res[match.subscripts[x],(ncol(details) + 1):ncol(res)] <- band[i, ]
+          res[match.subscripts[x],(ncol(details) + 1):ncol(res)] <- band.extract.site[i, ]
         }
       }
     }
