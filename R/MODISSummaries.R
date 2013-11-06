@@ -88,6 +88,7 @@ MODISSummaries <-
     
     # Time-series analysis for each time-series (.asc file) consecutively.
     band.data.by.site <- list(NA)     # Initialise objects to store summarised data.
+    band.extract.site <- c()
     bands.extract <- c()
     data.all.bands <- c()
     
@@ -100,6 +101,16 @@ MODISSummaries <-
       names(ds) <- c("row.id", "land.product.code", "MODIS.acq.date", "where", "MODIS.proc.date", 1:(ncol(ds) - 5))
       
       
+      # Extract year and day from the metadata and make POSIXlt dates (YYYY-MM-DD), ready for time-series analysis.
+	  Year <- as.numeric(substr(ds$MODIS.acq.date, 2, 5))
+	  Day <- as.numeric(substr(ds$MODIS.acq.date, 6, 8))
+	  date <- strptime(paste(Year, "-", Day, sep=""), "%Y-%j")
+	  
+	  ## Insert date information *before* pixel data
+	  ds <- cbind(ds[,1:5], Year, Day, date, ds[,6:ncol(ds)])
+	  names(ds)[9:ncol(ds)] <- 1:(ncol(ds) - 8)
+
+      
       ##### Section that uses the files metadata strings [ ,1:5] for each time-series to extract necessary information.
       # Find location information from metadata string attached at the beginning of each downloaded set of pixels (i.e.
       # each time-step in the time-series), using regular expression.        
@@ -110,7 +121,8 @@ MODISSummaries <-
       long <- as.numeric(substr(ds$where[1], wherelong + 3, whereSamp - 1))
       
       ## check that all bands listed for that product are in the .asc file
-      if(!any(grepl(Bands, ds$row.id)) == FALSE){
+      Band.check <- lapply(Bands, function(x) any(grepl(x, ds$row.id)))
+      if(any(Band.check == FALSE)){
       	stop("Not all Bands are represented in data file. Make sure the only ascii files in the directory are 
              those downloaded from MODISSubsets.")
       }
@@ -135,14 +147,13 @@ MODISSummaries <-
     	    stop("Cannot find which rows in LoadDat are band data. Make sure the only ascii files in the directory are 
              those downloaded from MODISSubsets.")
    		   }
-      
      
 	      #####
 	      
 	      #  Organise data into matrices containing product band data and another for corresponding reliability data.
-	      band.time.series <- as.matrix(ds[which.are.band,6:ncol(ds)], nrow=length(which.are.band), ncol=length(6:ncol(ds)))
+	      band.time.series <- as.matrix(ds[which.are.band,9:ncol(ds)], nrow=length(which.are.band), ncol=length(9:ncol(ds)))
 	      if(QualityScreen){
-	        rel.time.series <- as.matrix(ds[which.are.reliability,6:ncol(ds)], nrow=length(which.are.reliability), ncol=length(6:ncol(ds))) 
+	        rel.time.series <- as.matrix(ds[which.are.reliability,9:ncol(ds)], nrow=length(which.are.reliability), ncol=length(9:ncol(ds))) 
 	      }
 	      
 	      # Screen the pixel values in band.time.series: any pixels whose value correspond to NoDataFill, or whose
@@ -157,17 +168,13 @@ MODISSummaries <-
 	          ifelse(band.time.series != NoDataFill, band.time.series, NA),
 	          nrow=length(which.are.band))
 	      }
-      
+
 	      # Final check, that band values all fall within the ValidRange (as defined for given MODIS product band).
 	      if(any(!(band.time.series >= ValidRange[1] && band.time.series <= ValidRange[2]), na.rm=TRUE)) { 
 	        stop("Some values fall outside the valid range, after no fill values should have been removed.") 
 	      }
 	      
-	      # Extract year and day from the metadata and make POSIXlt dates (YYYY-MM-DD), ready for time-series analysis.
-	      ds$Year <- as.numeric(substr(ds$MODIS.acq.date[which.are.band,], 2, 5))
-	      ds$Day <- as.numeric(substr(ds$MODIS.acq.date[which.are.band,], 6, 8))
-	      ds$date <- strptime(paste(ds$Year, "-", ds$Day, sep=""), "%Y-%j")
-      
+	     
 	      ########## Interpolation
 	      # Initialise objects for various summaries.
 	      mean.band <- rep(NA, ncol(band.time.series))
@@ -183,7 +190,8 @@ MODISSummaries <-
 	        # Minimum and maximum band values observed.
 	        minobsband <- min(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)    
 	        maxobsband <- max(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm=TRUE)
-        
+      
+
 	        # Assess the quality of data at this time-step by counting the number of data left after screening, and use this
 	        # assessment to decide how to proceed with analysis for each time-step.
 	        if(QualityScreen){
@@ -225,8 +233,8 @@ MODISSummaries <-
 	        # Complete final optional summaries, irrespective of data quality.
 	        if(Min){ band.min[i] <- minobsband }
 	        if(Max){ band.max[i] <- maxobsband }
-	        nofill[i] <- paste(round((sum(ds[ ,i + 5] == NoDataFill) / length(band.time.series[ ,i])) * 100, 2), "% (",
-	                             sum(ds[ ,i + 5] == NoDataFill), "/", length(band.time.series[ ,i]), ")", sep="")
+	        nofill[i] <- paste(round((sum(ds[ ,i + 8] == NoDataFill) / length(band.time.series[ ,i])) * 100, 2), "% (",
+	                             sum(ds[ ,i + 8] == NoDataFill), "/", length(band.time.series[ ,i]), ")", sep="")
 	        if(QualityScreen){
 	          poorquality[i] <- paste(round((sum(rel.time.series[ ,i] > QualityThreshold) / length(rel.time.series[ ,i])) * 100, 2),
 	                                  "% (", sum(rel.time.series[ ,i] > QualityThreshold), "/", length(rel.time.series[ ,i]), ")", sep="")
@@ -244,7 +252,7 @@ MODISSummaries <-
 	      data.by.band <- data.frame(ID=id, Band = rep(Bands[band], length(mean.band), lat=rep(lat,length(mean.band)), long=rep(long,length(mean.band)),
                                     start.date=rep(min(ds$date),length(mean.band)), end.date=rep(max(ds$date),length(mean.band)),
                                     min.band=band.min, max.band=band.max, mean.band=mean.band, sd.band=sd.band, band.yield=band.yield, 
-                                    no.fill.data=nofill, poor.quality.data=poorquality)
+                                    no.fill.data=nofill, poor.quality.data=poorquality))
       	  
       	  data.all.bands <- rbind(data.all.bands, data.by.band)
       	  
