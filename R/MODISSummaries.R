@@ -249,10 +249,12 @@ MODISSummaries <-
 	      id <- rep(substr(filelist[counter], 1, where.id - 1), length(mean.band))
       
 	      # Compile time-series information and relevant summaries data into a final output listed by-sites (.asc files).
-	      data.by.band <- data.frame(ID=id, Band = rep(Bands[band], length(mean.band), lat=rep(lat,length(mean.band)), long=rep(long,length(mean.band)),
+	      data.by.band <- data.frame(ID=id, Band = rep(Bands[band], length(mean.band)), lat=rep(lat,length(mean.band)), long=rep(long,length(mean.band)),
                                     start.date=rep(min(ds$date),length(mean.band)), end.date=rep(max(ds$date),length(mean.band)),
                                     min.band=band.min, max.band=band.max, mean.band=mean.band, sd.band=sd.band, band.yield=band.yield, 
-                                    no.fill.data=nofill, poor.quality.data=poorquality))
+                                    no.fill.data=nofill, poor.quality.data=poorquality)
+      	  
+      	  
       	  
       	  data.all.bands <- rbind(data.all.bands, data.by.band)
       	  
@@ -264,7 +266,7 @@ MODISSummaries <-
     	band.extract.site <- rbind(band.extract.site, bands.extract)
     	
 	    band.data.by.site[[counter]] <- data.all.bands 
-	         
+	    
     } # End of loop that reitrates time-series summary for each .asc file.
     
     
