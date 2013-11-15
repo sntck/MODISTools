@@ -69,9 +69,9 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
       if(length(TimeSeriesLength) != 1){
         stop("TimeSeriesLength must be one numeric element.")
       }
-      if(abs(Size[1] - round(Size[1])) > .Machine$double.eps^0.5 & 
+      if(abs(Size[1] - round(Size[1])) > .Machine$double.eps^0.5 | 
            abs(Size[2] - round(Size[2])) > .Machine$double.eps^0.5){
-        stop("TimeSeriesLength must be an integer.")
+        stop("Size arguement must contain two integers.")
       }
     }
     ##########
