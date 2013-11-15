@@ -53,10 +53,10 @@ MODISSummaries <-
     }
     # ScaleFactor should be numeric, length 1.
     if(length(ScaleFactor) != 1){
-      stop("ValidRange input must be a numeric vector - an upper and lower bound.")
+      stop("ScaleFactor should be one integer.")
     }
     if(!is.numeric(ScaleFactor)){
-      stop("ValidRange should be numeric class.")
+      stop("ScaleFactor should be numeric class.")
     }
     
     # Year or posixt date format?
@@ -171,7 +171,7 @@ MODISSummaries <-
 
 	      # Final check, that band values all fall within the ValidRange (as defined for given MODIS product band).
 	      if(any(!(band.time.series >= ValidRange[1] && band.time.series <= ValidRange[2]), na.rm=TRUE)) { 
-	        stop("Some values fall outside the valid range, after no fill values should have been removed.") 
+	        stop("Some values fall outside the valid range, after no fill values should have been removed. Check that Bands arguement does not contain quality bands/reliability pixels.") 
 	      }
 	      
 	     
