@@ -1,5 +1,5 @@
 MODISSubsets<-
-function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt", Transect=FALSE)
+function(LoadDat, FileSep=NULL, Products, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt", Transect=FALSE)
 {
     if(!is.object(LoadDat) & !is.character(LoadDat)){
       stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
@@ -172,14 +172,14 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     ## Do checks that multiple bands and products are correct
     
     ##check that if two or more products have been specified they are for the correct products
-    if(length(Product) >= 2){
-    	product.test <- Product %in% GetProducts()
+    if(length(Products) >= 2){
+    	product.test <- Products %in% GetProducts()
     	if(any(product.test == FALSE)){
     		stop("At least one or more product names entered does not match products available for download. 
     				See GetProducts() for products available.")
     	}
     	
-    	avail.bands <- unlist(lapply(Product, function(x) GetBands(x)))
+    	avail.bands <- unlist(lapply(Products, function(x) GetBands(x)))
     	band.test <- lapply(Bands, function(x) any(x %in% avail.bands))
     	if(any(band.test == FALSE)){ 
       	stop("At least one band name entered does not match at least one of the product names entered. 
@@ -191,12 +191,12 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     
     ##### Some sanity checks.
     # If the Product input does not match any product codes in the list output from GetProducts(), stop with error.
-   	 if(!any(Product == GetProducts())){
+   	 if(!any(Products == GetProducts())){
     	  stop("The product name entered does not match any available products. 
         	   See GetProducts() for available products.")
     	}
     # If the Bands input does not match with the Product input, stop with error.
-    	band.test <- lapply(Bands, function(x) !any(x == GetBands(Product)))
+    	band.test <- lapply(Bands, function(x) !any(x == GetBands(Products)))
     	if(any(band.test == TRUE)){ 
     		stop("At least one band name entered does not match the product name entered. 
        		   See GetBands() for band names available within each product.")
@@ -223,9 +223,9 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     
     # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.
     # If multiple products download all dates for all products, and order
-    if(length(Product) >= 2){dates <- sort(unlist(lapply(Product, function(x) GetDates(lat.long[1,2], lat.long[1,3], x))))
+    if(length(Product) >= 2){dates <- sort(unlist(lapply(Products, function(x) GetDates(lat.long[1,2], lat.long[1,3], x))))
 	# just one product:   
-    }else{dates <- GetDates(lat.long[1,2], lat.long[1,3], Product)}
+    }else{dates <- GetDates(lat.long[1,2], lat.long[1,3], Products)}
     
     # Run some checks that time-series fall within date range of MODIS data.
     if(any((end.date$year + 1900) < 2000) | any((end.date$year + 1900) > dates[length(dates)])){
@@ -251,28 +251,9 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
     # the data for each time-series into separate ascii files in /pixels dir in the working directory.
     
     
-    ## Loop here for both product and band types
-    
-    
-    if(length(Product) >= 2){
-    	#list for each product. Index which band is in that product
-    	which.bands <- lapply(Product, function(x) which(Bands %in% GetBands(x)))
-    	
-    	for (t in 1:length(Product))
-    	{
-    		lat.long[t] <- BatchDownload(lat.long=lat.long, dates=dates, MODIS.start=MODIS.start, MODIS.end=MODIS.end,
-    			 Bands=Bands[which.bands[[t]]], Product=Product[t], Size=Size, StartDate=StartDate, Transect=Transect, SaveDir=SaveDir)
-    			 
-    			 ## got completely stuck at this part ^^ pretty sure this wouldn't work.
-    	}
-    	
-                         
-        
-    }else{
-    
     lat.long <- BatchDownload(lat.long=lat.long, dates=dates, MODIS.start=MODIS.start, MODIS.end=MODIS.end, Bands=Bands, 
-                              Product=Product, Size=Size, StartDate=StartDate, Transect=Transect, SaveDir=SaveDir)
-    }
+                              Products=Products, Size=Size, StartDate=StartDate, Transect=Transect, SaveDir=SaveDir)
+    
     # End of loop that retrieves data. All downloaded data now saved in ascii files for each time-series.
     
     # Run a second round of downloads for any time-series that incompletely downloaded, and overwrite originals.
@@ -283,7 +264,7 @@ function(LoadDat, FileSep=NULL, Product, Bands, Size=c(), SaveDir="./", StartDat
         print("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...")
         lat.long[which(success.check), ] <- BatchDownload(lat.long=lat.long[which(success.check), ], dates=dates,
                                                           MODIS.start=MODIS.start, MODIS.end=MODIS.end, Bands=Bands, 
-                                                          Product=Product, Size=Size, StartDate=StartDate, 
+                                                          Products=Products, Size=Size, StartDate=StartDate, 
                                                           Transect=Transect, SaveDir=SaveDir)
       }
       check.count <- check.count + 1
