@@ -1,4 +1,4 @@
-MODISSubsets<-
+MODISSubsets <-
 function(LoadDat, FileSep=NULL, Products, Bands, Size=c(), SaveDir="./", StartDate=FALSE, TimeSeriesLength=2, DateFormat="year" | "posixt", Transect=FALSE)
 {
     if(!is.object(LoadDat) & !is.character(LoadDat)){
@@ -204,7 +204,6 @@ function(LoadDat, FileSep=NULL, Products, Bands, Size=c(), SaveDir="./", StartDa
     }
    ##### This would be end of the multiple bands checks 
     
-
     # If Size is not two dimensions or are not integers (greater than expected after rounding, with tolerance around
     # computing precision), stop with error.
     if(!is.numeric(Size)){
@@ -223,7 +222,7 @@ function(LoadDat, FileSep=NULL, Products, Bands, Size=c(), SaveDir="./", StartDa
     
     # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.
     # If multiple products download all dates for all products, and order
-    if(length(Product) >= 2){dates <- sort(unlist(lapply(Products, function(x) GetDates(lat.long[1,2], lat.long[1,3], x))))
+    if(length(Products) >= 2){dates <- sort(unlist(lapply(Products, function(x) GetDates(lat.long[1,2], lat.long[1,3], x))))
 	# just one product:   
     }else{dates <- GetDates(lat.long[1,2], lat.long[1,3], Products)}
     
