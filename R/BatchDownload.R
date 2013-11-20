@@ -39,7 +39,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
             # getsubset function return object of ModisData class, with a subset slot that only allows 10 elements 
             # (i.e. 10 dates), looped until all requested dates have been retrieved.
             # Retrieve the batch of MODIS data and store in result
-            result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[product], bands[n], 
+            result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product = Products[product], bands[n], 
                                          date.list[1,x], date.list[10,x], Size[1], Size[2]))
             
             busy <- FALSE
@@ -55,7 +55,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
               while(timer <= 30){
                 print(paste("Connection to the MODIS Web Service failed: trying again in 30secs...attempt ", timer, sep=""))
                 Sys.sleep(30)
-                result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[product], bands[n], 
+                result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product = Products[product], bands[n], 
                                              date.list[1,x], date.list[10,x], Size[1], Size[2]))
                 timer <- timer + 1
                 ifelse(class(result) == "try-error" || is.na(result) || busy, next, break)
@@ -76,7 +76,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
         
         # This will download the last column of dates left (either the final column or the only column if less than 10
         # dates in the time-series).
-        result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[product], bands[n], date.list[1,ncol(date.list)],
+        result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product = Products[product], bands[n], date.list[1,ncol(date.list)],
                                      date.list[which(date.list[ ,ncol(date.list)] >= dates[max(date.res)]),ncol(date.list)], Size[1], Size[2]))
         # Final batch of dates request, which finishes at end.date removing any recycled dates at the end of matrix 
         # (if total no. of dates is not a multiple of 10).
