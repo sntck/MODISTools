@@ -8,7 +8,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
 		
 	product.subset <- list()	
     
-    for(product in Products){
+    for(product in 1:length(Products)){
 
     # Loop set up to make request and write a subset file for each location.
     for(i in 1:nrow(lat.long)){
@@ -94,7 +94,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
             print(paste("Connection to the MODIS Web Service failed: trying again in 30secs...attempt ", timer, sep=""))
             Sys.sleep(30)
             # Final batch of dates, finishes at end.date.
-            result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[product], bands[n], 
+            result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product = Products[product], bands[n], 
                                          date.list[1,ncol(date.list)], date.list[which(date.list[ ,ncol(date.list)] >= dates[max(date.res)]), 
                                                                                  ncol(date.list)], Size[1], Size[2]))
             timer <- timer + 1
