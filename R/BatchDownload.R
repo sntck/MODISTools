@@ -4,7 +4,10 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
 
 	if(length(Products) >= 2){
 	#list for each product. Index which band is in that product
-		which.bands <- lapply(Products, function(x) which(Bands %in% GetBands(x)))}
+		which.bands <- lapply(Products, function(x) which(Bands %in% GetBands(x)))
+		}else{ which.bands <- list()
+			which.bands[[1]] <- which(Bands %in% GetBands(Products))
+			}
 		
 	product.subset <- list()	
     
