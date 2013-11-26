@@ -250,7 +250,7 @@ function(LoadDat, FileSep=NULL, Products, Bands, Size=c(), SaveDir="./", StartDa
     # the data for each time-series into separate ascii files in /pixels dir in the working directory.
     
     
-    lat.long <- BatchDownload2(lat.long=lat.long, dates=dates, MODIS.start=MODIS.start, MODIS.end=MODIS.end, Bands=Bands, 
+    lat.long <- BatchDownload(lat.long=lat.long, dates=dates, MODIS.start=MODIS.start, MODIS.end=MODIS.end, Bands=Bands, 
                               Products=Products, Size=Size, StartDate=StartDate, Transect=Transect, SaveDir=SaveDir)
     
     # End of loop that retrieves data. All downloaded data now saved in ascii files for each time-series.
@@ -262,7 +262,7 @@ function(LoadDat, FileSep=NULL, Products, Bands, Size=c(), SaveDir="./", StartDa
       success.check <- lat.long[ ,ncol(lat.long)] != "Successful download"
       if(any(success.check)){
         print("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...")
-        lat.long[which(success.check), ] <- BatchDownload2(lat.long=lat.long[which(success.check), ], dates=dates,
+        lat.long[which(success.check), ] <- BatchDownload(lat.long=lat.long[which(success.check), ], dates=dates,
                                                           MODIS.start=MODIS.start, MODIS.end=MODIS.end, Bands=Bands, 
                                                           Products=Products, Size=Size, StartDate=StartDate, 
                                                           Transect=Transect, SaveDir=SaveDir)
