@@ -31,7 +31,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
       print(paste("Getting subset for product", Products[product], "for location ", i, " of ", nrow(lat.long), "...", sep=""))
       
       bands <- Bands[which.bands[[product]]]
-      
+      print(bands)
       for(n in 1:length(bands)) {               
         # The subset request will be looped for each band specified, individually requesting all time-series in a 
         # given product band, dropping it all into subsets object, before reiterating for the next band.
@@ -122,12 +122,13 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
       } # End of loop that iterates subset request for each product band.
       
       product.subset[[product]] <- subsets
-      
+
+   
       } # End of loop that iterates for each product
       # Check that there is no missing data in the download & log download status accordingly.
       
       subsets <- do.call('rbind', product.subset)
-      
+
       if(length(subsets) != (length(date.res) * length(Bands) * length(Products))){
         # Add missing data status for this time-series to lat.long for the download summary file & print warning message.
         ifelse(StartDate, lat.long[i,6] <- "Missing data in subset: try downloading again", 
@@ -147,5 +148,5 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
       }
       if(i == nrow(lat.long)) { print("Full subset download complete. Writing the subset download file...") }
     }
-    return(subsets)
+    return(lat.long)
 }
