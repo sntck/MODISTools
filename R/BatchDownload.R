@@ -28,10 +28,10 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
       
       # Initialise objects that will store downloaded data.
       subsets <- c()
-      print(paste("Getting subset for product", Products[product], "for location ", i, " of ", nrow(lat.long), "...", sep=""))
+      print(paste("Getting subset for product ", Products[product], " for location ", i, " of ", nrow(lat.long), "...", sep=""))
       
       bands <- Bands[which.bands[[product]]]
-      print(bands)
+      
       for(n in 1:length(bands)) {               
         # The subset request will be looped for each band specified, individually requesting all time-series in a 
         # given product band, dropping it all into subsets object, before reiterating for the next band.
