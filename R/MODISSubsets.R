@@ -68,11 +68,11 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     
     # Find all unique time-series wanted, for each unique location.
     Start <- rep(StartDate, length(dat$lat[!is.na(dat$lat)]))
-    with(dat, ifelse(Start,
-           lat.long <- unique(cbind(lat = lat[!is.na(lat)], long = long[!is.na(lat)],
-                                    end.date = end.date[!is.na(lat)], start.date = start.date[!is.na(lat)])), 
-           lat.long <- unique(cbind(lat = lat[!is.na(lat)], long = long[!is.na(lat)], 
-                                    end.date = end.date[!is.na(lat)]))))
+    ifelse(Start,
+           lat.long <- unique(cbind(lat = dat$lat[!is.na(dat$lat)], long = dat$long[!is.na(dat$lat)],
+                                    end.date = dat$end.date[!is.na(dat$lat)], start.date = dat$start.date[!is.na(dat$lat)])), 
+           lat.long <- unique(cbind(lat = dat$lat[!is.na(dat$lat)], long = dat$long[!is.na(dat$lat)], 
+                                    end.date = dat$end.date[!is.na(dat$lat)])))
     print(paste("Found ", nrow(lat.long), " unique time-series to download.", sep = ""))
     
     ##### Year or posixt date format?
@@ -147,8 +147,9 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     if(!any(Product == GetProducts())) stop("Product input does not match any available products (?GetProducts).")
     
     # If the Bands input does not match with the Product input, stop with error.
-    band.test <- lapply(Bands, function(x) !any(x == GetBands(Product)))
-    if(any(band.test == TRUE)) stop("At least one Bands input does not match the product name entered (?GetBands).")
+    if(any(lapply(Bands, function(x) !any(x == GetBands(Product))) == TRUE)){
+      stop("At least one Bands input does not match the product name entered (?GetBands).")
+    }
     
     # If Size is not two dimensions or not integers, stop with error.
     if(!is.numeric(Size)) stop("Size should be numeric class. Two integers.")
@@ -161,17 +162,17 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     dates <- GetDates(lat.long[1,2], lat.long[1,3], Product)
     
     # Check that time-series fall within date range of MODIS data.
-    if(any((end.date$year + 1900) < 2000) | any((end.date$year + 1900) > dates[length(dates)])){
-      stop("Some dates have been found that are beyond the range of MODIS observations available for download.")
-    }   
-    if(any((start.date$year + 1900) < 2000) | any((start.date$year + 1900) > dates[length(dates)])){
-      stop("Some dates have been found that move beyond the range of MODIS observations available for download.")
-    }
     if(any((start.date$year + 1900) < 2000 & (end.date$year + 1900) < 2000)){
       stop("Time-series found that falls entirely outside the range of available MODIS dates.")
     }
     if(any((start.date$year + 1900) > dates[length(dates)] & (end.date$year + 1900) > dates[length(dates)])){
       stop("Time-series found that falls entirely outside the range of available MODIS dates.")
+    }
+    if(any((end.date$year + 1900) < 2000) | any((end.date$year + 1900) > dates[length(dates)])){
+      stop("Some dates have been found that are beyond the range of MODIS observations available for download.")
+    }   
+    if(any((start.date$year + 1900) < 2000) | any((start.date$year + 1900) > dates[length(dates)])){
+      warning("Dates found beyond range of MODIS observations. Downloading from earliest date.", immediate. = TRUE)
     }
     #####
 

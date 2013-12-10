@@ -13,8 +13,10 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
       
       # Organise relevant MODIS dates into batches of 10. Web service getsubset function will only take 10 at a time.
       # First, use the modulo to fill up any remaining rows in the final column to avoid data recycling.
-      dateNAfiller <- rep(NA, 10 - (length(date.res) %% 10))
-      date.list <- matrix(c(dates[date.res], dateNAfiller), nrow = 10)
+      ifelse((length(date.res) %% 10) == 0,
+             date.list <- matrix(dates[date.res], nrow = 10),
+             date.list <- matrix(c(dates[date.res], rep(NA, 10 - (length(date.res) %% 10))), nrow = 10)
+      )
       #####
       
       # Initialise objects that will store downloaded data.
@@ -34,7 +36,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
             result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
                                     date.list[1,x], date.list[10,x], Size[1], Size[2]))
             
-            if(length(strsplit(as.character(result$subset[[1]][[1]]), ",")[[1]]) == 5){
+            if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
               stop("Sorry, downloading from the web service is currently not working. Please try again later.")
             }
             
@@ -54,7 +56,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
                 result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], 
                                         date.list[1,x], date.list[10,x], Size[1], Size[2]))
                 
-                if(length(strsplit(as.character(result$subset[[1]][[1]]), ",")[[1]]) == 5){
+                if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
                   stop("Sorry, downloading from the web service is currently not working. Please try again later.")
                 }
                 
@@ -70,7 +72,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
             
             # Store retrieved data in subsets. If more than 10 time-steps are requested, this runs until the final
             # column, which is downloaded after this loop.
-            subsets[((n-1 * length(date.res)) + ((x * 10) - 9)):((n-1 * length(date.res)) + (x * 10))] <- 
+            subsets[(((n - 1) * length(date.res)) + ((x * 10) - 9)):(((n - 1) * length(date.res)) + (x * 10))] <- 
               result$subset[[1]]
             
           } # End of loop that reiterates for multiple batches of time-steps if the time-series is > 10 time-steps long.
@@ -82,7 +84,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
                                 date.list[which(date.list[ ,ncol(date.list)] >= dates[max(date.res)]),ncol(date.list)],
                                 Size[1], Size[2]))
         
-        if(length(strsplit(as.character(result$subset[[1]][[1]]), ",")[[1]]) == 5){
+        if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
           stop("Sorry, downloading from the web service is currently not working. Please try again later.")
         }
         
@@ -98,12 +100,12 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
           while(timer <= 10){
             print(paste("Connection to the MODIS Web Service failed: trying again in 30secs...attempt ", timer, sep=""))
             Sys.sleep(30)
-            # Final batch of dates, finishes at end.date.
+            
             result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product, Bands[n], date.list[1,ncol(date.list)],
                                     date.list[which(date.list[ ,ncol(date.list)] >= dates[max(date.res)]),ncol(date.list)],
                                     Size[1], Size[2]))
             
-            if(length(strsplit(as.character(result$subset[[1]][[1]]), ",")[[1]]) == 5){
+            if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
               stop("Sorry, downloading from the web service is currently not working. Please try again later.")
             }
             
@@ -124,9 +126,8 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
         }
         
         # All MODIS data for a given product band now retrieved and stored in subsets.
-        subsets[((n-1 * length(date.res)) + (((ncol(date.list) - 1) * 10) + 1)):
-                  ((n-1 * length(date.res)) + length(date.res))] <- 
-          result$subset[[1]]
+        subsets[(((n - 1) * length(date.res)) + (((ncol(date.list) - 1) * 10) + 1)):
+                  (((n - 1) * length(date.res)) + length(date.res))] <- result$subset[[1]]
         
         rm(result)
       } # End of loop that iterates subset request for each product band.
