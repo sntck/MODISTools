@@ -137,19 +137,19 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     }
     #####
     
-    # Unique locations have been identified so information specific to each location such as date and ID can be easily retrieved.
+    # Create IDs for each time series.
     fmt <- '%.5f'
     ID <- paste("Lat", sprintf(fmt, lat.long[ ,1]), "Lon", sprintf(fmt, lat.long[ ,2]), "Start", start.date, "End", end.date, sep = "")
     lat.long <- data.frame(SubsetID = ID, lat.long, Status = rep(NA, nrow(lat.long)))
     
     #####
     # If the Product input does not match any product codes in the list output from GetProducts(), stop with error.
-    if(!any(Product == GetProducts())) stop("Product input does not match any available products (?GetProducts).")
+    if(!all(Product %in% GetProducts())) stop("Not every Product input matches available products (?GetProducts).")
     
     # If the Bands input does not match with the Product input, stop with error.
-    if(any(lapply(Bands, function(x) !any(x == GetBands(Product))) == TRUE)){
-      stop("At least one Bands input does not match the product name entered (?GetBands).")
-    }
+    avail.bands <- unlist(lapply(Product, function(x) GetBands(x)))
+    band.test <- any(lapply(Bands, function(x) any(x %in% avail.bands)) == FALSE)
+    if(band.test) stop("At least one Bands input does not match the product names entered (?GetBands).")
     
     # If Size is not two dimensions or not integers, stop with error.
     if(!is.numeric(Size)) stop("Size should be numeric class. Two integers.")
@@ -159,19 +159,19 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     }
     
     # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.
-    dates <- GetDates(lat.long[1,2], lat.long[1,3], Product)
+    dates <- lapply(Product, function(x) GetDates(lat.long[1,2], lat.long[1,3], x))
     
     # Check that time-series fall within date range of MODIS data.
     if(any((start.date$year + 1900) < 2000 & (end.date$year + 1900) < 2000)){
       stop("Time-series found that falls entirely outside the range of available MODIS dates.")
     }
-    if(any((start.date$year + 1900) > dates[length(dates)] & (end.date$year + 1900) > dates[length(dates)])){
+    if(any((start.date$year + 1900) > max(unlist(dates)) & (end.date$year + 1900) > max(unlist(dates)))){
       stop("Time-series found that falls entirely outside the range of available MODIS dates.")
     }
-    if(any((end.date$year + 1900) < 2000) | any((end.date$year + 1900) > dates[length(dates)])){
+    if(any((end.date$year + 1900) < 2000) | any((end.date$year + 1900) > max(unlist(dates)))){
       stop("Some dates have been found that are beyond the range of MODIS observations available for download.")
     }   
-    if(any((start.date$year + 1900) < 2000) | any((start.date$year + 1900) > dates[length(dates)])){
+    if(any((start.date$year + 1900) < 2000) | any((start.date$year + 1900) > max(unlist(dates)))){
       warning("Dates found beyond range of MODIS observations. Downloading from earliest date.", immediate. = TRUE)
     }
     #####
