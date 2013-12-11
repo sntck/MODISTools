@@ -42,7 +42,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
               # (i.e. 10 dates), looped until all requested dates have been retrieved.
               # Retrieve the batch of MODIS data and store in result
               result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product[prod], bands[n], 
-                                      date.list[1,x], date.list[10,x], Size[1], Size[2]))
+                            date.list[1,x], date.list[10,x], Size[1], Size[2]))
               
               if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
                 stop("Sorry, downloading from the web service is currently not working. Please try again later.")
@@ -54,13 +54,13 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
                 if(busy) print("The server is busy handling other requests...")
               }
               
-              # Check data was actually downloaded. If not, wait 30 secs and then try again. If retrieval fails 50 times
-              # consecutively, then the download will time out and the function call will abort.
+              # Check data downloaded. If not, wait 30 secs and try again until successful or function times out.
               if(class(result) == "try-error" || is.na(result) || busy){
                 timer <- 1
                 while(timer <= 10){
                   print(paste("Connection to the MODIS Web Service failed: trying again in 30secs...attempt ", timer, sep=""))
                   Sys.sleep(30)
+                  
                   result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product[prod], bands[n], 
                                           date.list[1,x], date.list[10,x], Size[1], Size[2]))
                   
@@ -72,8 +72,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
                   ifelse(class(result) == "try-error" || is.na(result) || busy, next, break)
                 }
                 ifelse(class(result) == "try-error" || is.na(result) || busy,
-                       print("Connection to the MODIS Web Service failed: 
-                             Subset requested timed out after 10 failed attempts...stopping subset download."),
+                       print("Connection to the MODIS Web Service failed: timed out after 10 failed attempts...stopping download."),
                        break)
                 stop(result)
               }
@@ -101,7 +100,6 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
             if(busy) print("The server is busy handling other requests...")
           }
           
-          # The same download check (see there for comments) as above, for final data retrieval for a given product band.
           if(class(result) == "try-error" || is.na(result) || busy){
             timer <- 1
             while(timer <= 10){
@@ -120,8 +118,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
             }
             
             ifelse(class(result) == "try-error" || is.na(result) || busy, 
-                   print("Connection to the MODIS Web Service failed: 
-                       Subset requested timed out after 10 failed attempts...stopping subset download."), 
+                   print("Connection to the MODIS Web Service failed: timed out after 10 failed attempts...stopping download."), 
                    break)
             stop(result)
           }
@@ -135,37 +132,31 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
           subsets[[prod]][(((n - 1) * length(date.res[[prod]])) + (((ncol(date.list) - 1) * 10) + 1)):
                     (((n - 1) * length(date.res[[prod]])) + length(date.res[[prod]]))] <- result$subset[[1]]
           
-        } # End of loop that iterates subset request for each product band. 
-      } # End of loop that iterates subset requests for each product.
+        } # End of loop for each band. 
+      } # End of loop for each product.
       
       subsets <- do.call("c", subsets)
             
       ##### Check that there is no missing data in the download & log download status accordingly.
       if(length(subsets) != subsets.length | any(is.na(subsets))){
-        # Add missing data status for this time-series to lat.long for the download summary file & print warning message.
         ifelse(StartDate,
                lat.long[i,6] <- "Missing data in subset: try downloading again", 
                lat.long[i,5] <- "Missing data in subset: try downloading again")
-        print(paste("There is missing information in the subset downloaded for time-series ", lat.long$ID[i], 
-                    ". See subset download file.", sep=""))
+        print(paste("Missing information for time-series ", lat.long$ID[i], ". See subset download file.", sep = ""))
       } else {
-        # Add successful status for this time-series to lat.long for the download summary file.
         ifelse(StartDate, lat.long[i,6] <- "Successful download", lat.long[i,5] <- "Successful download")
       }
-      ####
+      #####
       
       # Write an ascii file with all dates for each band at a given location into the working directory.
-      if(!Transect) write(subsets, file = paste(SaveDir, "/", lat.long[i,1], "_", paste(Product, collapse = "_"), ".asc",
-                                                sep = ""), sep = "")
+      prods <- paste(Product, collapse = "_")
+      if(!Transect) write(subsets, file = paste(SaveDir, "/", lat.long[i,1], "_", prods, ".asc", sep = ""), sep = "")
       if(Transect){
-        if(i == 1) write(subsets, file = paste(SaveDir, "/", lat.long[i,1], "_", paste(Product, collapse = "_"), ".asc",
-                                               sep = ""), sep = "")
-        if(i != 1) write(subsets, file = paste(SaveDir, "/", lat.long[i,1], "_", paste(Product, collapse = "_"), ".asc",
-                                               sep = ""), sep = "", append = TRUE)
+        if(i == 1) write(subsets, file = paste(SaveDir, "/", lat.long[i,1], "_", prods, ".asc", sep = ""), sep = "")
+        if(i != 1) write(subsets, file = paste(SaveDir, "/", lat.long[i,1], "_", prods, ".asc", sep = ""), sep = "", append = TRUE)
       }
       
       if(i == nrow(lat.long)) print("Full subset download complete. Writing the subset download file...")
-    }
-    
+    } 
     return(lat.long)
 }

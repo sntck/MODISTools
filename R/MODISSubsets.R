@@ -1,18 +1,12 @@
 MODISSubsets <-
 function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
 {
-    if(!is.object(LoadDat) & !is.character(LoadDat)){
-      stop("Data is incorrectly specified. Must either be the name of an object in R, or a file path character string.")
-    }
     # Load data of locations; external data file, or an R object.
+    if(!is.object(LoadDat) & !is.character(LoadDat)) stop("LoadDat must be an object in R or a file path character string.")
     if(is.object(LoadDat)) dat <- data.frame(LoadDat) 
     if(is.character(LoadDat)){
-      if(!file.exists(LoadDat)){
-        stop("Character string input for LoadDat argument does not resemble an existing file path.")
-      }
-      if(is.null(FileSep)){
-        stop("Data is a file path. If you want to load a file as input, you must also specify its delimiter (FileSep).")
-      }
+      if(!file.exists(LoadDat)) stop("Character string input for LoadDat does not resemble an existing file path.")
+      if(is.null(FileSep)) stop("To load a file as input, you must also specify its delimiter (FileSep).")
       dat <- read.delim(LoadDat, sep = FileSep) 
     }
     
@@ -28,9 +22,8 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     if(any(is.na(dat$lat) != is.na(dat$long))) stop("There are locations with incomplete coordinates.")
     
     # Check that the input data set contains dates, named end.date.
-    if(!any(names(dat) == "end.date")){
-      stop("Could not find date information. Dates for time-series must be included and named 'end.date'.")
-    }
+    if(!any(names(dat) == "end.date")) stop("Dates for time series must be included and named 'end.date'.")
+    
     # Now that incomplete coordinates have been checked for, check also that each coordinate has date information.
     if(any(is.na(dat$lat) != is.na(dat$end.date))) stop("Not all coordinates have a corresponding date.")
     
@@ -43,14 +36,9 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     # Set of stop-if-nots to run if StartDate == TRUE.
     if(StartDate){
       # Check that the input data set contains start dates, named start.date.
-      if(!any(names(dat) == "start.date")){
-        stop("StartDate=TRUE, but no start date has been found in the data set. Start dates must be named 'start.date'.
-             See help for data set requirements.")
-      }
+      if(!any(names(dat) == "start.date")) stop("StartDate=TRUE, but 'start.date' not found in the data set.")
       # Check that each coordinate has start date information.
-      if(any(is.na(dat$lat) != is.na(dat$start.date))){
-        stop("Not all coordinates have a corresponding start date. If start.date is incomplete, consider StartDate=FALSE.")
-      }
+      if(any(is.na(dat$lat) != is.na(dat$start.date))) stop("Not all coordinates have a corresponding start date.")
     }
     
     if(!StartDate){
@@ -117,10 +105,7 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
       
       if(StartDate){
         posix.compatible <- try(as.POSIXlt(lat.long[ ,4]), silent = TRUE)
-        if(class(posix.compatible) == "try-error"){
-          stop("POSIX date format detected, but start.date are not all unambiguously in standard POSIXt format.
-             See ?POSIXt for help.")
-        }
+        if(class(posix.compatible) == "try-error") stop("POSIX date format detected, but start.date may not all be POSIXt format.")
         start.date <- strptime(lat.long[ ,4], "%Y-%m-%d")
       }
       if(!StartDate) start.date <- strptime(paste((end.date$year + 1900) - TimeSeriesLength, "-01-01", sep = ""), "%Y-%m-%d")
@@ -176,8 +161,7 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     }
     #####
 
-    ##### Retrieve data subsets for each time-series of a set of product bands, saving 
-    # the data for each time-series into separate ascii files in /pixels dir in the working directory.
+    ##### Retrieve data subsets for each time-series of a set of product bands, saving data for each time series into ASCII files.
     lat.long <- BatchDownload(lat.long = lat.long, dates = dates, MODIS.start = MODIS.start, MODIS.end = MODIS.end, Bands = Bands, 
                               Product = Product, Size = Size, StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
     
@@ -185,14 +169,13 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     success.check <- lat.long[ ,ncol(lat.long)] != "Successful download"
     if(any(success.check)){
       print("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...")
+      
       lat.long[success.check, ] <- BatchDownload(lat.long = lat.long[success.check, ], dates = dates, MODIS.start = MODIS.start,
                                                  MODIS.end = MODIS.end, Bands = Bands, Product = Product, Size = Size,
                                                  StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
       
       success.check <- lat.long[ ,ncol(lat.long)] != "Successful download"
-      if(any(success.check)){
-        print("Incomplete downloads found and were re-tried, but incomplete downloads remain. See subset download file.")
-      }
+      if(any(success.check)) print("Incomplete downloads were re-tried but incomplete downloads remain. See subset download file.")
     }
     #####
     
@@ -209,15 +192,13 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
       if(!any(DirList == paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep = ""))){ 
         write.table(lat.long, file = paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep = ""), 
                     col.names = TRUE, row.names = FALSE, sep = ",")
-      }
-      
-      if(any(DirList == paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep = ""))){ 
+      } else {
         write.table(lat.long, file = paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep = ""), 
-                    col.names = FALSE, row.names = FALSE, sep = ",", append = TRUE) 
+                    col.names = FALSE, row.names = FALSE, sep = ",", append = TRUE)
       }
     }
     #####
     
     # Print message to confirm downloads are complete and to remind the user to check summary file for any missing data.
-    if(!Transect) print("Done! Check the subset download file for correct subset information and download messages.")                                                                                   
+    if(!Transect) print("Done! Check the subset download file for correct subset information and download messages.")
 }
