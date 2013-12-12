@@ -20,9 +20,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Band, ValidRange, NoDataFi
       if(is.null(QualityBand) | is.null(QualityThreshold)) stop("QualityBand and QualityThreshold not specified.")
     }
     
-#    if(!any(GetBands(Product) == Band)){
-#      stop("Band does not match with the Product entered.")
-#    }
+    if(!any(Band == GetBands(Product))) stop("No Band input matches with the Product input.")
     
     # NoDataFill should be one integer.
     if(length(NoDataFill) != 1) stop("NoDataFill input must be one integer.")
@@ -34,8 +32,8 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Band, ValidRange, NoDataFi
     if(!is.numeric(ValidRange)) stop("ValidRange should be numeric class.")
     
     # ScaleFactor should be numeric, length 1.
-    if(length(ScaleFactor) != 1) stop("ValidRange input must be a numeric vector - an upper and lower bound.")
-    if(!is.numeric(ScaleFactor)) stop("ValidRange should be numeric class.")
+    if(length(ScaleFactor) != 1) stop("ScaleFactor input must be one numeric element.")
+    if(!is.numeric(ScaleFactor)) stop("ScaleFactor should be numeric class.")
     
     # Year or posixt date format?
     Year <- FALSE
@@ -52,18 +50,22 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Band, ValidRange, NoDataFi
     if(StartDate & !any(names(details) == "start.date")) stop("StartDate == TRUE, but no start.date field found in LoadDat.")
     
     # Get a list of all downloaded subset (.asc) files in the data directory.
-    filelist <- list.files(path = Dir, pattern = ".asc")
+    file.list <- list.files(path = Dir, pattern = paste(Product, ".*asc$", sep = ""))
+    if(length(file.list) == 0) stop("Found no MODIS data files in Dir that match the request.")
+    
+    size.test <- sapply(file.list, function(x) ncol(read.csv(x)[1, ]) - 5)
+    if(!all(size.test == size.test[1])) stop("The number of pixels (Size) in subsets identified are not all the same.")
     
     # Time-series analysis for each time-series (.asc file) consecutively.
-    band.data.site <- list(NA)     # length(filelist)
-    band <- c()                    # matrix (nrow = length(details$lat[!is.na(details$lat)]), ncol = number of pixels)
+    band.data.site <- lapply(size.test, function(x) matrix(nrow = x, ncol = 12))
+    band <- matrix(nrow = length(file.list), ncol = size.test[1])
     
-    for(counter in 1:length(filelist)){
+    for(counter in 1:length(file.list)){
       
-      print(paste("Processing file ", counter, " of ", length(filelist), "...", sep = ""))
+      print(paste("Processing file ", counter, " of ", length(file.list), "...", sep = ""))
       
       # Load selected .asc file into a data frame, name columns and tell user what's being processed.
-      ds <- read.csv(paste(Dir, "/", filelist[counter], sep = ""), header = FALSE, as.is = TRUE)
+      ds <- read.csv(paste(Dir, "/", file.list[counter], sep = ""), header = FALSE, as.is = TRUE)
       names(ds) <- c("row.id", "land.product.code", "MODIS.acq.date", "where", "MODIS.proc.date", 1:(ncol(ds) - 5))
       
       ##### Section that uses the files metadata strings [ ,1:5] for each time-series to extract necessary information.
@@ -76,10 +78,11 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Band, ValidRange, NoDataFi
       ifelse(any(grepl(Band, ds$row.id)),
              which.band <- grep(Band, ds$row.id),
              stop("Cannot find band data in LoadDat. Make sure ASCII files in the directory are from MODISSubsets."))
-      
-      ifelse(QualityScreen & any(grepl(QualityBand, ds$row.id)),
-             which.rel <- grep(QualityBand, ds$row.id),
-             stop("Cannot find quality data in LoadDat. Download quality data with band data in MODISSubsets."))
+      if(QualityScreen){
+        ifelse(any(grepl(QualityBand, ds$row.id)),
+               which.rel <- grep(QualityBand, ds$row.id),
+               stop("Cannot find quality data in LoadDat. Download quality data with band data in MODISSubsets."))
+      }
       #####
       
       #  Organise data into matrices containing product band data and another for corresponding reliability data.
@@ -94,7 +97,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Band, ValidRange, NoDataFi
              band.time.series <- matrix(ifelse(band.time.series != NoDataFill, band.time.series, NA), nrow = length(which.band)))
       
       # Final check, that band values all fall within the ValidRange (as defined for given MODIS product band).
-      if(any(!(band.time.series >= ValidRange[1] && band.time.series <= ValidRange[2]), na.rm = TRUE)) { 
+      if(any(!(band.time.series >= ValidRange[1] && band.time.series <= ValidRange[2]), na.rm = TRUE)){ 
         stop("Some values fall outside the valid range, after no fill values should have been removed.") 
       }
       
@@ -150,7 +153,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Band, ValidRange, NoDataFi
           if(Mean) mean.band[i] <- mean(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm = TRUE)
         }
         
-        if(data.quality == 0) warning("No reliable data for this pixel", immediate.=TRUE)
+        if(data.quality == 0) warning("No reliable data for this pixel", immediate. = TRUE)
         
         # Complete final optional summaries, irrespective of data quality.
         if(Min) band.min[i] <- minobsband
@@ -168,8 +171,8 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Band, ValidRange, NoDataFi
       } # End of loop for time-series summary analysis for each pixel.
       
       # Extract ID for this .asc file time-series so it can be included in final summary output.
-      where.id <- regexpr("_", filelist[counter])
-      id <- rep(substr(filelist[counter], 1, where.id - 1), length(mean.band))
+      where.id <- regexpr("_", file.list[counter])
+      id <- rep(substr(file.list[counter], 1, where.id - 1), length(mean.band))
       
       # Compile time-series information and relevant summaries data into a final output listed by-sites (.asc files).
       band.data.site[[counter]] <- 
@@ -179,20 +182,9 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Band, ValidRange, NoDataFi
                    no.fill.data = nofill, poor.quality.data = poorquality)
       
       # Extract mean band values.
-      band <- rbind(band,mean.band)
+      band[counter, ] <- mean.band
       
     } # End of loop that reitrates time-series summary for each .asc file.
-    
-    # Write output summary file by appending summary data from all files, producing one file of summary stats output.
-    print("Writing summaries and collecting data...")
-    write.table(band.data.site[[1]], file = paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep = ""),
-                sep = ",", row.names = FALSE)
-    if(length(filelist) > 1){ 
-      for(i in 2:length(filelist)){ 
-        write.table(band.data.site[[i]], file = paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep = ""), 
-                      sep = ",", append = TRUE, row.names = FALSE, col.names = FALSE) 
-      } 
-    }
     
     # Append the summaries for each pixel, for each time-series, to the original input dataset (details).
     ifelse(StartDate,
@@ -202,6 +194,8 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Band, ValidRange, NoDataFi
            ID.match <- data.frame(unique(cbind(lat = details$lat[!is.na(details$lat)], long = details$long[!is.na(details$lat)],
                                                end.date = details$end.date[!is.na(details$lat)]))))
     
+    if(nrow(ID.match) != nrow(band)) stop("Differing number of unique locations found between LoadDat and ASCII subsets.")
+    
     res <- data.frame(details, band.pixels = matrix(NA, nrow = nrow(details), ncol = ncol(band)))
     
     # Use FindID for each row of ID.match, to add the right band subscripts to the right details subscripts.
@@ -210,6 +204,16 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Band, ValidRange, NoDataFi
       if(all(match.subscripts != "No matches found.")){
         for(x in 1:length(match.subscripts)) res[match.subscripts[x],(ncol(details) + 1):ncol(res)] <- band[i, ]
       }
+    }
+    
+    # Write output summary file by appending summary data from all files, producing one file of summary stats output.
+    write.table(band.data.site[[1]], file = paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep = ""),
+                sep = ",", row.names = FALSE)
+    if(length(file.list) > 1){ 
+      for(i in 2:length(file.list)){ 
+        write.table(band.data.site[[i]], file = paste(Dir, "/", "MODIS Summary ", Sys.Date(), ".csv", sep = ""), 
+                    sep = ",", append = TRUE, row.names = FALSE, col.names = FALSE) 
+      } 
     }
     
     # Write the final appended dataset to a csv file, ready for use, in Dir.

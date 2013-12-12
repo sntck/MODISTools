@@ -16,78 +16,52 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
     MOD17A2 = c(0, 254, 255),                  # GPP 0 bit
     MOD17A3 = c(0, 100, ""),                   # GPP funny one - evaluate separately.
     MCD43A4 = c(0, 4294967294, 4294967295)     # BRDF albedo band quality, taken from MCD43A2, for reflectance data.
-    )                  
+  )                  
   # Land cover dynamics products are available for download but not for quality checking with this function.
   
   # Check the product input corresponds to one with useable quality information
-  if(!any(names(QA_RANGE) == Product)){
-    stop(paste("QualityCheck cannot be used for the product (", Product, ") requested.", sep=""))
-  }
+  if(!any(names(QA_RANGE) == Product)) stop(paste("QualityCheck cannot be used for (", Product, ") product.", sep = ""))
   
   product.bands <- GetBands(Product)
   # Check Band and QualityBand belong to Product.
-  if(!any(product.bands == Band)){
-    stop(paste("The Band input does not correspond to an existing data band within the", Product, "product.", sep=" "))
-  }
-  if(Product == "MCD43A4"){     # MCD43A4 quality data is held in a separate product, so check this differently.
-    if(QualityBand != "BRDF_Albedo_Band_Quality"){
-      stop(paste("The QualityBand input does not correspond to an existing data band within the", Product, "product.", sep=" "))
-    }
+  if(!any(product.bands == Band)) stop(paste("Band input does not match with", Product, "product.", sep = " "))
+  
+  if(Product == "MCD43A4"){
+    if(QualityBand != "BRDF_Albedo_Band_Quality") stop("QualityBand input is not QA data for MCD43A4 product.")
   } else {
-    if(!any(product.bands == QualityBand)){
-      stop(paste("The QualityBand input does not correspond to an existing data band within the", Product, "product.", sep=" "))
-    }
+    if(!any(product.bands == QualityBand)) stop(paste("QualityBand is not QA data for", Product, "product.", sep = " "))
   }
   
   # If dataframes, coerce to matrices.
-  if(is.data.frame(Data)){
-    Data <- as.matrix(Data)
-  }
-  if(is.data.frame(QualityScores)){
-    QualityScores <- as.matrix(QualityScores)
-  }  
+  if(is.data.frame(Data)) Data <- as.matrix(Data)
+  if(is.data.frame(QualityScores)) QualityScores <- as.matrix(QualityScores)  
   
   # Check that Data and QualityScores have matching length and, if a matrix, dimensions .
   if(is.matrix(Data) | is.matrix(QualityScores)){
-    if(!(is.matrix(Data) & is.matrix(QualityScores))){
-      stop("Data and QualityScores do not have matching dimensions.")
-    }
-    if(!all(dim(Data) == dim(QualityScores))){
-      stop("Data and QualityScores do not have matching dimensions.")
-    }
+    if(!(is.matrix(Data) & is.matrix(QualityScores))) stop("Data and QualityScores do not have matching dimensions.")
+    if(!all(dim(Data) == dim(QualityScores))) stop("Data and QualityScores do not have matching dimensions.")
   } else {
-    if(length(Data) != length(QualityScores)){
-      stop("Data and QualityScores must have matching lengths to be information for the same pixels.")
-    }
+    if(length(Data) != length(QualityScores)) stop("Data and QualityScores must have matching lengths.")
   }
   
   # Check the QualityScores input are within the correct range for the product requested.
   if(any((QualityScores < QA_RANGE[1,Product] | QualityScores > QA_RANGE[2,Product]) & 
-           QualityScores != QA_RANGE[3,Product])){
-    stop(paste("Some QualityScores are outside of the range of valid quality control data for the product requested.
-         For this product, the valid QualityScore range is", QA_RANGE[1,Product], "and", QA_RANGE[2,Product], ".", sep=" "))
+          QualityScores != QA_RANGE[3,Product])){
+    stop(paste("Some QualityScores are outside of the range of valid quality control data for the product requested. For 
+         this product, the valid QualityScore range is", QA_RANGE[1,Product], "and", QA_RANGE[2,Product], ".", sep = " "))
   }
   
   # Quality Threshold should be one integer.
-  if(length(QualityThreshold) != 1){
-    stop("QualityThreshold input must be one integer.")
-  }
-  if(!is.numeric(QualityThreshold)){
-    stop("QualityThreshold should be numeric class. One integer.")
-  }
+  if(length(QualityThreshold) != 1) stop("QualityThreshold input must be one integer.")
+  if(!is.numeric(QualityThreshold)) stop("QualityThreshold should be numeric class. One integer.")
   if(abs(QualityThreshold - round(QualityThreshold)) > .Machine$double.eps^0.5){
     stop("QualityThreshold input must be one integer.")
   }
+  
   # NoDataFill should be one integer.
-  if(length(NoDataFill) != 1){
-    stop("NoDataFill input must be one integer.")
-  }
-  if(!is.numeric(NoDataFill)){
-    stop("NoDataFill should be numeric class. One integer.")
-  }
-  if(abs(NoDataFill - round(NoDataFill)) > .Machine$double.eps^0.5){
-    stop("NoDataFill input must be one integer.")
-  }
+  if(length(NoDataFill) != 1) stop("NoDataFill input must be one integer.")
+  if(!is.numeric(NoDataFill)) stop("NoDataFill should be numeric class. One integer.")
+  if(abs(NoDataFill - round(NoDataFill)) > .Machine$double.eps^0.5) stop("NoDataFill input must be one integer.")
   
   # Check QualityThreshold is within 0-3 for all except LAI and GPP bands, which must be within 0-1, and MOD17A3 (0-100).
   lai.gpp.prods <- c("MOD15A2", "MYD15A2", "MOD17A2")
@@ -98,28 +72,34 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
   } else if(Product != "MOD17A3"){
     if(QualityThreshold < 0 | QualityThreshold > 3){
       stop("QualityThreshold should be between 0-3 for this product; 
-           0=high quality, 1=good but marginal quality, 2=cloudy/poor quality, 3=poor quality for other reasons.")
+           0 = high quality, 1 = good but marginal quality, 2 = cloudy/poor quality, 3 = poor quality for other reasons.")
     }
   }
   #####
   
   # MOD17A3 is an exception, so deal with this first, and then the rest,
   if(Product == "MOD17A3"){
-    if(QualityThreshold < 0 | QualityThreshold > 100){
-      stop("QualityThreshold should be between 0-100 for this product.")
-    }
+    if(QualityThreshold < 0 | QualityThreshold > 100) stop("QualityThreshold should be between 0-100 for this product.")
     
     NOFILLRANGE <- c(250, 255)
     Data <- ifelse(Data > NOFILLRANGE[1] & Data < NOFILLRANGE[2], Data, NA)
     Data <- ifelse(QualityScores <= QualityThreshold, Data, NA)
   } else {
-    quality.binary <- character(length(QualityScores))
-    for(i in 1:length(quality.binary)){
-      quality.binary[i] <- paste(sapply(strsplit(paste(rev(intToBits(QualityScores[i]))), split=""), `[[`, 2), 
-                                 collapse="")
+    # Convert decimal QualityScores values into binary.
+    decimal.set <- QualityScores
+    set.length <- length(QualityScores)
+    max.decimal <- max(QualityScores)
+    num.binary.digits <- floor(log(max.decimal, base = 2)) + 1
+    binary.set<- matrix(nrow = set.length, ncol = num.binary.digits)
+    
+    for(n in 1:num.binary.digits){
+      binary.set[ ,(num.binary.digits - n) + 1] <- decimal.set %% 2
+      decimal.set <- decimal.set %/% 2
     }
     
-    # Deal with the quality data, converting them to binary, according to the product input.
+    quality.binary <- apply(binary.set, 1, function(x) paste(x, collapse = ""))
+    
+    # Deal with the quality data in binary, according to the product input.
     if(any(lai.gpp.prods == Product)){
       qa.binary <- as.numeric(substr(quality.binary, nchar(quality.binary), nchar(quality.binary)))
       Data <- ifelse(Data != NoDataFill & qa.binary <= QualityThreshold, Data, NA)
@@ -128,8 +108,8 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
       # Selection ((Band.no - 1) * 2):(((Band.no - 1) * 2) + 3)
       if(Product == "MCD43A4"){
         band.num <- as.numeric(substr(Band, nchar(Band), nchar(Band)))
-        if(is.na(band.num)){ stop("Band input is not one of the reflectance bands (1-7) from MCD43A4.")}
-        if(1 < band.num & band.num < 7){ stop("Band input is not one of the reflectance bands (1-7) from MCD43A4.")}
+        if(is.na(band.num)) stop("Band input is not one of the reflectance bands (1-7) from MCD43A4.")
+        if(1 < band.num & band.num < 7) stop("Band input is not one of the reflectance bands (1-7) from MCD43A4.")
         
         # Select the section of binary code relevant to Band.
         qa.binary <- substr(quality.binary, (nchar(quality.binary) - (((band.num - 1) * 2) + 2)), 
