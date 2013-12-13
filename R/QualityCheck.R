@@ -87,10 +87,8 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
   } else {
     # Convert decimal QualityScores values into binary.
     decimal.set <- QualityScores
-    set.length <- length(QualityScores)
-    max.decimal <- max(QualityScores)
-    num.binary.digits <- floor(log(max.decimal, base = 2)) + 1
-    binary.set<- matrix(nrow = set.length, ncol = num.binary.digits)
+    num.binary.digits <- floor(log(max(QualityScores), base = 2)) + 1
+    binary.set<- matrix(nrow = length(QualityScores), ncol = num.binary.digits)
     
     for(n in 1:num.binary.digits){
       binary.set[ ,(num.binary.digits - n) + 1] <- decimal.set %% 2
@@ -105,15 +103,15 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
       Data <- ifelse(Data != NoDataFill & qa.binary <= QualityThreshold, Data, NA)
     } else {
       # Create an ifelse here so if MCD43A4, snip the relevant binary string for Band. Otherwise, carry on.
-      # Selection ((Band.no - 1) * 2):(((Band.no - 1) * 2) + 3)
       if(Product == "MCD43A4"){
         band.num <- as.numeric(substr(Band, nchar(Band), nchar(Band)))
-        if(is.na(band.num)) stop("Band input is not one of the reflectance bands (1-7) from MCD43A4.")
-        if(1 < band.num & band.num < 7) stop("Band input is not one of the reflectance bands (1-7) from MCD43A4.")
+        if(any(is.na(band.num))) stop("Band input is not one of the reflectance bands (1-7) from MCD43A4.")
+        if(any(1 < band.num & band.num > 7)) stop("Band input is not one of the reflectance bands (1-7) from MCD43A4.")
         
         # Select the section of binary code relevant to Band.
         qa.binary <- substr(quality.binary, (nchar(quality.binary) - (((band.num - 1) * 2) + 2)), 
                                             (nchar(quality.binary) - ((band.num - 1) * 2)))
+        
         qa.int <- numeric(length(qa.binary))
         qa.int[qa.binary == "000"] <- 0
         qa.int[qa.binary == "001"] <- 1
@@ -124,6 +122,7 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
         Data <- ifelse(Data != NoDataFill & qa.int <= QualityThreshold, Data, NA)
       } else {
         qa.binary <- substr(quality.binary, nchar(quality.binary) - 1, nchar(quality.binary))
+        
         qa.int <- numeric(length(qa.binary))   
         qa.int[qa.binary == "00"] <- 0
         qa.int[qa.binary == "01"] <- 1
