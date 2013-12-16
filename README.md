@@ -9,7 +9,12 @@ The main purpose of this package is to employ the MODIS SOAP Web Service to remo
 
 The functions were originally used for downloading vegetation indices data, but have been generalised to provide a package that performs the same functionality for any MODIS data for similar aims. For a list of all MODIS products, see [https://lpdaac.usgs.gov/products/modis_products_table](https://lpdaac.usgs.gov/products/modis_products_table). Other minor functions -- including a lat-long coordinate conversion tool -- are included to aid this process.
 
-Recent stable releases of this package have been checked and built on Windows, Mac, and Linux, and last checked on R 3.0.1 on 25/07/2013. `EndCoordinates` and its documentation is written by [Helen Phillips](https://github.com/helenphillips). Rest written by [Sean Tuck](https://github.com/seantuck12). This package can be used under the terms of the GNU GPLv3 license; feel free to use and modify as you wish, but please cite my work where appropriate.
+Recent stable releases of this package have been checked and built on Windows, Mac, and Linux, and last checked on R 3.0.1 on 25/07/2013. `MODISTools` is written by [Sean Tuck](https://github.com/seantuck12) and [Helen Phillips](https://github.com/helenphillips). This package can be used under the terms of the GNU GPLv3 license; feel free to use and modify as you wish, but please cite my work where appropriate.
+
+Changes coming soon:
+* New function to produce one matrix for all timeseries data downloaded, with a row for each date in the timeseries and a column for each unique timeseries (i.e., each ASCII file downloaded).
+* `MODISSubsets` and `MODISSummaries` will be extended to automate download for data from many products at a time.
+* `MODISSummaries` and `QualityCheck` capability to deal with MCD43A4 (BRDF Reflectance Bands) and its quality control data in MCD43A2.
 
 
 Installation
