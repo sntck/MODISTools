@@ -222,6 +222,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     for(i in 1:nrow(ID.match)){
       match.subscripts <- FindID(ID.match[i, ], details)
       if(all(match.subscripts != "No matches found.")){
+
         for(x in 1:length(match.subscripts)) res[match.subscripts[x],(ncol(details) + 1):ncol(res)] <- band.data[i, ]
       }
     }

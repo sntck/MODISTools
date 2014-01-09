@@ -1,6 +1,7 @@
 BatchDownload <- 
-function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDate, Transect, SaveDir)
+function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDate, Transect, SaveDir)
 {   
+
     # Split band names into sets for different products.
     which.bands <- lapply(Product, function(x) which(Bands %in% GetBands(x)))
     
@@ -122,6 +123,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDat
                    break)
             stop(result)
           }
+
           
           # Check downloaded subset request contains data: if it contains the following message instead, abort function.
           if(regexpr("Server is busy handling other requests in queue", result$subset[[1]][1]) != -1){

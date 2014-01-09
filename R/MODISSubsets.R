@@ -99,7 +99,7 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
       MODIS.start <- paste("A", substr(start.date, 1, 4), start.day, sep = "")
       MODIS.end <- paste("A", substr(end.date, 1, 4), end.day, sep = "")
     }
-    
+
     if(POSIXt){
       end.date <- strptime(lat.long[ ,3], "%Y-%m-%d")     
       
@@ -164,7 +164,7 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     ##### Retrieve data subsets for each time-series of a set of product bands, saving data for each time series into ASCII files.
     lat.long <- BatchDownload(lat.long = lat.long, dates = dates, MODIS.start = MODIS.start, MODIS.end = MODIS.end, Bands = Bands, 
                               Product = Product, Size = Size, StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
-    
+        
     # Run a second round of downloads for any time-series that incompletely downloaded, and overwrite originals.
     success.check <- lat.long[ ,ncol(lat.long)] != "Successful download"
     if(any(success.check)){

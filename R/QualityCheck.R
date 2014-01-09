@@ -111,7 +111,7 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
         # Select the section of binary code relevant to Band.
         qa.binary <- substr(quality.binary, (nchar(quality.binary) - (((band.num - 1) * 2) + 2)), 
                                             (nchar(quality.binary) - ((band.num - 1) * 2)))
-        
+
         qa.int <- numeric(length(qa.binary))
         qa.int[qa.binary == "000"] <- 0
         qa.int[qa.binary == "001"] <- 1
@@ -122,7 +122,7 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
         Data <- ifelse(Data != NoDataFill & qa.int <= QualityThreshold, Data, NA)
       } else {
         qa.binary <- substr(quality.binary, nchar(quality.binary) - 1, nchar(quality.binary))
-        
+
         qa.int <- numeric(length(qa.binary))   
         qa.int[qa.binary == "00"] <- 0
         qa.int[qa.binary == "01"] <- 1

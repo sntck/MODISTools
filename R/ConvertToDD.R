@@ -22,6 +22,7 @@ ConvertToDD <-
     which.format.long<- gregexpr("([^0-9.][0-9])", DMS.long)
     DM.or.DMS.lat<- rep(NA, nrow(XY))
     DM.or.DMS.long<- rep(NA, nrow(XY))
+  
     for(i in 1:nrow(XY)){ 
       DM.or.DMS.lat[i]<- length(which.format.lat[[i]]) 
       DM.or.DMS.long[i]<- length(which.format.long[[i]]) 
@@ -43,6 +44,7 @@ ConvertToDD <-
     M.long<- rep(NA, nrow(XY))
     S.lat<- rep(NA, nrow(XY))
     S.long<- rep(NA, nrow(XY))
+    
     D.point.lat<- regexpr("[^0-9][0-9]{1,2}[^0-9]", DMS.lat)
     D.point.long<- regexpr("[^0-9][0-9]{1,2}[^0-9]", DMS.long)
     for(i in 1:nrow(XY)){     
@@ -119,8 +121,9 @@ ConvertToDD <-
           DD.lat[i]<- -DD.lat[i] 
         }
         
-        # Longitude
-        D.long[i]<- as.numeric(substr(DMS.long[i], 1, D.point.long-1))
+        # Longitude        
+        D.long[i]<- as.numeric(substr(DMS.long[i], 1, D.point.long[i]-1))
+        
         if(substr(DMS.long[i], nchar(DMS.long[i]), nchar(DMS.long[i])) == 'E') {   
           M.long[i]<- as.numeric(substr(DMS.long[i], D.point.long[i]+1, nchar(DMS.long[i])-2))
         } else {
