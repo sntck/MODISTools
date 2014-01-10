@@ -8,7 +8,7 @@ function(ID, Data)
   match.set <- Data[ ,match(names(ID), names(Data))]
   row.matches <- apply(match.set, 1, match, ID)
   
-  if(length(which(!is.na(apply(row.matches, 2, sum)))) == 0,
+  ifelse(length(which(!is.na(apply(row.matches, 2, sum)))) == 0,
      return("No matches found."),
      return(which(!is.na(apply(row.matches, 2, sum))))) 
 }
