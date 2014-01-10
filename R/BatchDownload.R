@@ -1,5 +1,5 @@
 BatchDownload <- 
-function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDate, Transect, SaveDir)
+function(lat.long, dates, MODIS.start, MODIS.end, Bands, Product, Size, StartDate, Transect, SaveDir)
 {   
 
     # Split band names into sets for different products.
