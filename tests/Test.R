@@ -3,6 +3,7 @@
 # MODISTools.
 
 # Load data to be used for testing.
+rm(list = ls())
 library(MODISTools)
 data(SubsetExample, FindIDExample, QualityCheckExample, TransectExample, EndCoordinatesExample, ConvertExample)
 library(RCurl)  # Will use some RCurl and XML functions explicitly in testing.
@@ -149,4 +150,5 @@ ExtractTile(Data = TileExample, Rows = c(5,1), Cols = c(5,1), Grid = TRUE)
 # Check LandCover on previously downloaded data from MODISSubsets
 LandCover(Band = "Land_Cover_Type_1")
 
+rm(list = ls())
 options(warn = 0)

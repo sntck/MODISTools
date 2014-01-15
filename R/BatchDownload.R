@@ -2,7 +2,7 @@ BatchDownload <-
 function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDate, Transect, SaveDir)
 {   
     # Split band names into sets for different products.
-    which.bands <- lapply(Product, function(x) which(Bands %in% GetBands(x)))
+    which.bands <- lapply(Products, function(x) which(Bands %in% GetBands(x)))
     
     # Loop set up to make request and write a subset file for each location.
     for(i in 1:nrow(lat.long)){
@@ -20,7 +20,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
       
       cat("Getting subset for location ", i, " of ", nrow(lat.long), "...", sep = "")
             
-      for(prod in 1:length(Product)){
+      for(prod in 1:length(Products)){
         
         # Organise relevant MODIS dates into batches of 10. Web service getsubset function will only take 10 at a time.
         # Fill up any remaining rows in the final column to avoid data recycling.
@@ -41,7 +41,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
               # getsubset function return object of ModisData class, with a subset slot that only allows 10 elements 
               # (i.e. 10 dates), looped until all requested dates have been retrieved.
               # Retrieve the batch of MODIS data and store in result
-              result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product[prod], bands[n], 
+              result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], 
                             date.list[1,x], date.list[10,x], Size[1], Size[2]))
               
               if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
@@ -61,7 +61,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
                   cat("Connection to the MODIS Web Service failed: trying again in 30secs...attempt", timer)
                   Sys.sleep(30)
                   
-                  result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product[prod], bands[n], 
+                  result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], 
                                           date.list[1,x], date.list[10,x], Size[1], Size[2]))
                   
                   if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
@@ -87,7 +87,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
           
           #####
           # This will download the last column of dates left (either final column or only column if < 10 dates).
-          result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product[prod], bands[n], date.list[1,ncol(date.list)],
+          result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], date.list[1,ncol(date.list)],
                                   date.list[max(which(!is.na(date.list[ ,ncol(date.list)]))),ncol(date.list)], Size[1], Size[2]))
           
           if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
@@ -106,7 +106,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
               cat("Connection to the MODIS Web Service failed: trying again in 30secs...attempt", timer)
               Sys.sleep(30)
               
-              result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Product[prod], bands[n], date.list[1,ncol(date.list)],
+              result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], date.list[1,ncol(date.list)],
                                       date.list[max(which(!is.na(date.list[ ,ncol(date.list)]))),ncol(date.list)], Size[1], Size[2]))
               
               if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
@@ -150,7 +150,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
       #####
       
       # Write an ascii file with all dates for each band at a given location into the working directory.
-      prods <- paste(Product, collapse = "_")
+      prods <- paste(Products, collapse = "_")
       if(!Transect) write(subsets, file = paste(SaveDir, "/", lat.long$SubsetID[i], "_", prods, ".asc", sep = ""), sep = "")
       if(Transect){
         if(i == 1) write(subsets, file = paste(SaveDir, "/", lat.long$SubsetID[i], "_", prods, ".asc", sep = ""), sep = "")

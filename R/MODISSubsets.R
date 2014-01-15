@@ -1,5 +1,5 @@
 MODISSubsets <-
-function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
+function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
 {
     # Load data of locations; external data file, or an R object.
     if(!is.object(LoadDat) & !is.character(LoadDat)) stop("LoadDat must be an object in R or a file path character string.")
@@ -36,7 +36,7 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     # Set of stop-if-nots to run if StartDate == TRUE.
     if(StartDate){
       # Check that the input data set contains start dates, named start.date.
-      if(!any(names(dat) == "start.date")) stop("StartDate=TRUE, but 'start.date' not found in the data set.")
+      if(!any(names(dat) == "start.date")) stop("StartDate = TRUE, but 'start.date' not found in the data set.")
       # Check that each coordinate has start date information.
       if(any(is.na(dat$lat) != is.na(dat$start.date))) stop("Not all coordinates have a corresponding start date.")
     }
@@ -128,11 +128,11 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     lat.long <- data.frame(SubsetID = ID, lat.long, Status = rep(NA, nrow(lat.long)))
     
     #####
-    # If the Product input does not match any product codes in the list output from GetProducts(), stop with error.
-    if(!all(Product %in% GetProducts())) stop("Not every Product input matches available products (?GetProducts).")
+    # If the Products input does not match any product codes in the list output from GetProducts(), stop with error.
+    if(!all(Products %in% GetProducts())) stop("Not every Products input matches available products (?GetProducts).")
     
-    # If the Bands input does not match with the Product input, stop with error.
-    avail.bands <- unlist(lapply(Product, function(x) GetBands(x)))
+    # If the Bands input does not match with the Products input, stop with error.
+    avail.bands <- unlist(lapply(Products, function(x) GetBands(x)))
     band.test <- any(lapply(Bands, function(x) any(x %in% avail.bands)) == FALSE)
     if(band.test) stop("At least one Bands input does not match the product names entered (?GetBands).")
     
@@ -144,7 +144,7 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     }
     
     # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.
-    dates <- lapply(Product, function(x) GetDates(lat.long[1,2], lat.long[1,3], x))
+    dates <- lapply(Products, function(x) GetDates(lat.long[1,2], lat.long[1,3], x))
     
     # Check that time-series fall within date range of MODIS data.
     if(any((start.date$year + 1900) < 2000 & (end.date$year + 1900) < 2000)){
@@ -163,7 +163,7 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
 
     ##### Retrieve data subsets for each time-series of a set of product bands, saving data for each time series into ASCII files.
     lat.long <- BatchDownload(lat.long = lat.long, dates = dates, MODIS.start = MODIS.start, MODIS.end = MODIS.end, Bands = Bands, 
-                              Product = Product, Size = Size, StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
+                              Products = Products, Size = Size, StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
         
     # Run a second round of downloads for any time-series that incompletely downloaded, and overwrite originals.
     success.check <- lat.long[ ,ncol(lat.long)] != "Successful download"
@@ -171,7 +171,7 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
       cat("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...")
       
       lat.long[success.check, ] <- BatchDownload(lat.long = lat.long[success.check, ], dates = dates, MODIS.start = MODIS.start,
-                                                 MODIS.end = MODIS.end, Bands = Bands, Product = Product, Size = Size,
+                                                 MODIS.end = MODIS.end, Bands = Bands, Products = Products, Size = Size,
                                                  StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
       
       success.check <- lat.long[ ,ncol(lat.long)] != "Successful download"
