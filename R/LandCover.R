@@ -49,7 +49,7 @@ function(Dir = ".", Band)
   
   for(i in 1:length(file.list)){
     
-    print(paste("Processing file ", i, " of ", length(file.list), "...", sep=""))
+    cat("Processing file ", i, " of ", length(file.list), "...", sep="")
     
     lc.subset <- read.csv(paste(Dir, "/", file.list[i], sep = ""), header = FALSE, as.is = TRUE)
     names(lc.subset) <- 
@@ -125,5 +125,5 @@ function(Dir = ".", Band)
   write.table(lc.summary, file = paste(Dir, "/", "MODIS_Land_Cover_Summary ", Sys.Date(), ".csv", sep = ""),
               sep = ",", row.names = FALSE)
   
-  print(paste("Done! Check the 'MODIS Land Cover Summary' output file.", sep = ""))
+  cat("Done! Check the 'MODIS Land Cover Summary' output file.")
 }

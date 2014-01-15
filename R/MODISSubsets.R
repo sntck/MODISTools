@@ -168,14 +168,14 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     # Run a second round of downloads for any time-series that incompletely downloaded, and overwrite originals.
     success.check <- lat.long[ ,ncol(lat.long)] != "Successful download"
     if(any(success.check)){
-      print("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...")
+      cat("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...")
       
       lat.long[success.check, ] <- BatchDownload(lat.long = lat.long[success.check, ], dates = dates, MODIS.start = MODIS.start,
                                                  MODIS.end = MODIS.end, Bands = Bands, Product = Product, Size = Size,
                                                  StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
       
       success.check <- lat.long[ ,ncol(lat.long)] != "Successful download"
-      if(any(success.check)) print("Incomplete downloads were re-tried but incomplete downloads remain. See subset download file.")
+      if(any(success.check)) cat("Incomplete downloads were re-tried but incomplete downloads remain. See subset download file.")
     }
     #####
     
@@ -200,5 +200,5 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
     #####
     
     # Print message to confirm downloads are complete and to remind the user to check summary file for any missing data.
-    if(!Transect) print("Done! Check the subset download file for correct subset information and download messages.")
+    if(!Transect) cat("Done! Check the subset download file for correct subset information and download messages.")
 }

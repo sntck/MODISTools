@@ -2,6 +2,7 @@ EndCoordinates <-
 function(LoadDat, FileSep = NULL, Distance = 1000, Angle = 90, AngleUnits = 'radians'|'degrees', Dir = ".", 
          FileName = "Transect Coordinates")
 {
+  if(!is.object(LoadDat) & !is.character(LoadDat)) stop("Data must be the name of an object in R, or a file path.")
   if(is.object(LoadDat)) x <- data.frame(LoadDat)
   
   if(is.character(LoadDat)){
@@ -10,17 +11,15 @@ function(LoadDat, FileSep = NULL, Distance = 1000, Angle = 90, AngleUnits = 'rad
     x <- read.delim(LoadDat, sep = FileSep) 
   }
   
-  if(!is.object(LoadDat) & !is.character(LoadDat)) stop("Data must be the name of an object in R, or a file path.")
-  
   if(!file.exists(Dir)) stop("Character string input for Dir argument does not resemble an existing file path.")
     
-  if(AngleUnits == 'radians' & Angle > (2*pi)) stop('Not sensible radian values. Did you mean degrees?')
+  if(AngleUnits == 'radians' & Angle > (2 * pi)) stop('Not sensible radian values. Did you mean degrees?')
   if(AngleUnits == 'degrees' & Angle > 360) stop('Not sensible degrees values. Check input.')
     
   if(AngleUnits == 'radians') angle.rad <- Angle
-  if(AngleUnits == 'degrees') angle.rad <- Angle/(180/pi)
+  if(AngleUnits == 'degrees') angle.rad <- Angle / (180 / pi)
   
-	lat.rad <- x$start.lat / (180/pi)
+	lat.rad <- x$start.lat / (180 / pi)
 	delta.lat.metres <- round(Distance * cos(angle.rad))
 	delta.long.metres <- round(Distance * sin(angle.rad))
 	delta.lat.degrees <- delta.lat.metres / (111.2 * 1000)
