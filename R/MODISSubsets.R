@@ -61,7 +61,7 @@ function(LoadDat, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDate
                                     end.date = dat$end.date[!is.na(dat$lat)], start.date = dat$start.date[!is.na(dat$lat)])), 
            lat.long <- unique(cbind(lat = dat$lat[!is.na(dat$lat)], long = dat$long[!is.na(dat$lat)], 
                                     end.date = dat$end.date[!is.na(dat$lat)])))
-    print(paste("Found ", nrow(lat.long), " unique time-series to download.", sep = ""))
+    cat("Found", nrow(lat.long), "unique time-series to download.")
     
     ##### Year or posixt date format?
     Year <- FALSE
