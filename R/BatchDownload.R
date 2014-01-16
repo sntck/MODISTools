@@ -143,7 +143,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
         ifelse(StartDate,
                lat.long[i,6] <- "Missing data in subset: try downloading again", 
                lat.long[i,5] <- "Missing data in subset: try downloading again")
-        cat("Missing information for time-series ", lat.long$ID[i], ". See subset download file.", sep = ""))
+        cat("Missing information for time-series ", lat.long$ID[i], ". See subset download file.", sep = "")
       } else {
         ifelse(StartDate, lat.long[i,6] <- "Successful download", lat.long[i,5] <- "Successful download")
       }
