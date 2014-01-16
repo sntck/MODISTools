@@ -1,7 +1,7 @@
 MODISSummaries <-
 function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataFill, ScaleFactor, StartDate = FALSE,
          QualityScreen = FALSE, QualityBand = NULL, QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE,
-         Yield = FALSE, Interpolate = TRUE) 
+         Yield = FALSE, Interpolate = TRUE, InterpolateN = NULL) 
 { 
     # Load input time-series data file; external data file, or an R object.
     if(!is.object(LoadDat) & !is.character(LoadDat)) stop("LoadDat must be an object in R or a file path character string.")
@@ -140,13 +140,17 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
           maxobsband <- max(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm = TRUE)
           
           # Assess quality of data at this time-step, to decide how to proceed with analysis.
-          ifelse(QualityScreen, data.quality <- sum(!is.na(band.time.series[ ,i])), data.quality <- 2)
+          data.quality <- ifelse(QualityScreen, sum(!is.na(band.time.series[ ,i])), 2)
           
           if(data.quality >= 2){
-            # Linearly interpolate between screened data points, for each pixel, over time (daily from first to last date).
-            sout <- 
-              approx(x = ds$date[which.band], y = as.numeric(band.time.series[ ,i]) * ScaleFactor, method = "linear", 
-                     n = ((max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])) - 1))
+            # Linearly interpolate between screened data points, for each pixel, over time (default is daily).
+            if(Interpolate){
+              if(is.null(InterpolateN)){
+                InterpolateN <- max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])
+              }
+              sout <- approx(x = 1:nrow(band.time.series), y = as.numeric(band.time.series[ ,i]) * ScaleFactor,
+                             method = "linear", n = InterpolateN)
+            }
             
             # Carry out all the relevant summary analyses, set by options in the function call.
             # (((365*length(years))-16)*365) = average annual yield  (i.e. work out daily yield * 365).
