@@ -142,33 +142,33 @@ function(XY, FileSep = NULL, LatColName, LongColName)
     
     # Checks that lat answers are going to be sensible before returning result.
     if(any(abs(D.lat) > 90)){
-      cat("Invalid degrees of latitude entries:", "\n", XY[which(abs(D.lat) > 90), ])
+      cat("Invalid degrees of latitude entries:", "\n", XY[which(abs(D.lat) > 90), ], "\n")
       stop("Range of valid degrees is from -90 to 90.")
     }
     if(any(M.lat < 0 & M.lat > 60)){
-      cat("Invalid minutes entries:", "\n", XY[which(M.lat > 0 & M.lat < 60), ])
+      cat("Invalid minutes entries:", "\n", XY[which(M.lat > 0 & M.lat < 60), ], "\n")
       stop("Range of valid minutes is from 0 to 60.")
     }
     if(any(DM.or.DMS.lat == 2)){
       if(any(S.lat[which(DM.or.DMS.lat == 2)] < 0 & S.lat[which(DM.or.DMS.lat == 2)] > 60)){
         cat("Invalid seconds entries:", "\n",
-            XY[which(S.lat[which(DM.or.DMS.lat == 2)] > 0 & S.lat[which(DM.or.DMS.lat == 2)] < 60), ])
+            XY[which(S.lat[which(DM.or.DMS.lat == 2)] > 0 & S.lat[which(DM.or.DMS.lat == 2)] < 60), ], "\n")
         stop("Range of valid seconds is from 0 to 60.")
       }
     }  
     # Checks that long answers are going to be sensible before returning result.
     if(any(abs(D.long) > 180)){
-      cat("Invalid degrees of longitude entries:", "\n", XY[which(abs(D.long) > 180), ])
+      cat("Invalid degrees of longitude entries:", "\n", XY[which(abs(D.long) > 180), ], "\n")
       stop("Range of valid degrees longitude is from -180 to 180.")
     }
     if(any(M.long < 0 & M.long > 60)){
-      cat("Invalid minutes entries:", "\n", XY[which(M.long > 0 & M.long < 60), ])
+      cat("Invalid minutes entries:", "\n", XY[which(M.long > 0 & M.long < 60), ], "\n")
       stop("Range of valid minutes is from 0 to 60.")
     }
     if(any(DM.or.DMS.lat == 2)){
       if(any(S.long[which(DM.or.DMS.lat == 2)] < 0 & S.long[which(DM.or.DMS.lat == 2)] > 60)){
         cat("Invalid seconds entries:", "\n",
-            XY[which(S.long[which(DM.or.DMS.lat == 2)] > 0 & S.long[which(DM.or.DMS.lat == 2)] < 60), ])
+            XY[which(S.long[which(DM.or.DMS.lat == 2)] > 0 & S.long[which(DM.or.DMS.lat == 2)] < 60), ], "\n")
         stop("Range of valid seconds is from 0 to 60.")
       }
     }

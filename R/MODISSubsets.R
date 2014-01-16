@@ -61,7 +61,7 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
                                     end.date = dat$end.date[!is.na(dat$lat)], start.date = dat$start.date[!is.na(dat$lat)])), 
            lat.long <- unique(cbind(lat = dat$lat[!is.na(dat$lat)], long = dat$long[!is.na(dat$lat)], 
                                     end.date = dat$end.date[!is.na(dat$lat)])))
-    cat("Found", nrow(lat.long), "unique time-series to download.")
+    cat("Found", nrow(lat.long), "unique time-series to download.\n")
     
     ##### Year or posixt date format?
     Year <- FALSE
@@ -168,14 +168,14 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     # Run a second round of downloads for any time-series that incompletely downloaded, and overwrite originals.
     success.check <- lat.long[ ,ncol(lat.long)] != "Successful download"
     if(any(success.check)){
-      cat("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...")
+      cat("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...\n")
       
       lat.long[success.check, ] <- BatchDownload(lat.long = lat.long[success.check, ], dates = dates, MODIS.start = MODIS.start,
                                                  MODIS.end = MODIS.end, Bands = Bands, Products = Products, Size = Size,
                                                  StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
       
       success.check <- lat.long[ ,ncol(lat.long)] != "Successful download"
-      if(any(success.check)) cat("Incomplete downloads were re-tried but incomplete downloads remain. See subset download file.")
+      if(any(success.check)) cat("Incomplete downloads were re-tried but incomplete downloads remain. See subset download file.\n")
     }
     #####
     
@@ -200,5 +200,5 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     #####
     
     # Print message to confirm downloads are complete and to remind the user to check summary file for any missing data.
-    if(!Transect) cat("Done! Check the subset download file for correct subset information and download messages.")
+    if(!Transect) cat("Done! Check the subset download file for correct subset information and download messages.\n")
 }

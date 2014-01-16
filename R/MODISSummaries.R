@@ -67,7 +67,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     
     for(counter in 1:length(file.list)){
       
-      cat("Processing file ", counter, " of ", length(file.list), "...", sep = "")
+      cat("Processing file ", counter, " of ", length(file.list), "...\n", sep = "")
       
       ##### Load selected .asc file into a data frame, name columns and tell user what's being processed.
       ds <- read.csv(paste(Dir, "/", file.list[counter], sep = ""), header = FALSE, as.is = TRUE)
@@ -240,5 +240,5 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
                 sep = ",", col.names = TRUE, row.names = FALSE)
     #####
     
-    cat("Done! Check the 'MODIS Summary' and 'MODIS Data' output files.")
+    cat("Done! Check the 'MODIS Summary' and 'MODIS Data' output files.\n")
 }

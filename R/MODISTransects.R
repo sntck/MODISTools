@@ -98,7 +98,7 @@ function(LoadData, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDat
     
     # Find all unique transects to download pixels for.
     t.dat <- dat[!duplicated(dat$transect), ]
-    cat("Found", nrow(t.dat), "transects. Downloading time-series sets for each transect...")
+    cat("Found", nrow(t.dat), "transects. Downloading time-series sets for each transect...\n")
     
     # Loop that reiterates download for each transect.
     for(i in 1:nrow(t.dat)){
