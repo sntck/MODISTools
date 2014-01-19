@@ -42,7 +42,7 @@ function(Product)
                             function(x) xmlSApply(x,xmlValue)))
   
   if(colnames(bandsres) == "Fault"){
-    return(NA)
+    stop(bandsres['faultstring.text', ])
   } else{
     return(as.vector(bandsres))
   }

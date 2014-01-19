@@ -21,6 +21,9 @@ if(.Platform$OS.type == "unix" && is.null(nsl("cran.r-project.org"))) q()
 
 # Check we can reach the server for lpdaac modis web service.
 if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
+
+# Check the web service is currently responsive.
+if(class(try(GetProducts(), silent = TRUE)) == "try-error") q()
 ##
 
 # Check the XML response is as expected.
@@ -117,6 +120,9 @@ if(is.na(file.check)){
 if(!file.check){
   warning("The two output files from MODISSummaries are not consistent.")
 }
+
+# Check again that the web service is responsive.
+if(class(try(GetProducts(), silent = TRUE)) == "try-error") q()
 
 # Check we can still reach the server for lpdaac modis web service before running functions that request.
 if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()

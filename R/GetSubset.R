@@ -62,11 +62,10 @@ function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow, KmLeftRight
                                 function(x) xmlSApply(x,xmlValue))))
   
   if(colnames(modisres) == "Fault"){
-    return(NA)
+    stop(modisres['faultstring.text', ])
   } else{
     modisres <- as.data.frame(t(unname(modisres[-c(7,11)])))
     names(modisres) <- c("xll", "yll", "pixelsize", "nrow", "ncol", "band", "scale", "lat", "long", "subset")
-    
     return(modisres)
   }
 }

@@ -38,7 +38,7 @@ function()
                                function(x) xmlSApply(x,xmlValue)))
   
   if(colnames(productsres) == "Fault"){
-    return(NA)
+    stop(productsres['faultstring.text', ])
   } else{
     return(as.vector(productsres))
   }

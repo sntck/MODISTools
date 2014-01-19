@@ -51,7 +51,7 @@ function(Lat, Long, Product)
                                 function(x) xmlSApply(x,xmlValue))))
   
   if(colnames(datesres) == "Fault"){
-    return(NA)
+    stop(datesres['faultstring.text', ])
   } else{
     return(as.vector(datesres))
   }
