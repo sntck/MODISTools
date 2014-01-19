@@ -13,4 +13,21 @@
 \value{A dataframe containing any data for which a subset has not been downloaded.  This can then be used with MODISSubsets.}
 \author{Helen Phillips and Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
-\examples{blah blah blah}
+\examples{
+\dontrun{
+# dontrun() used because running the example requires internet access.
+
+data(SubsetExample, ConvertExample)
+
+modis.subset <- ConvertToDD(XY = ConvertExample, LatColName = "lat", LongColName = "long")
+modis.subset <- data.frame(lat = c(SubsetExample$lat, modis.subset[ ,1]),
+                           long = c(SubsetExample$long, modis.subset[ ,2]),
+                           start.date = rep(SubsetExample$start.date, 9),
+                           end.date = rep(SubsetExample$end.date, 9))
+
+MODISSubsets(LoadDat = SubsetExample, Product = "MOD13Q1", Bands = c("250m_16_days_EVI", 
+             "250m_16_days_pixel_reliability"), Size = c(0,0), StartDate = TRUE)
+
+UpdateSubsets(LoadDat = modis.subset)
+  }
+}
