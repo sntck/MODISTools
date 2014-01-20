@@ -215,7 +215,7 @@ function(LoadData, FileSep = NULL, Product, Bands, Size, SaveDir = ".", StartDat
       }
       
       # Run MODISSubsets to retrieve subset for this transect of pixels.
-      MODISSubsets(LoadDat = t.subset, Product = Product, Bands = Bands, Size = Size, SaveDir = SaveDir,
+      MODISSubsets(LoadDat = t.subset, Products = Product, Bands = Bands, Size = Size, SaveDir = SaveDir,
                    StartDate = StartDate, TimeSeriesLength = TimeSeriesLength, Transect = TRUE)
       
     } # End of loop that reiterates download for each transect.

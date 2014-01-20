@@ -5,12 +5,10 @@
 \description{Take many downloaded timeseries of a MODIS data band and collapse them into one matrix of data, with a row for each date and a column for each unique timeseries (i.e., each ASCII file).
 }
 \usage{
-MODISTimeSeries(Dir, Product, Band)
+MODISTimeSeries(Dir, Band)
 }
 \arguments{
   \item{Dir}{Character; the directory in which to search for downloaded ASCII files of MODIS data.
-  }
-  \item{Product}{Character; the MODIS data product shortname for the downloaded data band.
   }
   \item{Band}{Character; the MODIS data band shortname for the downloaded data.
   }
@@ -29,10 +27,10 @@ MODISTimeSeries(Dir, Product, Band)
 # and takes over a minute to run.
 data(SubsetExample)
 
-MODISSubsets(LoadDat=SubsetExample, Product="MOD13Q1",     
-    Bands=c("250m_16_days_EVI","250m_16_days_pixel_reliability"), 
-    Size=c(0,0), StartDate=TRUE)
+MODISSubsets(LoadDat = SubsetExample, Product = "MOD13Q1",     
+    Bands = c("250m_16_days_EVI","250m_16_days_pixel_reliability"), 
+    Size = c(0,0), StartDate = TRUE)
 
-MODISTimeSeries(Dir=".", Product="MOD13Q1", Band="250m_16_days_EVI")
+MODISTimeSeries(Dir = ".", Band = "250m_16_days_EVI")
   }
 }
