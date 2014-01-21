@@ -3,11 +3,7 @@ function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow, KmLeftRight
 {
   if(length(Product) != 1) stop("Incorrect length of Product input. Give only one data product at a time.")
   
-  if(!any(Product == GetProducts())) stop("Product entered does not match any available products; see (?GetProducts).")
-  
   if(length(Band) != 1) stop("Incorrect length of Band input. Give only one data band at a time.")
-  
-  if(!any(Band == GetBands(Product))) stop("Band input must correspond to Product input; see ?GetBands.")
   
   if(!is.numeric(Lat) | !is.numeric(Long)) stop("Lat and Long inputs must be numeric.")
   
