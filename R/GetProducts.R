@@ -38,6 +38,9 @@ function()
                                function(x) xmlSApply(x,xmlValue)))
   
   if(colnames(productsres) == "Fault"){
+    if(length(productsres['faultstring.text', ][[1]]) == 0){
+      stop("Downloading from the web service is currently not working. Please try again later.")
+    }
     stop(productsres['faultstring.text', ])
   } else{
     return(as.vector(productsres))

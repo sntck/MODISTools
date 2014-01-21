@@ -51,6 +51,9 @@ function(Lat, Long, Product)
                                 function(x) xmlSApply(x,xmlValue))))
   
   if(colnames(datesres) == "Fault"){
+    if(length(datesres['faultstring.text', ][[1]]) == 0){
+      stop("Downloading from the web service is currently not working. Please try again later.")
+    }
     stop(datesres['faultstring.text', ])
   } else{
     return(as.vector(datesres))

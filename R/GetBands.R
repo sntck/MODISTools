@@ -42,6 +42,9 @@ function(Product)
                             function(x) xmlSApply(x,xmlValue)))
   
   if(colnames(bandsres) == "Fault"){
+    if(length(bandsres['faultstring.text', ][[1]]) == 0){
+      stop("Downloading from the web service is currently not working. Please try again later.")
+    }
     stop(bandsres['faultstring.text', ])
   } else{
     return(as.vector(bandsres))
