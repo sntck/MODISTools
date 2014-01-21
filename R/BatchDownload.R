@@ -44,8 +44,10 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
               result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], 
                             date.list[1,x], date.list[10,x], Size[1], Size[2]))
               
+              if(!is.list(result)) stop("Downloading from the web service is currently not working. Please try again later.")
+              
               if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
-                stop("Sorry, downloading from the web service is currently not working. Please try again later.")
+                stop("Downloading from the web service is currently not working. Please try again later.")
               }
               
               busy <- FALSE
@@ -64,8 +66,10 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
                   result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], 
                                           date.list[1,x], date.list[10,x], Size[1], Size[2]))
                   
+                  if(!is.list(result)) stop("Downloading from the web service is currently not working. Please try again later.")
+                  
                   if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
-                    stop("Sorry, downloading from the web service is currently not working. Please try again later.")
+                    stop("Downloading from the web service is currently not working. Please try again later.")
                   }
                   
                   timer <- timer + 1
@@ -90,8 +94,10 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
           result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], date.list[1,ncol(date.list)],
                                   date.list[max(which(!is.na(date.list[ ,ncol(date.list)]))),ncol(date.list)], Size[1], Size[2]))
           
+          if(!is.list(result)) stop("Downloading from the web service is currently not working. Please try again later.")
+          
           if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
-            stop("Sorry, downloading from the web service is currently not working. Please try again later.")
+            stop("Downloading from the web service is currently not working. Please try again later.")
           }
           
           busy <- FALSE
@@ -109,8 +115,10 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
               result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], date.list[1,ncol(date.list)],
                                       date.list[max(which(!is.na(date.list[ ,ncol(date.list)]))),ncol(date.list)], Size[1], Size[2]))
               
+              if(!is.list(result)) stop("Downloading from the web service is currently not working. Please try again later.")
+              
               if(length(strsplit(as.character(result$subset[[1]][1]), ",")[[1]]) == 5){
-                stop("Sorry, downloading from the web service is currently not working. Please try again later.")
+                stop("Downloading from the web service is currently not working. Please try again later.")
               }
               
               timer <- timer + 1

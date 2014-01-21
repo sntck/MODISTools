@@ -58,6 +58,9 @@ function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow, KmLeftRight
                                 function(x) xmlSApply(x,xmlValue))))
   
   if(colnames(modisres) == "Fault"){
+    if(length(modisres['faultstring.text', ][[1]]) == 0){
+      stop("Downloading from the web service is currently not working. Please try again later.")
+    }
     stop(modisres['faultstring.text', ])
   } else{
     modisres <- as.data.frame(t(unname(modisres[-c(7,11)])))
