@@ -94,7 +94,7 @@ The time-period available for the Vegetation Indices product covers 2003-2006 (t
 \subsection{MODISSubsets}
 The download will write the MODIS data to ASCII files for each location subset specified. We can specify the directory that we would like to save downloaded files in, using the \code{SaveDir} argument below. In the code below, downloaded files will be written to your working directory; if you would prefer the files to be written elsewhere change \code{SaveDir}. But we will access these files later, so remember to request the files from the same directory.
 <<eval=FALSE>>=
-MODISSubsets(LoadDat = modis.subset, Product = "MOD13Q1", 
+MODISSubsets(LoadDat = modis.subset, Products = "MOD13Q1", 
              Bands = c("250m_16_days_EVI", "250m_16_days_pixel_reliability"), 
              Size = c(1,1))
 @
@@ -102,8 +102,8 @@ Each ASCII file is a different subset location. In each ASCII file, each row is 
 
 Here is an example of the strings of data that are downloaded for pixels at each time-step and data band:
 <<eval=FALSE>>=
-subset.string <- read.csv(paste(list.files(pattern=".asc")[1], 
-                                header=FALSE, as.is=TRUE))
+subset.string <- read.csv(paste(list.files(pattern = ".asc")[1], 
+                                header = FALSE, as.is = TRUE))
 subset.string[1, ]
 @
 <<echo=FALSE>>=
@@ -132,7 +132,7 @@ MODISTransects(LoadData = modis.transect, Product = "MOD13Q1",
 \subsection{MODISSummaries}
 Now we have downloaded the EVI data, we can find average each pixel over time, to produce one tile of mean EVI pixels at each subset location. We can use \code{MODISSummaries} for this. The function will also take this processed data and append it to your original files containing all the subset information (\code{modis.subset}). This will write two files to the specified directory. We downloaded quality control data for each pixel alongside our EVI data, so \code{MODISSummaries} can also check for poor quality and missing data. These data will be removed and replaced with \code{NA}s. The threshold for defining what is good and poor quality is set by the user: the scores for highest quality is 0, and the score for lowest quality is 3 or 5, depending on the data band. To see how quality control information is defined for each data type, go to the \href{https://lpdaac.usgs.gov/products/modis_products_table}{\bf{MODIS Products Table}}. We need to specify the range of valid data for EVI, the value that denotes missing data, and the scale factor that is applied to the data, which are all available from the same web page.
 <<eval=FALSE>>=
-MODISSummaries(LoadDat = modis.subset, Product = "MOD13Q1", Band = "250m_16_days_EVI", 
+MODISSummaries(LoadDat = modis.subset, Product = "MOD13Q1", Bands = "250m_16_days_EVI", 
                ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001, 
                QualityScreen = TRUE, QualityBand = "250m_16_days_pixel_reliability", 
                QualityThreshold = 0)
@@ -142,7 +142,7 @@ If you want to screen data for quality without all the other things that \code{M
 \subsection{ExtractTile}
 Also, if large subset tiles are downloaded for each location, there may be times when we want to extract a smaller tile from within this subset, rather than downloading again to retrieve the nested data we want. This can be done using \code{ExtractTile}. We will use the file just written from our call to \code{MODISSummaries}, retrieve the smaller subset we want, and arrange them into tiles to compare before and after.
 <<eval=FALSE>>=
-TileExample <- read.csv(list.files(pattern = "MODIS Data"))
+TileExample <- read.csv(list.files(pattern = "MODIS_Data"))
 TileExample <- TileExample[ ,which(grepl("band.pixels", names(TileExample)))]
 @
 <<echo=FALSE>>=
@@ -175,7 +175,7 @@ We can use \code{LandCover} to retrieve some summaries of land cover in each til
 <<eval=FALSE>>=
 LandCover(Band = "Land_Cover_Type_1")
 
-land.summary <- read.csv(list.files(pattern = "MODIS Land Cover Summary"))
+land.summary <- read.csv(list.files(pattern = "MODIS_Land_Cover_Summary"))
 head(land.summary)
 @
 <<echo=FALSE>>=
