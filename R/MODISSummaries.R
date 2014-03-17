@@ -192,9 +192,9 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
         
         # Compile time-series information and relevant summaries data into a final output listed by-sites (.asc files).
         band.data.site[[counter]][(((bands - 1) * size.test[1]) + 1):(size.test[1] * bands), ] <-
-          matrix(data = c(ID = id[ ,counter], lat = rep(lat, size.test), long = rep(long, size.test),
-                          start.date = rep(as.character(min(ds$date)), size.test),
-                          end.date = rep(as.character(max(ds$date)), size.test), min.band = band.min, max.band = band.max, 
+          matrix(data = c(ID = id[ ,counter], lat = rep(lat, size.test[counter]), long = rep(long, size.test[counter]),
+                          start.date = rep(as.character(min(ds$date)), size.test[counter]),
+                          end.date = rep(as.character(max(ds$date)), size.test[counter]), min.band = band.min, max.band = band.max, 
                           mean.band = mean.band, sd.band = sd.band, band.yield = band.yield, no.fill.data = nofill, 
                           poor.quality.data = poorquality), nrow = size.test, ncol = 12)
         
