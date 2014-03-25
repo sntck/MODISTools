@@ -55,6 +55,8 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     
     size.test <- sapply(file.list, function(x) ncol(read.csv(x)[1, ]) - 5)
     if(!all(size.test == size.test[1])) stop("The number of pixels (Size) in subsets identified are not all the same.")
+    # size.test checked all subsets are compatible for processing to one summary file. Can now just use size.test[1]
+    num.pixels <- unname(size.test[1])
     
     # Extract IDs for ASCII files so they can be included in summary output; ncol = length(file.list), nrow = size.test.
     where.id <- regexpr("_", file.list)
@@ -63,7 +65,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     
     # Time-series analysis for each time-series (ASCII file) consecutively.
     band.data.site <- lapply((size.test *  length(Bands)), function(x) matrix(nrow = x, ncol = 12))
-    band.data <- matrix(nrow = length(file.list), ncol = (size.test[1] * length(Bands)))
+    band.data <- matrix(nrow = length(file.list), ncol = (num.pixels * length(Bands)))
     
     for(counter in 1:length(file.list)){
       
@@ -191,15 +193,23 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
         } # End of loop for time-series summary analysis for each pixel.
         
         # Compile time-series information and relevant summaries data into a final output listed by-sites (.asc files).
-        band.data.site[[counter]][(((bands - 1) * size.test[1]) + 1):(size.test[1] * bands), ] <-
-          matrix(data = c(ID = id[ ,counter], lat = rep(lat, size.test[counter]), long = rep(long, size.test[counter]),
-                          start.date = rep(as.character(min(ds$date)), size.test[counter]),
-                          end.date = rep(as.character(max(ds$date)), size.test[counter]), min.band = band.min, max.band = band.max, 
-                          mean.band = mean.band, sd.band = sd.band, band.yield = band.yield, no.fill.data = nofill, 
-                          poor.quality.data = poorquality), nrow = size.test, ncol = 12)
+        band.data.site[[counter]][(((bands - 1) * num.pixels) + 1):(num.pixels * bands), ] <-
+          matrix(data = c(ID = id[ ,counter],
+                          lat = rep(lat, num.pixels),
+                          long = rep(long, num.pixels),
+                          start.date = rep(as.character(min(ds$date)), num.pixels),
+                          end.date = rep(as.character(max(ds$date)), num.pixels),
+                          min.band = band.min,
+                          max.band = band.max, 
+                          mean.band = mean.band,
+                          sd.band = sd.band,
+                          band.yield = band.yield,
+                          no.fill.data = nofill, 
+                          poor.quality.data = poorquality),
+                 nrow = num.pixels, ncol = 12)
         
         # Extract mean band values.
-        band.data[counter,(((bands - 1) * size.test[1]) + 1):(size.test[1] * bands)] <- mean.band
+        band.data[counter,(((bands - 1) * num.pixels) + 1):(num.pixels * bands)] <- mean.band
         
       } # End of loop for Bands.
       
@@ -220,7 +230,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     res <- data.frame(cbind(details, matrix(NA, nrow = nrow(details), ncol = ncol(band.data))))
     band.names <- mapply(function(x, y) rep(x, length.out = y), x = Bands, y = size.test)
     names(res) <- 
-      c(names(details), paste(rep(Bands, each = size.test[1]), "_pixel", rep(1:size.test, times = length(Bands)), sep = ""))
+      c(names(details), paste(rep(Bands, each = num.pixels), "_pixel", rep(1:num.pixels, times = length(Bands)), sep = ""))
     
     # Use FindID for each row of ID.match, to add the right band subscripts to the right details subscripts.
     for(i in 1:nrow(ID.match)){
