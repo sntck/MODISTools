@@ -23,25 +23,26 @@
 \examples{
 \dontrun{ # dontrun() used because running the example requires internet access.
 data(SubsetExample)
-MODISSubsets(LoadDat=SubsetExample, Product="MOD13Q1", 
-    Bands=c("250m_16_days_EVI", "250m_16_days_pixel_reliability"), Size=c(1,1), 
-    StartDate=FALSE, TimeSeriesLength=1)
-MODISSummaries(LoadDat=SubsetExample, Product="MOD13Q1", Band="250m_16_days_EVI", 
-    ValidRange=c(-2000,10000), NoDataFill=-3000, ScaleFactor=0.0001, StartDate=FALSE, 
-    QualityScreen=TRUE, QualityBand="250m_16_days_pixel_reliability", QualityThreshold=0)
+MODISSubsets(LoadDat = SubsetExample, Products = "MOD13Q1", 
+    Bands = c("250m_16_days_EVI", "250m_16_days_pixel_reliability"), Size = c(1,1), 
+    StartDate = FALSE, TimeSeriesLength = 1)
+MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1", Bands = "250m_16_days_EVI", 
+    ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001,
+    StartDate = FALSE, QualityScreen = TRUE, QualityThreshold = 0,
+    QualityBand = "250m_16_days_pixel_reliability")
 
-if(sum(grepl("MODIS Data", list.files())) != 1){
-  print("Could not identify 'MODIS Data' csv output file from MODISSummaries")
+if(sum(grepl("MODIS_Data", list.files())) != 1){
+  print("Could not identify 'MODIS_Data' csv output file from MODISSummaries")
 } else {
-  TileExample <- read.csv(list.files(pattern="MODIS Data"))
-  TileExample <- TileExample[ ,which(grepl("band.pixels", names(TileExample)))]
+  TileExample <- read.csv(list.files(pattern = "MODIS_Data"))
+  TileExample <- TileExample[1,which(grepl("pixel", names(TileExample)))]
   
   dim(TileExample)
-  dim(ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=FALSE))
-  ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=FALSE)
+  dim(ExtractTile(Data = TileExample, Rows = c(9,2), Cols = c(9,2), Grid = FALSE))
+  ExtractTile(Data = TileExample, Rows = c(9,2), Cols = c(9,2), Grid = FALSE)
   
-  matrix(TileExample, nrow=9, ncol=9, byrow=TRUE)
-  ExtractTile(Data=TileExample, Rows=c(9,2), Cols=c(9,2), Grid=TRUE)
+  matrix(TileExample, nrow = 9, ncol = 9, byrow = TRUE)
+  ExtractTile(Data = TileExample, Rows = c(9,2), Cols = c(9,2), Grid = TRUE)
 }
   }
 }
