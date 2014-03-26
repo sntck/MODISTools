@@ -4,7 +4,7 @@ function(Dir, Band)
   if(!file.exists(Dir)) stop("Character string input for Dir argument does not resemble an existing file path.")
   
   file.set <- list.files(path = Dir, pattern = ".asc")
-  file.set <- file.set[grepl(pattern = Band, text = file.set)]
+  file.set <- file.set[grepl(pattern = Band, x = file.set)]
   if(length(file.set) < 1) stop("No downloaded files found in the requested directory for the requested data band.")
   
   data.collector <- list(length = length(file.set))
