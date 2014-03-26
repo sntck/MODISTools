@@ -2,3 +2,5 @@
 .git
 .DS_Store
 README.md
+tests/MODISTools_FullTestingScript.R
+tests/MODISTools_FullTestingScript.Rout
