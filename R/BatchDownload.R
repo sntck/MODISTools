@@ -41,7 +41,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
               # getsubset function return object of ModisData class, with a subset slot that only allows 10 elements 
               # (i.e. 10 dates), looped until all requested dates have been retrieved.
               # Retrieve the batch of MODIS data and store in result
-              result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], 
+              result <- try(GetSubset(lat.long$lat[i], lat.long$long[i], Products[prod], bands[n], 
                             date.list[1,x], date.list[10,x], Size[1], Size[2]))
               
               if(!is.list(result)) stop("Downloading from the web service is currently not working. Please try again later.")
@@ -63,7 +63,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
                   cat("Connection to the MODIS Web Service failed: trying again in 30secs...attempt", timer, "\n")
                   Sys.sleep(30)
                   
-                  result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], 
+                  result <- try(GetSubset(lat.long$lat[i], lat.long$long[i], Products[prod], bands[n], 
                                           date.list[1,x], date.list[10,x], Size[1], Size[2]))
                   
                   if(!is.list(result)) stop("Downloading from the web service is currently not working. Please try again later.")
@@ -91,7 +91,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
           
           #####
           # This will download the last column of dates left (either final column or only column if < 10 dates).
-          result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], date.list[1,ncol(date.list)],
+          result <- try(GetSubset(lat.long$lat[i], lat.long$long[i], Products[prod], bands[n], date.list[1,ncol(date.list)],
                                   date.list[max(which(!is.na(date.list[ ,ncol(date.list)]))),ncol(date.list)], Size[1], Size[2]))
           
           if(!is.list(result)) stop("Downloading from the web service is currently not working. Please try again later.")
@@ -112,7 +112,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
               cat("Connection to the MODIS Web Service failed: trying again in 30secs...attempt", timer, "\n")
               Sys.sleep(30)
               
-              result <- try(GetSubset(lat.long[i,2], lat.long[i,3], Products[prod], bands[n], date.list[1,ncol(date.list)],
+              result <- try(GetSubset(lat.long$lat[i], lat.long$long[i], Products[prod], bands[n], date.list[1,ncol(date.list)],
                                       date.list[max(which(!is.na(date.list[ ,ncol(date.list)]))),ncol(date.list)], Size[1], Size[2]))
               
               if(!is.list(result)) stop("Downloading from the web service is currently not working. Please try again later.")
@@ -148,12 +148,10 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
             
       ##### Check that there is no missing data in the download & log download status accordingly.
       if(length(subsets) != subsets.length | any(is.na(subsets))){
-        ifelse(StartDate,
-               lat.long[i,6] <- "Missing data in subset: try downloading again", 
-               lat.long[i,5] <- "Missing data in subset: try downloading again")
+        lat.long$Status[i] <- "Missing data in subset: try downloading again", 
         cat("Missing information for time-series ", lat.long$ID[i], ". See subset download file.\n", sep = "")
       } else {
-        ifelse(StartDate, lat.long[i,6] <- "Successful download", lat.long[i,5] <- "Successful download")
+        lat.long$Status[i] <- "Successful download"
       }
       #####
       
