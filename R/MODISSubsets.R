@@ -68,7 +68,6 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     Year <- FALSE
     POSIXt <- FALSE
     
-    char.compatible <- as.character(lat.long$end.date)
     posix.compatible <- try(as.POSIXlt(lat.long$end.date), silent = TRUE)
     
     if(any(class(lat.long$end.date) == "POSIXt") | all(class(posix.compatible) != "try-error")) POSIXt <- TRUE

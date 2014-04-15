@@ -35,18 +35,25 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     if(!is.numeric(ScaleFactor)) stop("ScaleFactor should be numeric class.")
     
     # Year or posixt date format?
+    if(all(is.na(details$end.date))) stop("Time-series end.date variable in LoadDat is empty.")
+    
     Year <- FALSE
     POSIXt <- FALSE
-    char.compatible <- as.character(details$end.date)
-    if(!is.character(char.compatible) | all(is.na(char.compatible)) & any(nchar(details$end.date) != 4)) POSIXt <- TRUE
     
     posix.compatible <- try(as.POSIXlt(details$end.date), silent=TRUE)
-    if(class(posix.compatible) == "try-error") Year <- TRUE
+    
+    if(any(class(details$end.date) == "POSIXt") | all(class(posix.compatible) != "try-error")) POSIXt <- TRUE
+    if(all(is.numeric(details$end.date) & nchar(details$end.date) == 4) & 
+         any(class(posix.compatible) == "try-error")) Year <- TRUE
     
     if(!Year & !POSIXt) stop("Date informDate information in LoadDat is not recognised as years or as POSIXt format.")
     if(Year & POSIXt) stop("Date information in LoadDat is recognised as both year and POSIXt formats.")
     
-    if(StartDate & !any(names(details) == "start.date")) stop("StartDate == TRUE, but no start.date field found in LoadDat.")
+    if(StartDate){
+      if(!any(names(details) == "start.date") | all(is.na(details$start.date))){
+        stop("StartDate == TRUE, but no start.date field found in LoadDat.")
+      }
+    }
     #####
     
     # Get a list of all downloaded subset (.asc) files in the data directory.
@@ -217,13 +224,14 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     
     # Append the summaries for each pixel, for each time-series, to the original input dataset (details).
     ifelse(StartDate,
-           ID.match <- data.frame(unique(cbind(lat = details$lat[!is.na(details$lat)],
-                                               long = details$long[!is.na(details$lat)],
-                                               end.date = details$end.date[!is.na(details$lat)],
-                                               start.date = details$start.date[!is.na(details$lat)]))),
-           ID.match <- data.frame(unique(cbind(lat = details$lat[!is.na(details$lat)],
-                                               long = details$long[!is.na(details$lat)],
-                                               end.date = details$end.date[!is.na(details$lat)]))))
+           ID.match <- data.frame(lat = details$lat[!is.na(details$lat)],
+                                  long = details$long[!is.na(details$lat)],
+                                  end.date = details$end.date[!is.na(details$lat)],
+                                  start.date = details$start.date[!is.na(details$lat)]),
+           ID.match <- data.frame(lat = details$lat[!is.na(details$lat)],
+                                  long = details$long[!is.na(details$lat)],
+                                  end.date = details$end.date[!is.na(details$lat)]))
+    ID.match <- ID.match[!duplicated(ID.match), ]
     
     if(nrow(ID.match) != nrow(band.data)) stop("Differing number of unique locations found between LoadDat and ASCII subsets.")
     
@@ -232,11 +240,21 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     names(res) <- 
       c(names(details), paste(rep(Bands, each = num.pixels), "_pixel", rep(1:num.pixels, times = length(Bands)), sep = ""))
     
+    # Convert POSIXt dates to character vectors for matching.
+    if(POSIXt){
+      details$end.date <- strftime(details$end.date, "%Y-%m-%d")
+      ID.match$end.date <- strftime(ID.match$end.date, "%Y-%m-%d")
+      
+      if(StartDate){
+        details$start.date <- strftime(details$start.date, "%Y-%m-%d")
+        ID.match$start.date <- strftime(ID.match$start.date, "%Y-%m-%d")
+      }
+    }
+    
     # Use FindID for each row of ID.match, to add the right band subscripts to the right details subscripts.
     for(i in 1:nrow(ID.match)){
       match.subscripts <- FindID(ID.match[i, ], details)
       if(all(match.subscripts != "No matches found.")){
-
         for(x in 1:length(match.subscripts)) res[match.subscripts[x],(ncol(details) + 1):ncol(res)] <- band.data[i, ]
       }
     }

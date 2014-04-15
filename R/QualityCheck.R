@@ -87,7 +87,10 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
   } else {
     # Convert decimal QualityScores values into binary.
     decimal.set <- QualityScores
-    num.binary.digits <- floor(log(max(QualityScores), base = 2)) + 1
+    
+    if(max(QualityScores) == 0) num.binary.digits <- 1
+    if(max(QualityScores) != 0) num.binary.digits <- floor(log(max(QualityScores), base = 2)) + 1
+    
     binary.set<- matrix(nrow = length(QualityScores), ncol = num.binary.digits)
     
     for(n in 1:num.binary.digits){
