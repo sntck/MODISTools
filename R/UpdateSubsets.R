@@ -4,9 +4,15 @@ function(LoadDat, Dir = ".")
 
 	end.date <- LoadDat$end.date
 	
-	ifelse(class(end.date) == "POSIXlt",
-         year <- end.date$year + 1900,
-         year <- end.date)
+	## If date of LoadDat is only the year
+	if(nchar(end.date[1]) == 4){ year <- end.date}
+	
+	## If date of LoadDat is in POSIX format
+	if(nchar(end.date[1]) != 4){ year <- as.numeric(format(end.date, "%Y"))}
+	
+	#ifelse(class(end.date) == "POSIXlt",
+     #    year <- end.date$year + 1900,
+      #   year <- end.date)
 	
 	all.subsets <- unique(paste(LoadDat$lat, LoadDat$long, year))
 	
