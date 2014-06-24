@@ -1,16 +1,27 @@
 UpdateSubsets <-
-function(LoadDat, Dir = ".")
+function(LoadDat, StartDate = FALSE, Dir = ".")
 {
 
-	end.date <- LoadDat$end.date
+	if(StartDate) details <- LoadDat[!duplicated(data.frame(LoadDat$lat, LoadDat$long, LoadDat$end.date, LoadDat$start.date)), ]
+    if(!StartDate) details <- LoadDat[!duplicated(data.frame(LoadDat$lat, LoadDat$long, LoadDat$end.date)), ]
+	cat("Found", nrow(details), "unique time-series in original file") 
 	
-	ifelse(class(end.date) == "POSIXlt",
-         year <- end.date$year + 1900,
-         year <- end.date)
 	
-	all.subsets <- unique(paste(LoadDat$lat, LoadDat$long, year))
+	## If date of LoadDat is only the year
+	if(nchar(details$end.date[1]) == 4){ endyear <- details$end.date}
+	## If date of LoadDat is in POSIX format
+	if(nchar(details$end.date[1]) != 4){ endyear <- as.numeric(format(details$end.date, "%Y"))}
+	
+	if(StartDate){
+		if(nchar(details$start.date) == 4){startyear <- details$start.date}
+		if(nchar(details$start.date) != 4){startyear <- as.numeric(format(details$start.date, "%Y"))}
+	}
+			
+	if(!StartDate) all.subsets <- paste(details$lat, details$long, endyear)
+	if(StartDate) all.subsets <- paste(details$lat, details$long, startyear, endyear)
 	
 	filelist <- list.files(path = Dir, pattern = ".asc")
+	cat("Found", length(filelist), "subsets previously downloaded")
 	downloaded <- c()
 	
 	for(count in 1:length(filelist)){
@@ -25,8 +36,11 @@ function(LoadDat, Dir = ".")
     long <- as.numeric(substr(ds$where[1], wlong + 3, wS - 1))
     dsyear <- as.numeric(substr(ds$MODIS.acq.date, 2, 5))
     
-    endyear <- max(dsyear)
-    downloaded[count] <- paste(lat, long, endyear)
+    dsendyear <- max(dsyear, na.rm = TRUE)
+    if(StartDate) dsstartyear <- min(dsyear, na.rm = TRUE)
+    
+    if(!StartDate) downloaded[count] <- paste(lat, long, dsendyear)
+    if(StartDate) downloaded[count] <- paste(lat, long, dsstartyear, dsendyear)
     
 	} ## End of filelist count.
 	
