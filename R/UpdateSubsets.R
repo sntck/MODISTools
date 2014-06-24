@@ -1,5 +1,5 @@
 UpdateSubsets <-
-function(LoadDat, StartDate = FALSE, Dir = ".")
+function(LoadDat, StartDate = FALSE)
 {
 
 	if(StartDate) details <- LoadDat[!duplicated(data.frame(LoadDat$lat, LoadDat$long, LoadDat$end.date, LoadDat$start.date)), ]
