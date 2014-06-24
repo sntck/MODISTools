@@ -4,7 +4,7 @@ function(LoadDat, StartDate = FALSE, Dir = ".")
 
 	if(StartDate) details <- LoadDat[!duplicated(data.frame(LoadDat$lat, LoadDat$long, LoadDat$end.date, LoadDat$start.date)), ]
     if(!StartDate) details <- LoadDat[!duplicated(data.frame(LoadDat$lat, LoadDat$long, LoadDat$end.date)), ]
-	cat("Found", nrow(details), "unique time-series in original file") 
+	cat("Found", nrow(details), "unique time-series in original file\n") 
 	
 	
 	## If date of LoadDat is only the year
@@ -21,7 +21,7 @@ function(LoadDat, StartDate = FALSE, Dir = ".")
 	if(StartDate) all.subsets <- paste(details$lat, details$long, startyear, endyear)
 	
 	filelist <- list.files(path = Dir, pattern = ".asc")
-	cat("Found", length(filelist), "subsets previously downloaded")
+	cat("Found", length(filelist), "subsets previously downloaded\n")
 	downloaded <- c()
 	
 	for(count in 1:length(filelist)){
