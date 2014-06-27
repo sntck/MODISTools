@@ -20,12 +20,13 @@ UpdateSubsets <- function(LoadDat, StartDate = FALSE, Dir = ".")
 	if(StartDate) all.subsets <- paste(details$lat, details$long, startyear, endyear)
 	
 	filelist <- list.files(path = Dir, pattern = ".asc")
+	print(head(filelist))
 	cat("Found", length(filelist), "subsets previously downloaded\n")
 	downloaded <- c()
 	
 	for(count in 1:length(filelist)){
     
-		ds <- read.csv(filelist[count], header = FALSE)
+		ds <- read.csv(file.path(Dir, filelist[count]), header = FALSE)
 		names(ds) <- c("row.id", "land.product.code", "MODIS.acq.date", "where", "MODIS.proc.date", 1:(ncol(ds) - 5))
     
 		wS <- regexpr("Samp", ds$where[1]) ## number of rows according to number of pixels
