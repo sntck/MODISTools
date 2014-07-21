@@ -240,14 +240,14 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     names(res) <- 
       c(names(details), paste(rep(Bands, each = num.pixels), "_pixel", rep(1:num.pixels, times = length(Bands)), sep = ""))
     
-    # Convert POSIXt dates to character vectors for matching.
+    # Convert POSIXt dates to 'Date' class and then numeric for matching.
     if(POSIXt){
-      details$end.date <- strftime(details$end.date, "%Y-%m-%d")
-      ID.match$end.date <- strftime(ID.match$end.date, "%Y-%m-%d")
+      details$end.date <- as.numeric(as.Date(details$end.date, origin = "1900-01-01"))
+      ID.match$end.date <- as.numeric(as.Date(ID.match$end.date, origin = "1900-01-01"))
       
       if(StartDate){
-        details$start.date <- strftime(details$start.date, "%Y-%m-%d")
-        ID.match$start.date <- strftime(ID.match$start.date, "%Y-%m-%d")
+        details$start.date <- as.numeric(as.Date(details$start.date, origin = "1900-01-01"))
+        ID.match$start.date <- as.numeric(as.Date(ID.match$start.date, origin = "1900-01-01"))
       }
     }
     

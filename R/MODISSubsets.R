@@ -22,8 +22,7 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     if(any(is.na(dat$lat) != is.na(dat$long))) stop("There are locations with incomplete coordinates.")
     
     # Check to see if IDs have been given in data frame.
-    if(any(names(dat) == "ID")){
-    	ID <- TRUE}else{ID <- FALSE}
+    ID <- ifelse(any(names(dat) == "ID"), TRUE, FALSE)
     
     # Check that the input data set contains dates, named end.date.
     if(!any(names(dat) == "end.date")) stop("Dates for time series must be included and named 'end.date'.")
@@ -136,18 +135,14 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     	if(n.unique){
     		names(lat.long)[names(lat.long) == "ID"] <- "SubsetID"
     		lat.long <- data.frame(lat.long, Status = rep(NA, nrow(lat.long)))
-    	}else{
+    	} else {
     		cat("Number of unique IDs does not match number of unique time series. Creating new ID field.")
     		ID <- paste("Lat", sprintf(fmt, lat.long$lat), "Lon", sprintf(fmt, lat.long$long), "Start", start.date, "End", end.date, sep = "")
     		lat.long <- data.frame(SubsetID = ID, lat.long, Status = rep(NA, nrow(lat.long)))}
-    }else{
+    } else {
     	ID <- paste("Lat", sprintf(fmt, lat.long$lat), "Lon", sprintf(fmt, lat.long$long), "Start", start.date, "End", end.date, sep = "")
     	lat.long <- data.frame(SubsetID = ID, lat.long, Status = rep(NA, nrow(lat.long)))
-    	}
-    	
-    	
-    	
-    
+    } 
     
     #####
     # If the Products input does not match any product codes in the list output from GetProducts(), stop with error.

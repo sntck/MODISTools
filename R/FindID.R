@@ -10,6 +10,6 @@ function(ID, Data)
   row.matches <- apply(match.set, 1, match, ID)
   
   ifelse(length(which(!is.na(apply(row.matches, 2, sum)))) == 0,
-     return(cat("No matches found.")),
+     return(cat("No matches found.\n")),
      return(which(!is.na(apply(row.matches, 2, sum))))) 
 }
