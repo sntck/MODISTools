@@ -16,7 +16,7 @@ UpdateSubsets <- function(LoadDat, StartDate = FALSE, Dir = ".")
 		if(nchar(details$start.date) != 4){startyear <- as.numeric(format(details$start.date, "%Y"))}
 	}
 	
-	ID <- ifelse(names(details) == "ID", TRUE, FALSE)
+	ID <- ifelse(any(names(details) == "ID"), TRUE, FALSE)
 	
 	fmt <- '%.5f'
 	 if(StartDate){
@@ -24,6 +24,7 @@ UpdateSubsets <- function(LoadDat, StartDate = FALSE, Dir = ".")
     		## Check that all author-given IDs will be unique for each unique time-series, and check that they won't cause issues with product information
     		n.unique <- length(unique(details$ID)) == nrow(details)
     		if(!n.unique){
+    			cat('Number of IDs is not unique.\n')
     		details$ID <- paste("Lat", sprintf(fmt, details$lat), "Lon", sprintf(fmt, details$long), "Start", startyear, "End", endyear, sep = "")}
     		} else {
     		details$ID <- paste("Lat", sprintf(fmt, details$lat), "Lon", sprintf(fmt, details$long), "Start", startyear, "End", endyear, sep = "")
