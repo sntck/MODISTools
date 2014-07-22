@@ -133,7 +133,7 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     	## Check that all author-given IDs will be unique for each unique time-series, and check that they won't cause issues with product information
     	n.unique <- length(unique(lat.long$ID)) == nrow(lat.long)
     	if(n.unique){
-    		if(any(grepl("___", lat.long$ID)) stop("IDs can not contain '___'")
+    		if(any(grepl("___", lat.long$ID))) stop("IDs can not contain '___'")
     		names(lat.long)[names(lat.long) == "ID"] <- "SubsetID"
     		lat.long <- data.frame(lat.long, Status = rep(NA, nrow(lat.long)))
     	} else {
