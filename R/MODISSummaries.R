@@ -24,7 +24,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     product.bands <- try(GetBands(Product), silent = TRUE)
     if(class(product.bands) != "try-error"){
       # Check Band and QualityBand belong to Product.
-      if(!any(product.bands == Band)) stop(paste("Band input does not match with", Product, "product.", sep = " "))
+      if(!all(Bands %in% product.bands)) stop(paste("Band input does not match with", Product, "product.", sep = " "))
       if(Product == "MCD43A4"){
         if(QualityBand != "BRDF_Albedo_Band_Quality") stop("QualityBand input is not QA data for MCD43A4 product.")
       } else {
