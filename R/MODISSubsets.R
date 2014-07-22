@@ -1,6 +1,9 @@
 MODISSubsets <-
 function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
 {
+    if(SaveDir == '.') cat('Files downloaded will be written to ', getwd(), '.\n', sep = '')
+    if(SaveDir != '.') cat('Files downloaded will be written to ', SaveDir, '.\n', sep = '')
+    
     # Load data of locations; external data file, or an R object.
     if(!is.object(LoadDat) & !is.character(LoadDat)) stop("LoadDat must be an object in R or a file path character string.")
     if(is.object(LoadDat)) dat <- data.frame(LoadDat) 
