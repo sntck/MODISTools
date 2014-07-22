@@ -66,7 +66,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     num.pixels <- unname(size.test[1])
     
     # Extract IDs for ASCII files so they can be included in summary output; ncol = length(file.list), nrow = size.test.
-    where.id <- regexpr("_", file.list)
+    where.id <- regexpr("___", file.list)
     id <- matrix(unname(mapply(function(x, y, z) rep(substr(x, 1, y - 1), z), x = file.list, y = where.id, z = size.test,
                                SIMPLIFY = "array")), nrow = size.test, ncol = length(file.list), byrow = TRUE)
     
