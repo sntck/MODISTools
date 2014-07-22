@@ -21,6 +21,19 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
       if(is.null(QualityBand) | is.null(QualityThreshold)) stop("QualityBand and QualityThreshold not specified.")
     }
     
+    product.bands <- try(GetBands(Product), silent = TRUE)
+    if(class(product.bands) != "try-error"){
+      # Check Band and QualityBand belong to Product.
+      if(!any(product.bands == Band)) stop(paste("Band input does not match with", Product, "product.", sep = " "))
+      if(Product == "MCD43A4"){
+        if(QualityBand != "BRDF_Albedo_Band_Quality") stop("QualityBand input is not QA data for MCD43A4 product.")
+      } else {
+        if(!any(product.bands == QualityBand)) stop(paste("QualityBand is not QA data for", Product, "product.", sep = " "))
+      }
+    } else {
+      cat("MODIS server temporarily overloaded so user input checking skipped.")
+    }
+    
     # NoDataFill should be one integer.
     if(length(NoDataFill) != 1) stop("NoDataFill input must be one integer.")
     if(!is.numeric(NoDataFill)) stop("NoDataFill should be numeric class. One integer.")
@@ -264,11 +277,12 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     band.data.site <- do.call("rbind", band.data.site)
     colnames(band.data.site) <- c("ID", "lat", "long", "start.date", "end.date", "min.band", "max.band", "mean.band",
                                   "sd.band", "band.yield", "no.fill.data", "poor.quality.data")
-    write.table(band.data.site, file = paste(Dir, "/MODIS_Summary_", Product, "_", Sys.time(), ".csv", sep = ""),
+    
+    write.table(band.data.site, file = file.path(Dir, paste("MODIS_Summary_", Product, "_", Sys.time(), ".csv")),
                 sep = ",", row.names = FALSE)
     
     # Write the final appended dataset to a csv file, ready for use, in Dir.
-    write.table(res, file = paste(Dir, "/MODIS_Data_", Product, "_", Sys.time(), ".csv", sep = ""),
+    write.table(res, file = file.path(Dir, paste("MODIS_Data_", Product, "_", Sys.time(), ".csv")),
                 sep = ",", col.names = TRUE, row.names = FALSE)
     #####
     

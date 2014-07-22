@@ -157,10 +157,11 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
       
       # Write an ascii file with all dates for each band at a given location into the working directory.
       prods <- paste(Products, collapse = "_")
-      if(!Transect) write(subsets, file = paste(SaveDir, "/", lat.long$SubsetID[i], "___", prods, ".asc", sep = ""), sep = "")
+      
+      if(!Transect) write(subsets, file = file.path(SaveDir, paste(lat.long$SubsetID[i], "___", prods, ".asc", sep = "")), sep = "")
       if(Transect){
-        if(i == 1) write(subsets, file = paste(SaveDir, "/", lat.long$SubsetID[i], "___", prods, ".asc", sep = ""), sep = "")
-        if(i != 1) write(subsets, file = paste(SaveDir, "/", lat.long$SubsetID[i], "___", prods, ".asc", sep = ""), sep = "", append = TRUE)
+        if(i == 1) write(subsets, file = file.path(SaveDir, paste(lat.long$SubsetID[i], "___", prods, ".asc", sep = "")), sep = "")
+        if(i != 1) write(subsets, file = file.path(SaveDir, paste(lat.long$SubsetID[i], "___", prods, ".asc", sep = "")), sep = "", append = TRUE)
       }
       
       if(i == nrow(lat.long)) cat("Full subset download complete. Writing the subset download file...\n")
