@@ -15,36 +15,40 @@ UpdateSubsets <- function(LoadDat, StartDate = FALSE, Dir = ".")
 		if(nchar(details$start.date) == 4){startyear <- details$start.date}
 		if(nchar(details$start.date) != 4){startyear <- as.numeric(format(details$start.date, "%Y"))}
 	}
-			
-	if(!StartDate) all.subsets <- paste(details$lat, details$long, endyear)
-	if(StartDate) all.subsets <- paste(details$lat, details$long, startyear, endyear)
+	
+	ID <- ifelse(names(details) == "ID", TRUE, FALSE)
+	
+	fmt <- '%.5f'
+	 if(StartDate){
+	 	if(ID){
+    		## Check that all author-given IDs will be unique for each unique time-series, and check that they won't cause issues with product information
+    		n.unique <- length(unique(details$ID)) == nrow(details)
+    		if(!n.unique){
+    		details$ID <- paste("Lat", sprintf(fmt, details$lat), "Lon", sprintf(fmt, details$long), "Start", startyear, "End", endyear, sep = "")}
+    		} else {
+    		details$ID <- paste("Lat", sprintf(fmt, details$lat), "Lon", sprintf(fmt, details$long), "Start", startyear, "End", endyear, sep = "")
+		} 
+	}
+	
+	if(!StartDate){
+		if(ID){
+    	## Check that all author-given IDs will be unique for each unique time-series, and check that they won't cause issues with product information
+    		n.unique <- length(unique(details$ID)) == nrow(details)
+    		if(!n.unique){
+    		details$ID <- paste("Lat", sprintf(fmt, details$lat), "Lon", sprintf(fmt, details$long), "End", endyear, sep = "")}
+    		} else {
+    		details$ID <- paste("Lat", sprintf(fmt, details$lat), "Lon", sprintf(fmt, details$long), "End", endyear, sep = "")
+		} 	
+	}
 	
 	filelist <- list.files(path = Dir, pattern = ".asc")
-	print(head(filelist))
+	# print(head(filelist))
 	cat("Found", length(filelist), "subsets previously downloaded\n")
-	downloaded <- c()
 	
-	for(count in 1:length(filelist)){
-    
-		ds <- read.csv(file.path(Dir, filelist[count]), header = FALSE)
-		names(ds) <- c("row.id", "land.product.code", "MODIS.acq.date", "where", "MODIS.proc.date", 1:(ncol(ds) - 5))
-    
-		wS <- regexpr("Samp", ds$where[1]) ## number of rows according to number of pixels
-		wlong <- regexpr("Lon", ds$where[1])
-    
-    lat <- as.numeric(substr(ds$where[1], 4, wlong - 1)) 
-    long <- as.numeric(substr(ds$where[1], wlong + 3, wS - 1))
-    dsyear <- as.numeric(substr(ds$MODIS.acq.date, 2, 5))
-    
-    dsendyear <- max(dsyear, na.rm = TRUE)
-    if(StartDate) dsstartyear <- min(dsyear, na.rm = TRUE)
-    
-    if(!StartDate) downloaded[count] <- paste(lat, long, dsendyear)
-    if(StartDate) downloaded[count] <- paste(lat, long, dsstartyear, dsendyear)
-    
-	} ## End of filelist count.
+	char.position <- regexpr("___", filelist)
+	downloaded.ids <- substr(filelist, 1, char.position -1)
 	
-	revised.subsets <- LoadDat[which(all.subsets %in% downloaded == FALSE), ]
+	revised.subsets <- details[which(details$ID %in% downloaded.ids == FALSE), ]
 	
 	return(revised.subsets)
 	
