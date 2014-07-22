@@ -25,10 +25,12 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     if(class(product.bands) != "try-error"){
       # Check Band and QualityBand belong to Product.
       if(!all(Bands %in% product.bands)) stop(paste("Band input does not match with", Product, "product.", sep = " "))
-      if(Product == "MCD43A4"){
-        if(QualityBand != "BRDF_Albedo_Band_Quality") stop("QualityBand input is not QA data for MCD43A4 product.")
-      } else {
-        if(!any(product.bands == QualityBand)) stop(paste("QualityBand is not QA data for", Product, "product.", sep = " "))
+      if(QualityScreen){
+        if(Product == "MCD43A4"){
+          if(QualityBand != "BRDF_Albedo_Band_Quality") stop("QualityBand input is not QA data for MCD43A4 product.")
+        } else {
+          if(!any(product.bands == QualityBand)) stop(paste("QualityBand is not QA data for", Product, "product.", sep = " "))
+        }
       }
     } else {
       cat("MODIS server temporarily overloaded so user input checking skipped.")
