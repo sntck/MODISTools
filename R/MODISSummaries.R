@@ -3,6 +3,11 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
          QualityScreen = FALSE, QualityBand = NULL, QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE,
          Yield = FALSE, Interpolate = TRUE, InterpolateN = NULL) 
 { 
+    if(Dir == '.') cat('MODIS data files from ', getwd(),
+                       ' will be summarised.\nSummary files will be written to the same directory.\n', sep = '') 
+    if(Dir != '.') cat('MODIS data files from ', SaveDir,
+                       ' will be summarised.\nSummary files will be written to the same directory.\n', sep = '')
+    
     # Load input time-series data file; external data file, or an R object.
     if(!is.object(LoadDat) & !is.character(LoadDat)) stop("LoadDat must be an object in R or a file path character string.")
     if(is.object(LoadDat)) details <- data.frame(LoadDat)
