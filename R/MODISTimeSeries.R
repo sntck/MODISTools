@@ -1,5 +1,5 @@
 MODISTimeSeries <-
-function(Dir, Band)
+function(Dir, Band, Simplify = FALSE)
 {
   if(!file.exists(Dir)) stop("Character string input for Dir argument does not resemble an existing file path.")
   
@@ -21,23 +21,34 @@ function(Dir, Band)
     data.file <- read.csv(file.set[i], header = FALSE, as.is = TRUE)
     data.file <- data.file[grepl(pattern = Band, x = data.file[ ,1]), ]
     
-    data.collector[[i]] <- data.file[ ,6:ncol(data.file)]
+    data.collector[[i]] <- as.matrix(data.file[ ,6:ncol(data.file)])
     
     nrow.recorder[i] <- nrow(as.matrix(data.file[ ,6:ncol(data.file)]))
     ncol.recorder[i] <- ncol(as.matrix(data.file[ ,6:ncol(data.file)]))
     
     ts.col.names[[i]] <- paste(unique(data.file[ ,4]), "_pixel", 1:ncol.recorder[i], sep = "")
     ts.row.names[[i]] <- data.file[ ,3]
+    colnames(data.collector[[i]]) <- ts.col.names[[i]]
+    rownames(data.collector[[i]]) <- ts.row.names[[i]]
   }
   
-  res <- matrix(nrow = max(nrow.recorder), ncol = sum(ncol.recorder))
-  rownames(res) <- ts.row.names[[which(nrow.recorder == max(nrow.recorder))[1]]]
-  colnames(res) <- unlist(ts.col.names)
+  if(!Simplify) return(data.collector)
   
-  for(j in 1:length(data.collector)){
-    res[1:nrow.recorder[j],(sum(1, ncol.recorder[1:j]) - ncol.recorder[j]):sum(ncol.recorder[1:j])] <- 
-      as.matrix(data.collector[[j]])
+  if(!all(sapply(data.collector, nrow) == sapply(data.collector, nrow)[1])){
+    cat('Simplify == TRUE, but not all tiles have the same number of rows so cannot be\n',
+        'simplified into one matrix. Returning data as an array instead.\n', sep = '')
+    return(data.collector)
+  } else {
+    res <- matrix(nrow = max(nrow.recorder), ncol = sum(ncol.recorder))
+    rownames(res) <- ts.row.names[[which(nrow.recorder == max(nrow.recorder))[1]]]
+    colnames(res) <- unlist(ts.col.names)
+    
+    for(j in 1:length(data.collector)){
+      res[1:nrow.recorder[j],(sum(1, ncol.recorder[1:j]) - ncol.recorder[j]):sum(ncol.recorder[1:j])] <- 
+        as.matrix(data.collector[[j]])
+    }
+    
+    return(res)
   }
   
-  return(res)
 }
