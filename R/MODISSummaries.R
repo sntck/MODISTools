@@ -80,6 +80,11 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     file.list <- list.files(path = Dir, pattern = paste(Product, ".*asc$", sep = ""))
     if(length(file.list) == 0) stop("Found no MODIS data files in Dir that match the request.")
     
+    ## If pixels are in a different directory, the file list won't work in size.test
+    
+    if(Dir != getwd())
+    	file.list <- file.path(Dir, file.list)
+    
     size.test <- sapply(file.list, function(x) ncol(read.csv(x)[1, ]) - 5)
     if(!all(size.test == size.test[1])) stop("The number of pixels (Size) in subsets identified are not all the same.")
     # size.test checked all subsets are compatible for processing to one summary file. Can now just use size.test[1]
