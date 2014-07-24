@@ -3,6 +3,11 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
          QualityScreen = FALSE, QualityBand = NULL, QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE,
          Yield = FALSE, Interpolate = TRUE, InterpolateN = NULL) 
 { 
+    if(Dir == '.') cat('MODIS data files from ', getwd(),
+                       ' will be summarised.\nSummary files will be written to the same directory.\n', sep = '') 
+    if(Dir != '.') cat('MODIS data files from ', SaveDir,
+                       ' will be summarised.\nSummary files will be written to the same directory.\n', sep = '')
+    
     # Load input time-series data file; external data file, or an R object.
     if(!is.object(LoadDat) & !is.character(LoadDat)) stop("LoadDat must be an object in R or a file path character string.")
     if(is.object(LoadDat)) details <- data.frame(LoadDat)
@@ -19,6 +24,21 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     if(!is.logical(QualityScreen)) stop("QualityScreen argument should be a logical input. See help ?MODISSummaries.")
     if(QualityScreen){
       if(is.null(QualityBand) | is.null(QualityThreshold)) stop("QualityBand and QualityThreshold not specified.")
+    }
+    
+    product.bands <- try(GetBands(Product), silent = TRUE)
+    if(class(product.bands) != "try-error"){
+      # Check Band and QualityBand belong to Product.
+      if(!all(Bands %in% product.bands)) stop(paste("Band input does not match with", Product, "product.", sep = " "))
+      if(QualityScreen){
+        if(Product == "MCD43A4"){
+          if(QualityBand != "BRDF_Albedo_Band_Quality") stop("QualityBand input is not QA data for MCD43A4 product.")
+        } else {
+          if(!any(product.bands == QualityBand)) stop(paste("QualityBand is not QA data for", Product, "product.", sep = " "))
+        }
+      }
+    } else {
+      cat("MODIS server temporarily overloaded so user input checking skipped.")
     }
     
     # NoDataFill should be one integer.
@@ -66,7 +86,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     num.pixels <- unname(size.test[1])
     
     # Extract IDs for ASCII files so they can be included in summary output; ncol = length(file.list), nrow = size.test.
-    where.id <- regexpr("_", file.list)
+    where.id <- regexpr("___", file.list)
     id <- matrix(unname(mapply(function(x, y, z) rep(substr(x, 1, y - 1), z), x = file.list, y = where.id, z = size.test,
                                SIMPLIFY = "array")), nrow = size.test, ncol = length(file.list), byrow = TRUE)
     
@@ -240,14 +260,14 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     names(res) <- 
       c(names(details), paste(rep(Bands, each = num.pixels), "_pixel", rep(1:num.pixels, times = length(Bands)), sep = ""))
     
-    # Convert POSIXt dates to character vectors for matching.
+    # Convert POSIXt dates to 'Date' class and then numeric for matching.
     if(POSIXt){
-      details$end.date <- strftime(details$end.date, "%Y-%m-%d")
-      ID.match$end.date <- strftime(ID.match$end.date, "%Y-%m-%d")
+      details$end.date <- as.numeric(as.Date(details$end.date, origin = "1900-01-01"))
+      ID.match$end.date <- as.numeric(as.Date(ID.match$end.date, origin = "1900-01-01"))
       
       if(StartDate){
-        details$start.date <- strftime(details$start.date, "%Y-%m-%d")
-        ID.match$start.date <- strftime(ID.match$start.date, "%Y-%m-%d")
+        details$start.date <- as.numeric(as.Date(details$start.date, origin = "1900-01-01"))
+        ID.match$start.date <- as.numeric(as.Date(ID.match$start.date, origin = "1900-01-01"))
       }
     }
     
@@ -264,11 +284,12 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     band.data.site <- do.call("rbind", band.data.site)
     colnames(band.data.site) <- c("ID", "lat", "long", "start.date", "end.date", "min.band", "max.band", "mean.band",
                                   "sd.band", "band.yield", "no.fill.data", "poor.quality.data")
-    write.table(band.data.site, file = paste(Dir, "/MODIS_Summary_", Product, "_", Sys.Date(), ".csv", sep = ""),
+    
+    write.table(band.data.site, file = file.path(Dir, paste("MODIS_Summary_", Product, "_", Sys.time(), ".csv", sep = "")),
                 sep = ",", row.names = FALSE)
     
     # Write the final appended dataset to a csv file, ready for use, in Dir.
-    write.table(res, file = paste(Dir, "/MODIS_Data_", Product, "_", Sys.Date(), ".csv", sep = ""),
+    write.table(res, file = file.path(Dir, paste("MODIS_Data_", Product, "_", Sys.time(), ".csv", sep = "")),
                 sep = ",", col.names = TRUE, row.names = FALSE)
     #####
     

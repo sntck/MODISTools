@@ -1,6 +1,9 @@
 MODISSubsets <-
 function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
 {
+    if(SaveDir == '.') cat('Files downloaded will be written to ', getwd(), '.\n', sep = '')
+    if(SaveDir != '.') cat('Files downloaded will be written to ', SaveDir, '.\n', sep = '')
+    
     # Load data of locations; external data file, or an R object.
     if(!is.object(LoadDat) & !is.character(LoadDat)) stop("LoadDat must be an object in R or a file path character string.")
     if(is.object(LoadDat)) dat <- data.frame(LoadDat) 
@@ -22,8 +25,7 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     if(any(is.na(dat$lat) != is.na(dat$long))) stop("There are locations with incomplete coordinates.")
     
     # Check to see if IDs have been given in data frame.
-    if(any(names(dat) == "ID")){
-    	ID <- TRUE}else{ID <- FALSE}
+    ID <- ifelse(any(names(dat) == "ID"), TRUE, FALSE)
     
     # Check that the input data set contains dates, named end.date.
     if(!any(names(dat) == "end.date")) stop("Dates for time series must be included and named 'end.date'.")
@@ -131,23 +133,20 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     # Create IDs for each time series.
     fmt <- '%.5f'
     if(ID){
-    	## Check that all author-given IDs will be unique for each unique time-series
+    	## Check that all author-given IDs will be unique for each unique time-series, and check that they won't cause issues with product information
     	n.unique <- length(unique(lat.long$ID)) == nrow(lat.long)
     	if(n.unique){
+    		if(any(grepl("___", lat.long$ID))) stop("IDs can not contain '___'")
     		names(lat.long)[names(lat.long) == "ID"] <- "SubsetID"
     		lat.long <- data.frame(lat.long, Status = rep(NA, nrow(lat.long)))
-    	}else{
+    	} else {
     		cat("Number of unique IDs does not match number of unique time series. Creating new ID field.")
     		ID <- paste("Lat", sprintf(fmt, lat.long$lat), "Lon", sprintf(fmt, lat.long$long), "Start", start.date, "End", end.date, sep = "")
     		lat.long <- data.frame(SubsetID = ID, lat.long, Status = rep(NA, nrow(lat.long)))}
-    }else{
+    } else {
     	ID <- paste("Lat", sprintf(fmt, lat.long$lat), "Lon", sprintf(fmt, lat.long$long), "Start", start.date, "End", end.date, sep = "")
     	lat.long <- data.frame(SubsetID = ID, lat.long, Status = rep(NA, nrow(lat.long)))
-    	}
-    	
-    	
-    	
-    
+    } 
     
     #####
     # If the Products input does not match any product codes in the list output from GetProducts(), stop with error.
@@ -203,7 +202,7 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     
     ##### Write a summary file with IDs and unique time-series information .
     if(!Transect){
-      write.table(lat.long, file = paste(SaveDir, "/", "Subset Download ", Sys.Date(), ".csv", sep = ""), 
+      write.table(lat.long, file = file.path(SaveDir, paste("Subset Download ", Sys.time(), ".csv", sep = "")), 
                   col.names = TRUE, row.names = FALSE, sep = ",")
     }
     if(Transect){
@@ -211,11 +210,11 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
       w.transect <- regexpr("Point", dat$ID[1])
       transect.id <- substr(dat$ID[1], 1, w.transect - 1)
       
-      if(!any(DirList == paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep = ""))){ 
-        write.table(lat.long, file = paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep = ""), 
+      if(!any(DirList == file.path(SaveDir, paste(transect.id, "_Subset Download", Sys.time(), ".csv", sep = "")))){ 
+        write.table(lat.long, file = file.path(SaveDir, paste(transect.id, "_Subset Download", Sys.time(), ".csv", sep = "")), 
                     col.names = TRUE, row.names = FALSE, sep = ",")
       } else {
-        write.table(lat.long, file = paste(SaveDir, "/", transect.id, "_Subset Download ", Sys.Date(), ".csv", sep = ""), 
+        write.table(lat.long, file = file.path(SaveDir, paste(transect.id, "_Subset Download", Sys.time(), ".csv", sep = "")), 
                     col.names = FALSE, row.names = FALSE, sep = ",", append = TRUE)
       }
     }

@@ -22,16 +22,6 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
   # Check the product input corresponds to one with useable quality information
   if(!any(names(QA_RANGE) == Product)) stop(paste("QualityCheck cannot be used for (", Product, ") product.", sep = ""))
   
-  product.bands <- GetBands(Product)
-  # Check Band and QualityBand belong to Product.
-  if(!any(product.bands == Band)) stop(paste("Band input does not match with", Product, "product.", sep = " "))
-  
-  if(Product == "MCD43A4"){
-    if(QualityBand != "BRDF_Albedo_Band_Quality") stop("QualityBand input is not QA data for MCD43A4 product.")
-  } else {
-    if(!any(product.bands == QualityBand)) stop(paste("QualityBand is not QA data for", Product, "product.", sep = " "))
-  }
-  
   # If dataframes, coerce to matrices.
   if(is.data.frame(Data)) Data <- as.matrix(Data)
   if(is.data.frame(QualityScores)) QualityScores <- as.matrix(QualityScores)  

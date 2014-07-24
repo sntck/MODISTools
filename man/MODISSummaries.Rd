@@ -10,15 +10,15 @@ QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE, Yield =
 Interpolate = TRUE, InterpolateN = NULL)
 }
 \arguments{
-  \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, dates (end date, and optionally start date) and study ID for each location.
+  \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, dates (end date, and optionally start date) and study ID for each location. If IDs are found in LoadDat that provide a primary key for unique time series then these IDs will be used. Otherwise a set of unique IDs will be generated and used to identify, and file name, each time series.
   }
   \item{FileSep}{If LoadDat is a character string that corresponds to a file path, choose the delimiter character for that file (e.g. "," for comma separated).
   }
-  \item{Dir}{Character string; an optional argument to specify the subdirectory where downloaded ASCII files to be processed are located and the output is written: default Dir = "." extracts files from the working directory.
+  \item{Dir}{Character string; an optional argument to specify a file path to the subdirectory where downloaded ASCII files to be processed are located and the output is written: default Dir = "." extracts files from the working directory.
   }
   \item{Product}{Character; The product shortname code, that the data band input belongs to. The MODIS product table shows all available products and their respective product shortname codes (see references).
   }
-  \item{Bands}{Character; the code that identifies from which band type is the data to be processed. In the input file (LoadDat), alongside the data for this band type, there may optionally be a corresponding set of pixel reliability values included for quality control.
+  \item{Bands}{Character; the code that identifies from which band types are the data to be processed. Multiple bands can be specified as a character vector, including the quality control data bands, providing they all come from the same product. With the exception of BRDF Reflectance data products (MCD43A4) that have quality information stored as a separate product (MCD43A2).
   }
   \item{ValidRange}{Numeric vector of two elements; states the lower (ValidRange[1]) and upper (ValidRange[2]) bounds within which the data to be processed should be found.
   }
@@ -70,7 +70,7 @@ The second file (MODIS_Data...) that has the information from the original file 
 data(SubsetExample)
 
 MODISSubsets(LoadDat = SubsetExample, Products = "MOD13Q1",     
-             Bands = c("250m_16_days_EVI","250m_16_days_pixel_reliability"),
+             Bands = c("250m_16_days_EVI", "250m_16_days_NDVI", "250m_16_days_pixel_reliability"),
              Size = c(0,0), StartDate = TRUE)
 
 # Without quality checking
@@ -80,6 +80,13 @@ MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1", Bands = "250m_16_da
 
 # With quality checking
 MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1", Bands = "250m_16_days_EVI",
+               ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001,
+               StartDate = TRUE, QualityScreen = TRUE, QualityThreshold = 0,
+               QualityBand = "250m_16_days_pixel_reliability")
+               
+# For both EVI and NDVI
+MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1",
+               Bands = c("250m_16_days_EVI","250m_16_days_NDVI"),
                ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001,
                StartDate = TRUE, QualityScreen = TRUE, QualityThreshold = 0,
                QualityBand = "250m_16_days_pixel_reliability")
