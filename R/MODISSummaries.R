@@ -5,7 +5,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
 { 
     if(Dir == '.') cat('MODIS data files from ', getwd(),
                        ' will be summarised.\nSummary files will be written to the same directory.\n', sep = '') 
-    if(Dir != '.') cat('MODIS data files from ', SaveDir,
+    if(Dir != '.') cat('MODIS data files from ', Dir,
                        ' will be summarised.\nSummary files will be written to the same directory.\n', sep = '')
     
     # Load input time-series data file; external data file, or an R object.
