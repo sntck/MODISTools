@@ -285,11 +285,16 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     colnames(band.data.site) <- c("ID", "lat", "long", "start.date", "end.date", "min.band", "max.band", "mean.band",
                                   "sd.band", "band.yield", "no.fill.data", "poor.quality.data")
     
-    write.table(band.data.site, file = file.path(Dir, paste("MODIS_Summary_", Product, "_", Sys.time(), ".csv", sep = "")),
+    date <- as.POSIXlt(Sys.time())
+    file.date <- paste(as.Date(date),
+                       paste(paste0("h", date$hour), paste0("m", date$min), paste0("s", round(date$sec, digits=0)), sep = "-"),
+                       sep = "_")
+    
+    write.table(band.data.site, file = file.path(Dir, paste("MODIS_Summary_", Product, "_", file.date, ".csv", sep = "")),
                 sep = ",", row.names = FALSE)
     
     # Write the final appended dataset to a csv file, ready for use, in Dir.
-    write.table(res, file = file.path(Dir, paste("MODIS_Data_", Product, "_", Sys.time(), ".csv", sep = "")),
+    write.table(res, file = file.path(Dir, paste("MODIS_Data_", Product, "_", file.date, ".csv", sep = "")),
                 sep = ",", col.names = TRUE, row.names = FALSE)
     #####
     

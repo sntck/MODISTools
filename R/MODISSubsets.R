@@ -200,9 +200,13 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     }
     #####
     
-    ##### Write a summary file with IDs and unique time-series information .
+    ##### Write a summary file with IDs and unique time-series information.
+    date <- as.POSIXlt(Sys.time())
+    file.date <- paste(as.Date(date),
+                       paste(paste0("h", date$hour), paste0("m", date$min), paste0("s", round(date$sec, digits=0)), sep = "-"),
+                       sep = "_")
     if(!Transect){
-      write.table(lat.long, file = file.path(SaveDir, paste("Subset Download ", Sys.time(), ".csv", sep = "")), 
+      write.table(lat.long, file = file.path(SaveDir, paste("SubsetDownload_", file.date, ".csv", sep = "")), 
                   col.names = TRUE, row.names = FALSE, sep = ",")
     }
     if(Transect){
@@ -210,11 +214,11 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
       w.transect <- regexpr("Point", dat$ID[1])
       transect.id <- substr(dat$ID[1], 1, w.transect - 1)
       
-      if(!any(DirList == file.path(SaveDir, paste(transect.id, "_Subset Download", Sys.time(), ".csv", sep = "")))){ 
-        write.table(lat.long, file = file.path(SaveDir, paste(transect.id, "_Subset Download", Sys.time(), ".csv", sep = "")), 
+      if(!any(DirList == file.path(SaveDir, paste(transect.id, "_SubsetDownload_", file.date, ".csv", sep = "")))){ 
+        write.table(lat.long, file = file.path(SaveDir, paste(transect.id, "_SubsetDownload_", file.date, ".csv", sep = "")), 
                     col.names = TRUE, row.names = FALSE, sep = ",")
       } else {
-        write.table(lat.long, file = file.path(SaveDir, paste(transect.id, "_Subset Download", Sys.time(), ".csv", sep = "")), 
+        write.table(lat.long, file = file.path(SaveDir, paste(transect.id, "_SubsetDownload_", file.date, ".csv", sep = "")), 
                     col.names = FALSE, row.names = FALSE, sep = ",", append = TRUE)
       }
     }
