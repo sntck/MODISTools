@@ -1,7 +1,7 @@
 MODISSummaries <-
 function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataFill, ScaleFactor, StartDate = FALSE,
          QualityScreen = FALSE, QualityBand = NULL, QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE,
-         Yield = FALSE, Interpolate = TRUE, InterpolateN = NULL) 
+         Yield = FALSE, Interpolate = FALSE, InterpolateN = NULL) 
 { 
     if(Dir == '.') cat('MODIS data files from ', getwd(),
                        ' will be summarised.\nSummary files will be written to the same directory.\n', sep = '') 

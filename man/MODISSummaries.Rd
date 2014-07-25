@@ -7,7 +7,7 @@
 \usage{MODISSummaries(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataFill,
 ScaleFactor, StartDate = FALSE, QualityScreen = FALSE, QualityBand = NULL, 
 QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE, Yield = FALSE, 
-Interpolate = TRUE, InterpolateN = NULL)
+Interpolate = FALSE, InterpolateN = NULL)
 }
 \arguments{
   \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, dates (end date, and optionally start date) and study ID for each location. If IDs are found in LoadDat that provide a primary key for unique time series then these IDs will be used. Otherwise a set of unique IDs will be generated and used to identify, and file name, each time series.
