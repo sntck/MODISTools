@@ -91,7 +91,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
                                SIMPLIFY = "array")), nrow = size.test, ncol = length(file.list), byrow = TRUE)
     
     # Time-series analysis for each time-series (ASCII file) consecutively.
-    band.data.site <- lapply((size.test *  length(Bands)), function(x) matrix(nrow = x, ncol = 12))
+    band.data.site <- lapply((size.test *  length(Bands)), function(x) matrix(nrow = x, ncol = 13))
     band.data <- matrix(nrow = length(file.list), ncol = (num.pixels * length(Bands)))
     
     for(counter in 1:length(file.list)){
@@ -226,6 +226,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
                           long = rep(long, num.pixels),
                           start.date = rep(as.character(min(ds$date)), num.pixels),
                           end.date = rep(as.character(max(ds$date)), num.pixels),
+                          data.band = rep(Bands[bands], num.pixels),
                           min.band = band.min,
                           max.band = band.max, 
                           mean.band = mean.band,
@@ -233,7 +234,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
                           band.yield = band.yield,
                           no.fill.data = nofill, 
                           poor.quality.data = poorquality),
-                 nrow = num.pixels, ncol = 12)
+                 nrow = num.pixels, ncol = 13)
         
         # Extract mean band values.
         band.data[counter,(((bands - 1) * num.pixels) + 1):(num.pixels * bands)] <- mean.band
@@ -282,8 +283,8 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     #####
     # Write output summary file by appending summary data from all files, producing one file of summary stats output.
     band.data.site <- do.call("rbind", band.data.site)
-    colnames(band.data.site) <- c("ID", "lat", "long", "start.date", "end.date", "min.band", "max.band", "mean.band",
-                                  "sd.band", "band.yield", "no.fill.data", "poor.quality.data")
+    colnames(band.data.site) <- c("ID", "lat", "long", "start.date", "end.date", "data.band", "min.band", "max.band",
+                                  "mean.band", "sd.band", "band.yield", "no.fill.data", "poor.quality.data")
     
     date <- as.POSIXlt(Sys.time())
     file.date <- paste(as.Date(date),
