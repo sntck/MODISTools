@@ -63,7 +63,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     posix.compatible <- try(as.POSIXlt(details$end.date), silent=TRUE)
     
     if(any(class(details$end.date) == "POSIXt") | all(class(posix.compatible) != "try-error")) POSIXt <- TRUE
-    if(all(is.numeric(details$end.date) & nchar(details$end.date) == 4) & 
+    if(all(is.numeric(details$end.date) & nchar(as.character(details$end.date)) == 4) & 
          any(class(posix.compatible) == "try-error")) Year <- TRUE
     
     if(!Year & !POSIXt) stop("Date informDate information in LoadDat is not recognised as years or as POSIXt format.")
