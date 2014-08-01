@@ -43,6 +43,7 @@ Interpolate = FALSE, InterpolateN = NULL)
   \item{Interpolate}{Logical; determines whether, after poor quality data is removed, to linearly interpolate between high quality data before calculating the summary statistics. Must be TRUE if Yield = TRUE. The interpolation function used is stats::approx. See ?stats::approx for more details.
   }
   \item{InterpolateN}{Numeric; if Interpolate = TRUE, optionally set the number interpolated data points to be requested from the time-series interpolation. The default is set to a daily interpolation of the data.}
+  \item{DiagnosticPlot}{Logical; if TRUE will produce an additional folder in the specified directory to which plots of the time series data for each site will be saved. Will add the interpolation line, mean, min and max values if specified in the function call.}
 }
 \details{If QualityScreen = TRUE, subsets to be processed should include a pixel reliability layer, so the data can be screened for poor quality data, removing them and using linear interpolation to refill data between high quality values.
 }
