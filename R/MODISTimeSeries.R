@@ -5,7 +5,7 @@ function(Dir, Band, Simplify = FALSE)
   
   file.set <- list.files(path = Dir, pattern = ".asc")
   
-  file.ids <- sapply(file.set, function(x) 
+  file.ids <- sapply(file.path(Dir, file.set), function(x) 
                     any(grepl(pattern = Band, x = read.csv(file = x, header = FALSE, as.is = TRUE)[ ,1]))
               )
   file.set <- file.set[file.ids]
