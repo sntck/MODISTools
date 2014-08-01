@@ -1,8 +1,18 @@
 MODISSummaries <-
 function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataFill, ScaleFactor, StartDate = FALSE,
          QualityScreen = FALSE, QualityBand = NULL, QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE,
-         Yield = FALSE, Interpolate = FALSE, InterpolateN = NULL) 
+         Yield = FALSE, Interpolate = FALSE, InterpolateN = NULL, DiagnosticPlot = FALSE) 
 { 
+    
+    ## Date and time stamp
+    
+    date <- as.POSIXlt(Sys.time())
+    file.date <- paste(as.Date(date),
+                       paste(paste0("h", date$hour), paste0("m", date$min), paste0("s", round(date$sec, digits=0)), sep = "-"),
+                       sep = "_")
+
+    
+    
     if(Dir == '.') cat('MODIS data files from ', getwd(),
                        ' will be summarised.\nSummary files will be written to the same directory.\n', sep = '') 
     if(Dir != '.') cat('MODIS data files from ', Dir,
@@ -161,9 +171,17 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
         band.min <- rep(NA, ncol(band.time.series))
         band.max <- rep(NA, ncol(band.time.series))
         
-        # Run time-series analysis for the ith pixel.
+        
+        number.of.pixels <- ncol(band.time.series)
+       
+        if(DiagnosticPlot & number.of.pixels != 1){
+          	cat("Can not provide diagnostic plots for subsets larger than a single pixel")
+          	DiagnosticPlot <- FALSE}        	
+        
+        # Run time-series analysis for the ith 
         for(i in 1:ncol(band.time.series)){
-          
+
+		            
           # Minimum and maximum band values observed.
           minobsband <- min(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm = TRUE)    
           maxobsband <- max(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm = TRUE)
@@ -217,7 +235,9 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
                          "% (", sum(QA.time.series[ ,i] > QualityThreshold), "/", length(QA.time.series[ ,i]), ")", sep = ""),
                  poorquality[i] <- NA)
           
+       
         } # End of loop for time-series summary analysis for each pixel.
+        
         
         # Compile time-series information and relevant summaries data into a final output listed by-sites (.asc files).
         band.data.site[[counter]][(((bands - 1) * num.pixels) + 1):(num.pixels * bands), ] <-
@@ -238,6 +258,25 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
         
         # Extract mean band values.
         band.data[counter,(((bands - 1) * num.pixels) + 1):(num.pixels * bands)] <- mean.band
+        
+        if(DiagnosticPlot){
+        	directory <- file.path(Dir, "DiagnosticPlots")
+        	if(file.exists(directory) == FALSE)
+				dir.create(directory)
+        	filename <- file.path(directory, 
+        		paste("DiagnosticPlots_", lat, long, Product, "_", Bands[bands], "_", file.date, ".pdf", sep = ""))
+        	if(data.quality == 1 | data.quality == 0){
+          		cat("Too few data points for diagnostic plot for this site\n")}
+          	else{
+        		pdf(filename)
+        		SiteId <- max(paste(lat, long, year))
+          		plot(band.time.series[,i] * ScaleFactor, pch = 19, main = SiteId)
+          		if(Interpolate){lines(sout, col = "red")}
+          		if(Mean){abline(a = mean.band[i], b=0, lty = 2, col = "red")}
+          		if(Min){abline(a = band.min[i], b=0, lty = 2)}
+          		if(Max){abline(a = band.max[i], b=0, lty = 2)}
+          		dev.off()}
+        }
         
       } # End of loop for Bands.
       
@@ -286,11 +325,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     colnames(band.data.site) <- c("ID", "lat", "long", "start.date", "end.date", "data.band", "min.band", "max.band",
                                   "mean.band", "sd.band", "band.yield", "no.fill.data", "poor.quality.data")
     
-    date <- as.POSIXlt(Sys.time())
-    file.date <- paste(as.Date(date),
-                       paste(paste0("h", date$hour), paste0("m", date$min), paste0("s", round(date$sec, digits=0)), sep = "-"),
-                       sep = "_")
-    
+        
     write.table(band.data.site, file = file.path(Dir, paste("MODIS_Summary_", Product, "_", file.date, ".csv", sep = "")),
                 sep = ",", row.names = FALSE)
     
