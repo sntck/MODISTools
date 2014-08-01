@@ -18,7 +18,7 @@ function(Dir, Band, Simplify = FALSE)
   nrow.recorder <- ncol.recorder <- numeric(length = length(file.set))
   
   for(i in 1:length(file.set)){
-    data.file <- read.csv(file.set[i], header = FALSE, as.is = TRUE)
+    data.file <- read.csv(file.path(Dir, file.set[i]), header = FALSE, as.is = TRUE)
     data.file <- data.file[grepl(pattern = Band, x = data.file[ ,1]), ]
     
     data.collector[[i]] <- as.matrix(data.file[ ,6:ncol(data.file)])
