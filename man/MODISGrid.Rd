@@ -24,7 +24,9 @@ The data are in the MODIS projection system. When converted these ASCII raster g
 }
 \author{Sean Tuck
 }
-\seealso{\code{\link{MODISTools::MODISSubsets}}
+\seealso{\code{\link{MODISSubsets}
+         \code{\link{MODISSummaries}}
+         \code{\link{ExtractTile}}}
 }
 \examples{
 dat <- EndCoordinatesExample

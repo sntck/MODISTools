@@ -38,7 +38,11 @@ SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
   \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}  
 }
 \author{Sean Tuck}
-\seealso{\code{\link{help}}}
+\seealso{\code{\link{MODISSummaries}}
+         \code{\link{MODISTransects}}
+         \code{\link{MODISGrid}}
+         \code{\link{MODISTimeSeries}}
+}
 \examples{
 \dontrun{ 
 # dontrun() used because running the example requires internet access.
