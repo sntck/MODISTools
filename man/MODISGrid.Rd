@@ -4,7 +4,7 @@
 }
 \description{Looks for ASCII files of downloaded MODIS data in a directory and creates new ASCII raster grid files that allow data downloaded using MODISTools to connect to a GIS environment. The new raster grid files can be converted into raster images and loaded into a GIS environment where further data processing or spatial analysis can take place.
 }
-\usage{MODISGrid(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataFill)
+\usage{MODISGrid(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
 }
 \arguments{
   \item{Dir}{Character; file path to the directory where downloaded ASCII files to be processed are located and the output is written: default \code{Dir = "."} extracts files from the working directory.
@@ -13,7 +13,7 @@
   }
   \item{SubDir}{Logical; if TRUE, all ASCII raster grids created from one MODIS data file will be collected under a subdirectory, within \code{DirName}, that has the same name as the MODIS data file from which it was created. If FALSE all ASCII raster grids will simply be written to \code{DirName}, with no nested file structure.
   }
-  \item{NoDataFill}{Numeric; the no data value for the data band contained in the files to be processed. This value is neccessary to identify pixels with missing data. The correct no data value for the data band of interest can be found at \url{https://lpdaac.usgs.gov/products/modis_products_table}.
+  \item{NoDataValues}{Named numeric vector; the no data values for all the data bands contained in the files to be processed. All data bands found in the MODIS data files should be listed in this named vector. These values are neccessary to identify pixels with missing data. The correct no data values for the data bands of interest can be found at \url{https://lpdaac.usgs.gov/products/modis_products_table}.
   }
 }
 \details{A raster grid file is created for each grid found in a MODIS data file (i.e. a new file is written for each date that occurs in a time series). In other words, where the MODIS data file may follow a tile of pixels over time, the raster grids split up each tile to create a new file for that tile at each new date. Therefore, multiple raster grids may be created from one MODIS data file. These files can be stored in one directory or nested in subdirectories for each MODIS data file, using the optional argument \code{SubDir}. By default, the subdirectories are created to retain the spatial structure.
@@ -32,6 +32,8 @@ The data are in the MODIS projection system. When converted these ASCII raster g
 dat <- EndCoordinatesExample
 names(dat) <- c("lat", "long", "start.date", "end.date", "ID")
 
-MODISSubsets(dat, Products = "MOD13Q1", Bands = "250m_16_days_EVI", Size = c(1,1), StartDate = TRUE)
-MODISGrid(NoDataFill = -3000)
+MODISSubsets(dat, Products = "MOD13Q1", Size = c(1,1), StartDate = TRUE,
+             Bands = c("250m_16_days_EVI", "250m_16_days_NDVI", "250m_16_days_pixel_reliability"))
+MODISGrid(NoDataValues = c("250m_16_days_EVI" = -3000, "250m_16_days_NDVI" = -3000,
+                           "250m_16_days_pixel_reliability" = -1))
 }

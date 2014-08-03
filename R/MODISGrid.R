@@ -1,5 +1,5 @@
 MODISGrid <-
-function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataFill)
+function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
 {
   # DEFINE
   NUM_METADATA_COLS <- 10
@@ -14,6 +14,13 @@ function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataFill)
   file.list <- list.files(path = Dir, pattern = ".asc$")
   file.list <- file.list[grepl("___", file.list)]
   if(length(file.list) == 0) stop("Could not find any MODIS data files in directory specified.")
+  
+  # Check that NoDataValues value is specified for every data band found in file.list
+  band.set <- unique(as.vector(sapply(
+      lapply(file.path(Dir, file.list), function(x) read.csv(x, header = FALSE, as.is = TRUE)[ ,6]),
+      function(x) unique(substr(x, (gregexpr(".", x, fixed = TRUE)[[1]][5] + 1), nchar(x)))
+  )))
+  if(!identical(band.set, names(NoDataValues))) stop("Mismatch between NoDataValues and data bands found in files.")
   
   for(i in 1:length(file.list)){
     
@@ -46,7 +53,7 @@ function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataFill)
               sprintf("xllcorner\t %.2f", data.file$xll[n]),
               sprintf("yllcorner\t %.2f", data.file$yll[n]),
               sprintf("cellsize\t %s", as.character(data.file$pixelsize[n])),
-              sprintf("NODATA_value\t %s", as.character(NoDataFill))
+              sprintf("NODATA_value\t %s", as.character(NoDataValues[data.band]))
               ),
             file = path
             )
