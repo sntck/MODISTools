@@ -3,16 +3,9 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
          QualityScreen = FALSE, QualityBand = NULL, QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE,
          Yield = FALSE, Interpolate = FALSE, InterpolateN = NULL, DiagnosticPlot = FALSE) 
 { 
-    
-    ## Date and time stamp
-    
-    date <- as.POSIXlt(Sys.time())
-    file.date <- paste(as.Date(date),
-                       paste(paste0("h", date$hour), paste0("m", date$min), paste0("s", round(date$sec, digits=0)), sep = "-"),
-                       sep = "_")
-
-    
-    
+    # DEFINE
+    NUM_METADATA_COLS <- 10
+        
     if(Dir == '.') cat('MODIS data files from ', getwd(),
                        ' will be summarised.\nSummary files will be written to the same directory.\n', sep = '') 
     if(Dir != '.') cat('MODIS data files from ', Dir,
@@ -86,11 +79,17 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     }
     #####
     
+    # Date and time stamp
+    date <- as.POSIXlt(Sys.time())
+    file.date <- paste(as.Date(date),
+                       paste(paste0("h",date$hour), paste0("m",date$min), paste0("s",round(date$sec,digits=0)), sep = "-"),
+                       sep = "_")
+    
     # Get a list of all downloaded subset (.asc) files in the data directory.
     file.list <- list.files(path = Dir, pattern = paste(Product, ".*asc$", sep = ""))
     if(length(file.list) == 0) stop("Found no MODIS data files in Dir that match the request.")
     
-    size.test <- sapply(file.path(Dir, file.list), function(x) ncol(read.csv(x)[1, ]) - 5)
+    size.test <- sapply(file.path(Dir, file.list), function(x) ncol(read.csv(x)[1, ]) - NUM_METADATA_COLS)
     if(!all(size.test == size.test[1])) stop("The number of pixels (Size) in subsets identified are not all the same.")
     # size.test checked all subsets are compatible for processing to one summary file. Can now just use size.test[1]
     num.pixels <- unname(size.test[1])
@@ -110,13 +109,14 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
       
       ##### Load selected .asc file into a data frame, name columns and tell user what's being processed.
       ds <- read.csv(file.path(Dir, file.list[counter]), header = FALSE, as.is = TRUE)
-      names(ds) <- c("row.id", "product.code", "MODIS.acq.date", "where", "MODIS.proc.date", 1:(ncol(ds) - 5))
+      names(ds) <- c("nrow", "ncol", "xll", "yll", "pixelsize", "row.id", "product.code", "MODIS.acq.date",
+                     "where", "MODIS.proc.date", 1:(ncol(ds) - NUM_METADATA_COLS))
       
       # Extract year and day from the metadata and make POSIXlt dates (YYYY-MM-DD), ready for time-series analysis.
       year <- as.numeric(substr(ds$MODIS.acq.date, 2, 5))
       day <- as.numeric(substr(ds$MODIS.acq.date, 6, 8))
       date <- strptime(paste(year, "-", day, sep = ""), "%Y-%j")
-      ds <- cbind(ds[,1:5], date, ds[,6:ncol(ds)]) 
+      ds <- cbind(ds[,1:NUM_METADATA_COLS], date, ds[,(NUM_METADATA_COLS+1):ncol(ds)]) 
       w.ds.dat <- which(names(ds) == "date") + 1
       #####
       
@@ -163,25 +163,22 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
         ####
         
         # Initialise objects for various summaries.
-        mean.band <- rep(NA, ncol(band.time.series))
-        sd.band <- rep(NA, ncol(band.time.series))
-        band.yield <- rep(NA, ncol(band.time.series))
-        nofill <- rep(NA, ncol(band.time.series))
-        poorquality <- rep(NA, ncol(band.time.series))
-        band.min <- rep(NA, ncol(band.time.series))
-        band.max <- rep(NA, ncol(band.time.series))
-        
-        
-        number.of.pixels <- ncol(band.time.series)
+        mean.band <- rep(NA, num.pixels)
+        sd.band <- rep(NA, num.pixels)
+        band.yield <- rep(NA, num.pixels)
+        nofill <- rep(NA, num.pixels)
+        poorquality <- rep(NA, num.pixels)
+        band.min <- rep(NA, num.pixels)
+        band.max <- rep(NA, num.pixels)
        
-        if(DiagnosticPlot & number.of.pixels != 1){
+        if(DiagnosticPlot & num.pixels != 1){
           	cat("Can not provide diagnostic plots for subsets larger than a single pixel")
-          	DiagnosticPlot <- FALSE}        	
+          	DiagnosticPlot <- FALSE
+        }        	
         
         # Run time-series analysis for the ith 
         for(i in 1:ncol(band.time.series)){
 
-		            
           # Minimum and maximum band values observed.
           minobsband <- min(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm = TRUE)    
           maxobsband <- max(as.numeric(band.time.series[ ,i]) * ScaleFactor, na.rm = TRUE)
@@ -234,7 +231,6 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
                    paste(round((sum(QA.time.series[ ,i] > QualityThreshold) / length(QA.time.series[ ,i])) * 100, 2),
                          "% (", sum(QA.time.series[ ,i] > QualityThreshold), "/", length(QA.time.series[ ,i]), ")", sep = ""),
                  poorquality[i] <- NA)
-          
        
         } # End of loop for time-series summary analysis for each pixel.
         
@@ -261,21 +257,21 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
         
         if(DiagnosticPlot){
         	directory <- file.path(Dir, "DiagnosticPlots")
-        	if(file.exists(directory) == FALSE)
-				dir.create(directory)
-        	filename <- file.path(directory, 
-        		paste("DiagnosticPlots_", lat, long, Product, "_", Bands[bands], "_", file.date, ".pdf", sep = ""))
+        	if(file.exists(directory) == FALSE) dir.create(directory)
+        	filename <- file.path(directory, paste("DiagnosticPlots_", lat, long, Product, "_",
+                                                 Bands[bands], "_", file.date, ".pdf", sep = ""))
         	if(data.quality == 1 | data.quality == 0){
-          		cat("Too few data points for diagnostic plot for this site\n")}
-          	else{
+          		cat("Too few data points for diagnostic plot for this site\n")
+        	} else {
         		pdf(filename)
         		SiteId <- max(paste(lat, long, year))
-          		plot(band.time.series[,i] * ScaleFactor, pch = 19, main = SiteId)
-          		if(Interpolate){lines(sout, col = "red")}
-          		if(Mean){abline(a = mean.band[i], b=0, lty = 2, col = "red")}
-          		if(Min){abline(a = band.min[i], b=0, lty = 2)}
-          		if(Max){abline(a = band.max[i], b=0, lty = 2)}
-          		dev.off()}
+          	plot(band.time.series[,i] * ScaleFactor, pch = 19, main = SiteId)
+          	if(Interpolate) lines(sout, col = "red")
+          	if(Mean) abline(a = mean.band[i], b=0, lty = 2, col = "red")
+          	if(Min) abline(a = band.min[i], b=0, lty = 2)
+          	if(Max) abline(a = band.max[i], b=0, lty = 2)
+          	dev.off()
+        	}
         }
         
       } # End of loop for Bands.
@@ -324,7 +320,6 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     band.data.site <- do.call("rbind", band.data.site)
     colnames(band.data.site) <- c("ID", "lat", "long", "start.date", "end.date", "data.band", "min.band", "max.band",
                                   "mean.band", "sd.band", "band.yield", "no.fill.data", "poor.quality.data")
-    
         
     write.table(band.data.site, file = file.path(Dir, paste("MODIS_Summary_", Product, "_", file.date, ".csv", sep = "")),
                 sep = ",", row.names = FALSE)

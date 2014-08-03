@@ -1,6 +1,9 @@
 BatchDownload <- 
 function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDate, Transect, SaveDir)
 {   
+    # DEFINE
+    NCOL_SERVER_RES <- 10
+    
     # Split band names into sets for different products.
     which.bands <- lapply(Products, function(x) which(Bands %in% GetBands(x)))
     
@@ -24,9 +27,10 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
         
         # Organise relevant MODIS dates into batches of 10. Web service getsubset function will only take 10 at a time.
         # Fill up any remaining rows in the final column to avoid data recycling.
-        ifelse((length(date.res[[prod]]) %% 10) == 0,
-               date.list <- matrix(dates[[prod]][date.res[[prod]]], nrow = 10),
-               date.list <- matrix(c(dates[[prod]][date.res[[prod]]], rep(NA, 10 - (length(date.res[[prod]]) %% 10))), nrow = 10))
+        ifelse((length(date.res[[prod]]) %% NCOL_SERVER_RES) == 0,
+               date.list <- matrix(dates[[prod]][date.res[[prod]]], nrow = NCOL_SERVER_RES),
+               date.list <- matrix(c(dates[[prod]][date.res[[prod]]], rep(NA, NCOL_SERVER_RES - (length(date.res[[prod]]) %% NCOL_SERVER_RES))),
+                                   nrow = NCOL_SERVER_RES))
         
         # Set bands for this product.
         bands <- Bands[which.bands[[prod]]]
@@ -42,7 +46,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
               # (i.e. 10 dates), looped until all requested dates have been retrieved.
               # Retrieve the batch of MODIS data and store in result
               result <- try(GetSubset(lat.long$lat[i], lat.long$long[i], Products[prod], bands[n], 
-                            date.list[1,x], date.list[10,x], Size[1], Size[2]))
+                            date.list[1,x], date.list[NCOL_SERVER_RES,x], Size[1], Size[2]))
               
               if(!is.list(result)) stop("Downloading from the web service is currently not working. Please try again later.")
               
@@ -64,7 +68,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
                   Sys.sleep(30)
                   
                   result <- try(GetSubset(lat.long$lat[i], lat.long$long[i], Products[prod], bands[n], 
-                                          date.list[1,x], date.list[10,x], Size[1], Size[2]))
+                                          date.list[1,x], date.list[NCOL_SERVER_RES,x], Size[1], Size[2]))
                   
                   if(!is.list(result)) stop("Downloading from the web service is currently not working. Please try again later.")
                   
@@ -83,8 +87,9 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
               
               # Store retrieved data in subsets. If more than 10 time-steps are requested, this runs until the final
               # column, which is downloaded after this loop.
-              subsets[[prod]][(((n - 1) * length(date.res[[prod]])) + ((x * 10) - 9)):
-                        (((n - 1) * length(date.res[[prod]])) + (x * 10))] <- result$subset[[1]]
+              result <- with(result, paste(nrow, ncol, xll, yll, pixelsize, subset[[1]], sep = ','))
+              subsets[[prod]][(((n - 1) * length(date.res[[prod]])) + ((x * NCOL_SERVER_RES) - (NCOL_SERVER_RES - 1))):
+                        (((n - 1) * length(date.res[[prod]])) + (x * NCOL_SERVER_RES))] <- result
               
             } # End of loop that reiterates for multiple batches of time-steps if the time-series is > 10 time-steps long.
           }
@@ -138,8 +143,9 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
           }
           
           # All MODIS data for a given product band now retrieved and stored in subsets.
-          subsets[[prod]][(((n - 1) * length(date.res[[prod]])) + (((ncol(date.list) - 1) * 10) + 1)):
-                    (((n - 1) * length(date.res[[prod]])) + length(date.res[[prod]]))] <- result$subset[[1]]
+          result <- with(result, paste(nrow, ncol, xll, yll, pixelsize, subset[[1]], sep = ','))
+          subsets[[prod]][(((n - 1) * length(date.res[[prod]])) + (((ncol(date.list) - 1) * NCOL_SERVER_RES) + 1)):
+                    (((n - 1) * length(date.res[[prod]])) + length(date.res[[prod]]))] <- result
           
         } # End of loop for each band. 
       } # End of loop for each product.

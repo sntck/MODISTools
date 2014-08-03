@@ -31,6 +31,7 @@ function(Dir = ".", Band)
                           "Cereal crop" = 7, "Broadleaf crop" = 8, "Urban & built-up" = 9, "Snow & ice" = 10,
                           "Barren/Sparsely vegetated" = 11, "Unclassified" = 254, "NoDataFill" = 255)
   )
+  NUM_METADATA_COLS <- 10
   ##########
   
   if(!file.exists(Dir)) stop("Character string input for Dir argument does not resemble an existing file path.")
@@ -52,8 +53,8 @@ function(Dir = ".", Band)
     cat("Processing file ", i, " of ", length(file.list), "...\n", sep="")
     
     lc.subset <- read.csv(paste(Dir, "/", file.list[i], sep = ""), header = FALSE, as.is = TRUE)
-    names(lc.subset) <- 
-      c("row.id", "land.product.code", "MODIS.acq.date", "where", "MODIS.proc.date", 1:(ncol(lc.subset) - 5))
+    names(lc.subset) <- c("nrow", "ncol", "xll", "yll", "pixelsize", "row.id", "land.product.code", 
+                          "MODIS.acq.date", "where", "MODIS.proc.date", 1:(ncol(lc.subset) - NUM_METADATA_COLS))
     
     where.long <- regexpr("Lon", lc.subset$where[1])
     where.samp <- regexpr("Samp", lc.subset$where[1])
@@ -67,8 +68,8 @@ function(Dir = ".", Band)
            stop("Cannot find which rows in LoadDat are band data. Make sure the only ascii files in the directory are 
                 those downloaded from MODISSubsets."))
     
-    lc.tiles <- as.matrix(lc.subset[which.are.band,6:ncol(lc.subset)], 
-                          nrow = length(which.are.band), ncol = length(6:ncol(lc.subset)))
+    lc.tiles <- as.matrix(lc.subset[which.are.band,(NUM_METADATA_COLS+1):ncol(lc.subset)], 
+                          nrow = length(which.are.band), ncol = length((NUM_METADATA_COLS+1):ncol(lc.subset)))
 
     if(!all(lc.tiles %in% ValidRange)) stop("Some values fall outside the valid range for the data band specified.")
     
@@ -107,8 +108,8 @@ function(Dir = ".", Band)
       # Calculate Simpson's measure of evenness
       simp.even[x] <- simp.d[x] / lc.richness[x]
       
-      no.fill[x] <- paste(round((sum(lc.subset[x,6:ncol(lc.subset)] == NoDataFill) / length(lc.tiles[x, ])) * 100, 2),
-                          "% (", sum(lc.subset[x,6:ncol(lc.subset)] == NoDataFill), "/", length(lc.tiles[x, ]), ")",
+      no.fill[x] <- paste(round((sum(lc.subset[x,(NUM_METADATA_COLS+1):ncol(lc.subset)] == NoDataFill) / length(lc.tiles[x, ])) * 100, 2),
+                          "% (", sum(lc.subset[x,(NUM_METADATA_COLS+1):ncol(lc.subset)] == NoDataFill), "/", length(lc.tiles[x, ]), ")",
                           sep = "")
       
     } # End of loop that summaries tiles at each time-step, for the ith ASCII file.
