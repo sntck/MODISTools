@@ -190,7 +190,8 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
             # Linearly interpolate between screened data points, for each pixel, over time (default is daily).
             if(Interpolate){
               if(is.null(InterpolateN)){
-                InterpolateN <- max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])
+                N <- max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])
+                InterpolateN <- round(0.9 * N)
               }
               sout <- approx(x = 1:nrow(band.time.series), y = as.numeric(band.time.series[ ,i]) * ScaleFactor,
                              method = "linear", n = InterpolateN)
