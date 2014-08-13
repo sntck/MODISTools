@@ -293,7 +293,6 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     if(nrow(ID.match) != nrow(band.data)) stop("Differing number of unique locations found between LoadDat and ASCII subsets.")
     
     res <- data.frame(cbind(details, matrix(NA, nrow = nrow(details), ncol = ncol(band.data))))
-    band.names <- mapply(function(x, y) rep(x, length.out = y), x = Bands, y = size.test)
     names(res) <- 
       c(names(details), paste(rep(Bands, each = num.pixels), "_pixel", rep(1:num.pixels, times = length(Bands)), sep = ""))
     
