@@ -286,7 +286,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     } else if(!StartDate){
       lat.long <- details[!is.na(details$lat) | !is.na(details$long) | !is.na(details$end.date), ]
       lat.long <- lat.long[!duplicated(data.frame(lat.long$lat, lat.long$long, lat.long$end.date)), ]
-    } 
+    }
     
     ID.check <- ifelse(any(names(details) == "ID"), TRUE, FALSE)
     n.unique <- FALSE
@@ -300,7 +300,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
       POSIXt <- FALSE
       posix.compatible <- try(as.POSIXlt(lat.long$end.date), silent = TRUE)
       if(any(class(lat.long$end.date) == "POSIXt") | all(class(posix.compatible) != "try-error")) POSIXt <- TRUE
-      if(all(is.numeric(lat.long$end.date) & nchar(lat.long$end.date) == 4) & 
+      if(all(is.numeric(lat.long$end.date) & nchar(as.character(lat.long$end.date)) == 4) & 
            any(class(posix.compatible) == "try-error")) Year <- TRUE
       if(!Year & !POSIXt) stop("Date information in LoadDat is not recognised as years or as POSIXt format.")
       if(Year & POSIXt) stop("Date information in LoadDat is recognised as both year and POSIXt formats.")
