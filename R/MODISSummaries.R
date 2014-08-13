@@ -101,7 +101,6 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     
     # Time-series analysis for each time-series (ASCII file) consecutively.
     band.data.site <- lapply((size.test *  length(Bands)), function(x) matrix(nrow = x, ncol = 13))
-    band.data <- matrix(nrow = length(file.list), ncol = (num.pixels * length(Bands)))
     
     for(counter in 1:length(file.list)){
       
@@ -253,9 +252,6 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
                           poor.quality.data = poorquality),
                  nrow = num.pixels, ncol = 13)
         
-        # Extract mean band values.
-        band.data[counter,(((bands - 1) * num.pixels) + 1):(num.pixels * bands)] <- mean.band
-        
         if(DiagnosticPlot){
         	directory <- file.path(Dir, "DiagnosticPlots")
         	if(file.exists(directory) == FALSE) dir.create(directory)
@@ -279,48 +275,86 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
       
     } # End of loop for each ASCII file.
     
-    # Append the summaries for each pixel, for each time-series, to the original input dataset (details).
-    ifelse(StartDate,
-           ID.match <- data.frame(lat = details$lat[!is.na(details$lat)],
-                                  long = details$long[!is.na(details$lat)],
-                                  end.date = details$end.date[!is.na(details$lat)],
-                                  start.date = details$start.date[!is.na(details$lat)]),
-           ID.match <- data.frame(lat = details$lat[!is.na(details$lat)],
-                                  long = details$long[!is.na(details$lat)],
-                                  end.date = details$end.date[!is.na(details$lat)]))
-    ID.match <- ID.match[!duplicated(ID.match), ]
+    band.data.site <- as.data.frame(do.call("rbind", band.data.site), stringsAsFactors = FALSE)
+    names(band.data.site) <- c("ID", "lat", "long", "start.date", "end.date", "data.band", "min.band", "max.band",
+                               "mean.band", "sd.band", "band.yield", "no.fill.data", "poor.quality.data")
     
-    if(nrow(ID.match) != nrow(band.data)) stop("Differing number of unique locations found between LoadDat and ASCII subsets.")
+    ### Create SubsetID variable as created in MODISSubsets for correct matching.    
+    if(StartDate){
+      lat.long <- details[!is.na(details$lat) | !is.na(details$long) | !is.na(details$end.date) | !is.na(details$start.date), ]
+      lat.long <- lat.long[!duplicated(data.frame(lat.long$lat, lat.long$long, lat.long$end.date, lat.long$start.date)), ]
+    } else if(!StartDate){
+      lat.long <- details[!is.na(details$lat) | !is.na(details$long) | !is.na(details$end.date), ]
+      lat.long <- lat.long[!duplicated(data.frame(lat.long$lat, lat.long$long, lat.long$end.date)), ]
+    } 
     
-    res <- data.frame(cbind(details, matrix(NA, nrow = nrow(details), ncol = ncol(band.data))))
-    names(res) <- 
-      c(names(details), paste(rep(Bands, each = num.pixels), "_pixel", rep(1:num.pixels, times = length(Bands)), sep = ""))
-    
-    # Convert POSIXt dates to 'Date' class and then numeric for matching.
-    if(POSIXt){
-      details$end.date <- as.numeric(as.Date(details$end.date, origin = "1900-01-01"))
-      ID.match$end.date <- as.numeric(as.Date(ID.match$end.date, origin = "1900-01-01"))
+    ID.check <- ifelse(any(names(details) == "ID"), TRUE, FALSE)
+    n.unique <- FALSE
+    if(ID.check){
+      # Check if ID variable can identify unique time series
+      n.unique <- length(unique(lat.long$ID)) == nrow(lat.long)
+      if(n.unique) names(lat.long)[names(lat.long) == "ID"] <- "SubsetID"
+    } else if(!ID.check | !n.unique){
+      # Create end.date and start.date
+      Year <- FALSE
+      POSIXt <- FALSE
+      posix.compatible <- try(as.POSIXlt(lat.long$end.date), silent = TRUE)
+      if(any(class(lat.long$end.date) == "POSIXt") | all(class(posix.compatible) != "try-error")) POSIXt <- TRUE
+      if(all(is.numeric(lat.long$end.date) & nchar(lat.long$end.date) == 4) & 
+           any(class(posix.compatible) == "try-error")) Year <- TRUE
+      if(!Year & !POSIXt) stop("Date information in LoadDat is not recognised as years or as POSIXt format.")
+      if(Year & POSIXt) stop("Date information in LoadDat is recognised as both year and POSIXt formats.")
       
-      if(StartDate){
-        details$start.date <- as.numeric(as.Date(details$start.date, origin = "1900-01-01"))
-        ID.match$start.date <- as.numeric(as.Date(ID.match$start.date, origin = "1900-01-01"))
+      if(Year){
+        end.date <- strptime(paste(lat.long$end.date, "-12-31", sep = ""), "%Y-%m-%d")
+        if(StartDate){
+          start.year.fail <- any(!is.numeric(lat.long$start.date) | nchar(lat.long$start.date) != 4)
+          if(start.year.fail) stop("end.date identified as year dates, but start.date does not match.")
+          start.date <- strptime(paste(lat.long$start.date, "-01-01", sep = ""), "%Y-%m-%d")
+        }
+      } else if(POSIXt){
+        end.date <- strptime(lat.long$end.date, "%Y-%m-%d")     
+        if(StartDate){
+          start.posix.fail <- any(class(try(as.POSIXlt(lat.long$end.date), silent = TRUE)) == "try-error")
+          if(start.posix.fail) stop("end.date identified as POSIXt dates, but start.date does not match.")
+          start.date <- strptime(lat.long$start.date, "%Y-%m-%d")
+        }
       }
+      if(!StartDate){
+        date.ids <- mapply(function(x,y,z) unique(band.data.site$ID[band.data.site$lat == x &
+                                                                    band.data.site$long == y &
+                                                                    grepl(z, band.data.site$ID)]),
+                             x = lat.long$lat, y = lat.long$long, z = as.character(end.date))
+        if(!all(sapply(date.ids, length) == 1)){
+          stop("Couldn't match summarised data back with original dataset.\n",
+               "Make sure LoadDat is exact same dataset used to download MODIS data being summarised.")
+        }
+        start.date <- substr(date.ids, regexpr("Start", date.ids)+5, regexpr("End", date.ids)-1)
+      }
+      lat.long <- data.frame(SubsetID = paste("Lat", sprintf("%.5f", lat.long$lat), "Lon", sprintf("%.5f", lat.long$long),
+                                              "Start", start.date, "End", end.date, sep = ""),
+                             lat.long, stringsAsFactors = FALSE)
     }
+    ###
     
-    # Use FindID for each row of ID.match, to add the right band subscripts to the right details subscripts.
-    for(i in 1:nrow(ID.match)){
-      match.subscripts <- FindID(ID.match[i, ], details)
-      if(all(match.subscripts != "No matches found.")){
-        for(x in 1:length(match.subscripts)) res[match.subscripts[x],(ncol(details) + 1):ncol(res)] <- band.data[i, ]
-      }
+    res <- data.frame(cbind(details, matrix(NA, nrow = nrow(details), ncol = 1+(num.pixels * length(Bands)))))
+    names(res) <- 
+      c(names(details), "SubsetID",
+        paste(rep(Bands, each = num.pixels), "_pixel", rep(1:num.pixels, times = length(Bands)), sep = ""))
+    
+    for(i in 1:length(lat.long$SubsetID)){
+      res$SubsetID[sprintf("%.5f", res$lat) %in% sprintf("%.5f", as.numeric(lat.long$lat[i])) &
+                     sprintf("%.5f", res$long) %in% sprintf("%.5f", as.numeric(lat.long$long[i])) &
+                     res$end.date %in% lat.long$end.date[i]] <- lat.long$SubsetID[i]
+      res[res$SubsetID %in% lat.long$SubsetID[i],(which(names(res) == "SubsetID")+1):ncol(res)] <- 
+        matrix(band.data.site$mean.band[band.data.site$ID == lat.long$SubsetID[i]],
+               nrow = nrow(res[res$SubsetID %in% lat.long$SubsetID[i],(which(names(res) == "SubsetID")+1):ncol(res)]),
+               ncol = ncol(res[res$SubsetID %in% lat.long$SubsetID[i],(which(names(res) == "SubsetID")+1):ncol(res)]),
+               byrow = TRUE)
     }
     
     #####
     # Write output summary file by appending summary data from all files, producing one file of summary stats output.
-    band.data.site <- do.call("rbind", band.data.site)
-    colnames(band.data.site) <- c("ID", "lat", "long", "start.date", "end.date", "data.band", "min.band", "max.band",
-                                  "mean.band", "sd.band", "band.yield", "no.fill.data", "poor.quality.data")
-        
     write.table(band.data.site, file = file.path(Dir, paste("MODIS_Summary_", Product, "_", file.date, ".csv", sep = "")),
                 sep = ",", row.names = FALSE)
     

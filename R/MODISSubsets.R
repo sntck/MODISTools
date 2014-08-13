@@ -142,7 +142,8 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     	} else {
     		cat("Number of unique IDs does not match number of unique time series. Creating new ID field.")
     		ID <- paste("Lat", sprintf(fmt, lat.long$lat), "Lon", sprintf(fmt, lat.long$long), "Start", start.date, "End", end.date, sep = "")
-    		lat.long <- data.frame(SubsetID = ID, lat.long, Status = rep(NA, nrow(lat.long)))}
+    		lat.long <- data.frame(SubsetID = ID, lat.long, Status = rep(NA, nrow(lat.long)))
+    	}
     } else {
     	ID <- paste("Lat", sprintf(fmt, lat.long$lat), "Lon", sprintf(fmt, lat.long$long), "Start", start.date, "End", end.date, sep = "")
     	lat.long <- data.frame(SubsetID = ID, lat.long, Status = rep(NA, nrow(lat.long)))
