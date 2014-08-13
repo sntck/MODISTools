@@ -153,7 +153,7 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
       subsets <- do.call("c", subsets)
             
       ##### Check that there is no missing data in the download & log download status accordingly.
-      if(length(subsets) != subsets.length | any(is.na(subsets))){
+      if(length(subsets) != subsets.length | any(is.na(subsets)) | any(substr(subsets, nchar(subsets), nchar(subsets)) == ",")){
         lat.long$Status[i] <- "Missing data in subset: try downloading again"
         cat("Missing information for time-series ", lat.long$ID[i], ". See subset download file.\n", sep = "")
       } else {
