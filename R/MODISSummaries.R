@@ -190,8 +190,9 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
             # Linearly interpolate between screened data points, for each pixel, over time (default is daily).
             if(Interpolate){
               if(is.null(InterpolateN)){
-                N <- max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])
-                InterpolateN <- round(0.9 * as.numeric(N))
+                #N <- max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])
+
+                InterpolateN <- round(0.9 * as.numeric(length(band.time.series)))
               }
               sout <- approx(x = 1:nrow(band.time.series), y = as.numeric(band.time.series[ ,i]) * ScaleFactor,
                              method = "linear", n = InterpolateN)
@@ -256,19 +257,19 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
         if(DiagnosticPlot){
         	directory <- file.path(Dir, "DiagnosticPlots")
         	if(file.exists(directory) == FALSE) dir.create(directory)
-        	filename <- file.path(directory, paste("DiagnosticPlots_", lat, long, Product, "_",
-                                                 Bands[bands], "_", file.date, ".pdf", sep = ""))
+        	filename <- file.path(directory, paste(id[counter], Product,
+                                                 Bands[bands], file.date, ".pdf", sep = "_"))
         	if(data.quality == 1 | data.quality == 0){
           		cat("Too few data points for diagnostic plot for this site\n")
         	} else {
         		pdf(filename)
         		SiteId <- max(paste(lat, long, year))
-          	plot(band.time.series[,i] * ScaleFactor, pch = 19, main = SiteId)
-          	if(Interpolate) lines(sout, col = "red")
-          	if(Mean) abline(a = mean.band[i], b=0, lty = 2, col = "red")
-          	if(Min) abline(a = band.min[i], b=0, lty = 2)
-          	if(Max) abline(a = band.max[i], b=0, lty = 2)
-          	dev.off()
+          		plot(band.time.series[,i] * ScaleFactor, pch = 19, main = id[counter], xlab = "Timestep", ylab = Bands[bands], ylim = c(-0.1, 1))
+          		if(Interpolate) lines(sout, col = "red")
+          		if(Mean) abline(a = mean.band[i], b=0, lty = 2, col = "red")
+          		if(Min) abline(a = band.min[i], b=0, lty = 2)
+          		if(Max) abline(a = band.max[i], b=0, lty = 2)
+          		dev.off()
         	}
         }
         
