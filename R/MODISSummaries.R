@@ -96,9 +96,10 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     
     # Extract IDs for ASCII files so they can be included in summary output; ncol = length(file.list), nrow = size.test.
     where.id <- regexpr("___", file.list)
+
     id <- matrix(unname(mapply(function(x, y, z) rep(substr(x, 1, y - 1), z), x = file.list, y = where.id, z = size.test,
                                SIMPLIFY = "array")), nrow = size.test, ncol = length(file.list))
-    
+
     # Time-series analysis for each time-series (ASCII file) consecutively.
     band.data.site <- lapply((size.test *  length(Bands)), function(x) matrix(nrow = x, ncol = 13))
     
@@ -190,7 +191,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
             if(Interpolate){
               if(is.null(InterpolateN)){
                 N <- max(ds$date[!is.na(band.time.series[ ,i])]) - min(ds$date[!is.na(band.time.series[ ,i])])
-                InterpolateN <- round(0.9 * N)
+                InterpolateN <- round(0.9 * as.numeric(N))
               }
               sout <- approx(x = 1:nrow(band.time.series), y = as.numeric(band.time.series[ ,i]) * ScaleFactor,
                              method = "linear", n = InterpolateN)
