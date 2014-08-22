@@ -56,7 +56,7 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
       if(abs(TimeSeriesLength[1] - round(TimeSeriesLength[1])) > .Machine$double.eps^0.5){
         stop("TimeSeriesLength must be a positive integer.")
       }
-      if(TimeSeriesLength <= 0) stop("TimeSeriesLength must be a positive integer.")
+      if(TimeSeriesLength < 0) stop("TimeSeriesLength must be a positive integer.")
     }
     #####
     
