@@ -29,6 +29,9 @@ The data are in the MODIS projection system. When converted these ASCII raster g
          \code{\link{ExtractTile}}
          }
 \examples{
+\dontrun{ 
+# dontrun() used because running the example requires internet access.
+
 dat <- EndCoordinatesExample
 names(dat) <- c("lat", "long", "start.date", "end.date", "ID")
 
@@ -36,4 +39,5 @@ MODISSubsets(dat, Products = "MOD13Q1", Size = c(1,1), StartDate = TRUE,
              Bands = c("250m_16_days_EVI", "250m_16_days_NDVI", "250m_16_days_pixel_reliability"))
 MODISGrid(NoDataValues = c("250m_16_days_EVI" = -3000, "250m_16_days_NDVI" = -3000,
                            "250m_16_days_pixel_reliability" = -1))
+        }
 }
