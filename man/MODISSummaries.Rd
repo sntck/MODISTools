@@ -7,7 +7,7 @@
 \usage{MODISSummaries(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataFill,
 ScaleFactor, StartDate = FALSE, QualityScreen = FALSE, QualityBand = NULL, 
 QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE, Yield = FALSE, 
-Interpolate = FALSE, InterpolateN = NULL)
+Interpolate = FALSE, InterpolateN = NULL, DiagnosticPlot = FALSE)
 }
 \arguments{
   \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, dates (end date, and optionally start date) and study ID for each location. If IDs are found in LoadDat that provide a primary key for unique time series then these IDs will be used. Otherwise a set of unique IDs will be generated and used to identify, and file name, each time series.
@@ -42,8 +42,10 @@ Interpolate = FALSE, InterpolateN = NULL)
   }
   \item{Interpolate}{Logical; determines whether, after poor quality data is removed, to linearly interpolate between high quality data before calculating the summary statistics. Must be TRUE if Yield = TRUE. The interpolation function used is stats::approx. See ?stats::approx for more details.
   }
-  \item{InterpolateN}{Numeric; if Interpolate = TRUE, optionally set the number interpolated data points to be requested from the time-series interpolation. The default is set to a daily interpolation of the data.}
-  \item{DiagnosticPlot}{Logical; if TRUE will produce an additional folder in the specified directory to which plots of the time series data for each site will be saved. Will add the interpolation line, mean, min and max values if specified in the function call.}
+  \item{InterpolateN}{Numeric; if Interpolate = TRUE, optionally set the number interpolated data points to be requested from the time-series interpolation. The default is set to a daily interpolation of the data.
+  }
+  \item{DiagnosticPlot}{Logical; if TRUE will produce an additional folder in the specified directory to which plots of the time series data for each site will be saved. Will add the interpolation line, mean, min and max values if specified in the function call.
+  }
 }
 \details{If QualityScreen = TRUE, subsets to be processed should include a pixel reliability layer, so the data can be screened for poor quality data, removing them and using linear interpolation to refill data between high quality values.
 }

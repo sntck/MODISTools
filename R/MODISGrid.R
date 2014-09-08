@@ -5,7 +5,7 @@ function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
   NUM_METADATA_COLS <- 10
   
   if(Dir == '.') cat('Files downloaded will be written to ', file.path(getwd(), DirName), '.\n', sep = '')
-  if(Dir != '.') cat('Files downloaded will be written to ', file.path(SaveDir, DirName), '.\n', sep = '')
+  if(Dir != '.') cat('Files downloaded will be written to ', file.path(Dir, DirName), '.\n', sep = '')
   
   # Create directory for storing new grid files.
   if(!file.exists(file.path(Dir, DirName))) dir.create(path = file.path(Dir, DirName))
