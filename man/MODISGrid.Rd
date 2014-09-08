@@ -26,8 +26,8 @@ The data are in the MODIS projection system. When converted these ASCII raster g
 }
 \seealso{\code{\link{MODISSubsets}}
          \code{\link{MODISSummaries}}
-         \code{\link{ExtractTile}}}
-}
+         \code{\link{ExtractTile}}
+         }
 \examples{
 dat <- EndCoordinatesExample
 names(dat) <- c("lat", "long", "start.date", "end.date", "ID")
