@@ -15,12 +15,23 @@ function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
   file.list <- file.list[grepl("___", file.list)]
   if(length(file.list) == 0) stop("Could not find any MODIS data files in directory specified.")
 
+  # Check NoDataValues is a list of named vectors
+  if(!is.list(NoDataValues)) stop("NoDataValues should be a list of named vectors. See help doc.")
+
+  # Check the number of products in NoDataValues list equals the number found in file.list
+  prod.set <- unique(do.call(c, as.vector(lapply(
+      file.path(Dir, file.list), function(x) read.csv(x, header = FALSE, as.is = TRUE)[ ,7]
+  ))))
+  if(!all(prod.set %in% names(NoDataValues))) stop("Mismatch between NoDataValues and data products found in files.")
+
   # Check that NoDataValues value is specified for every data band found in file.list
   band.set <- unique(as.vector(sapply(
       lapply(file.path(Dir, file.list), function(x) read.csv(x, header = FALSE, as.is = TRUE)[ ,6]),
       function(x) unique(substr(x, (gregexpr(".", x, fixed = TRUE)[[1]][5] + 1), nchar(x)))
   )))
-  if(!identical(band.set, names(NoDataValues))) stop("Mismatch between NoDataValues and data bands found in files.")
+  if(!all(band.set %in% names(do.call(c, unname(NoDataValues))))){
+    stop("Mismatch between NoDataValues and data bands found in files.")
+  }
 
   for(i in 1:length(file.list)){
 
@@ -52,7 +63,7 @@ function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
               sprintf("xllcorner\t %.2f", data.file$xll[n]),
               sprintf("yllcorner\t %.2f", data.file$yll[n]),
               sprintf("cellsize\t %s", as.character(data.file$pixelsize[n])),
-              sprintf("NODATA_value\t %s", as.character(NoDataValues[data.band]))),
+              sprintf("NODATA_value\t %s", as.character(NoDataValues[[data.file$product.code[n]]][data.band]))),
             file = file.path(paste0(path, ".asc")))
 
       WritePRJ(Path = file.path(paste0(path, ".prj")))
