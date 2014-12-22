@@ -11,7 +11,7 @@ bibentry(bibtype = "Article",
 	 author = c(person(c("Sean", "L."), "Tuck"),
 			person(c("Helen", "R.P."), "Phillips"),
 			person(c("Rogier", "E."), "Hintzen"),
-			person(c("Jörn", "P.W."), "Scharlemann"),
+			person(c("J{\"o}rn", "P.W."), "Scharlemann"),
 			person("Andy", "Purvis"),
 			person(c("Lawrence", "N."), "Hudson")
 			)
@@ -24,7 +24,7 @@ bibentry(bibtype = "Article",
 		land processes, macroecology, PREDICTS, remote-sensing, satellite imagery",
 	 url = "http://onlinelibrary.wiley.com/doi/10.1002/ece3.1273/full",
 	 textVersion = paste("Sean L. Tuck, Helen R.P. Phillips, Rogier E. Hintzen",
-			     "Jörn P.W. Scharlemann, Andy Purvis, Lawrence N. Hudson",
+			     "J{\"o}rn P.W. Scharlemann, Andy Purvis, Lawrence N. Hudson",
 			     "(2014) MODISTools – downloading and processing MODIS remotely",
 			     "sensed data in R. Ecology and Evolution, 4 (24), 4658–4668.")
 )
