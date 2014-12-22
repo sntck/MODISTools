@@ -6,7 +6,7 @@ year <- sub("-.*", "", meta$Date)
 note <- sprintf("R package version %s", meta$Version)
 
 bibentry(bibtype = "Article",
-	 title = "MODISTools – downloading and processing MODIS remotely sensed data in R",
+	 title = "MODISTools -- downloading and processing MODIS remotely sensed data in R",
 	 year = "2014",
 	 author = c(person(c("Sean", "L."), "Tuck"),
 			person(c("Helen", "R.P."), "Phillips"),
@@ -18,15 +18,15 @@ bibentry(bibtype = "Article",
 	 note = "\emph{Ecology and Evolution}",
 	 volume = "4",
 	 number = "24",
-	 pages = "4658–4668",
+	 pages = "4658--4668",
 	 doi = "10.1002/ece3.1273",
 	 keywords = "Conservation biology, earth observation, global change,
 		land processes, macroecology, PREDICTS, remote-sensing, satellite imagery",
 	 url = "http://onlinelibrary.wiley.com/doi/10.1002/ece3.1273/full",
 	 textVersion = paste("Sean L. Tuck, Helen R.P. Phillips, Rogier E. Hintzen",
 			     "J{\"o}rn P.W. Scharlemann, Andy Purvis, Lawrence N. Hudson",
-			     "(2014) MODISTools – downloading and processing MODIS remotely",
-			     "sensed data in R. Ecology and Evolution, 4 (24), 4658–4668.")
+			     "(2014) MODISTools -- downloading and processing MODIS remotely",
+			     "sensed data in R. Ecology and Evolution, 4 (24), 4658--4668.")
 )
 
 bibentry(bibtype = "Manual",
