@@ -15,7 +15,7 @@ bibentry(bibtype = "Article",
 			person("Andy", "Purvis"),
 			person(c("Lawrence", "N."), "Hudson")
 			),
-	 note = "\emph{Ecology and Evolution}",
+	 note = "\\emph{Ecology and Evolution}",
 	 volume = "4",
 	 number = "24",
 	 pages = "4658--4668",
@@ -26,7 +26,7 @@ bibentry(bibtype = "Article",
 	 textVersion = paste("Sean L. Tuck, Helen R.P. Phillips, Rogier E. Hintzen",
 			     "J{\"o}rn P.W. Scharlemann, Andy Purvis, Lawrence N. Hudson",
 			     "(2014) MODISTools -- downloading and processing MODIS remotely",
-			     "sensed data in R. Ecology and Evolution, 4 (24), 4658--4668.")
+			     "sensed data in R. \\emph{Ecology and Evolution}, 4 (24), 4658--4668.")
 )
 
 bibentry(bibtype = "Manual",
