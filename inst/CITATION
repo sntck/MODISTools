@@ -22,15 +22,11 @@ bibentry(bibtype = "Article",
 	 doi = "10.1002/ece3.1273",
 	 keywords = "Conservation biology, earth observation, global change,
 		land processes, macroecology, PREDICTS, remote-sensing, satellite imagery",
-	 url = "http://onlinelibrary.wiley.com/doi/10.1002/ece3.1273/full",
-	 textVersion = paste("Sean L. Tuck, Helen R.P. Phillips, Rogier E. Hintzen",
-			     "J{\"o}rn P.W. Scharlemann, Andy Purvis, Lawrence N. Hudson",
-			     "(2014) MODISTools -- downloading and processing MODIS remotely",
-			     "sensed data in R. \\emph{Ecology and Evolution}, 4 (24), 4658--4668.")
+	 url = "http://onlinelibrary.wiley.com/doi/10.1002/ece3.1273/full"
 )
 
 bibentry(bibtype = "Manual",
-	 title = "{MODISTools}: MODIS Subsetting Tools",
+	 title = "MODISTools: MODIS Subsetting Tools",
 	 author = c(person("Sean", "Tuck"), person("Helen", "Phillips")),
 	 year = year,
 	 note = note,
