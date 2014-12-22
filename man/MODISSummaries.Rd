@@ -5,8 +5,8 @@
 \description{A function to run time-series analysis and compute summary statistics for a downloaded MODIS subset, writing a summary file and another file with processed MODIS data tagged onto the original file inputted to MODISSubsets. This function allows the user to easily explore the characteristics of the downloaded data, and then process them into a form that is ready for use in modelling.
 }
 \usage{MODISSummaries(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataFill,
-ScaleFactor, StartDate = FALSE, QualityScreen = FALSE, QualityBand = NULL, 
-QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE, Yield = FALSE, 
+ScaleFactor, StartDate = FALSE, QualityScreen = FALSE, QualityBand = NULL,
+QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE, Yield = FALSE,
 Interpolate = FALSE, InterpolateN = NULL, DiagnosticPlot = FALSE)
 }
 \arguments{
@@ -56,9 +56,9 @@ The second file (MODIS_Data...) that has the information from the original file 
 }
 \references{
   \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-  
-  \url{https://lpdaac.usgs.gov/products/modis_products_table}
-  
+
+  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
+
   \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 }
 \author{Sean Tuck}
@@ -66,13 +66,13 @@ The second file (MODIS_Data...) that has the information from the original file 
           \code{\link[MODISTools:QualityCheck]{QualityCheck}}
 }
 \examples{
-\dontrun{ 
-# dontrun() used because running the example requires internet access, 
+\dontrun{
+# dontrun() used because running the example requires internet access,
 # and takes over a minute to run.
 
 data(SubsetExample)
 
-MODISSubsets(LoadDat = SubsetExample, Products = "MOD13Q1",     
+MODISSubsets(LoadDat = SubsetExample, Products = "MOD13Q1",
              Bands = c("250m_16_days_EVI", "250m_16_days_NDVI", "250m_16_days_pixel_reliability"),
              Size = c(0,0), StartDate = TRUE)
 
@@ -86,12 +86,12 @@ MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1", Bands = "250m_16_da
                ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001,
                StartDate = TRUE, QualityScreen = TRUE, QualityThreshold = 0,
                QualityBand = "250m_16_days_pixel_reliability")
-               
+
 # For both EVI and NDVI
 MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1",
                Bands = c("250m_16_days_EVI","250m_16_days_NDVI"),
                ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001,
                StartDate = TRUE, QualityScreen = TRUE, QualityThreshold = 0,
                QualityBand = "250m_16_days_pixel_reliability")
-    }  
+    }
 }
