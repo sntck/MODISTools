@@ -16,6 +16,10 @@ Tuck, S.L., Phillips, H.R.P., Hintzen, R.E., Scharlemann, J.P.W., Purvis, A. and
 Some of the changes in recent updates:
 * New function, `MODISGrid`, that takes downloaded ASCII files and converts them into ASCII grid files, which can be used in a GIS environment.
 * Optional time-series plots for diagnostics as output from `MODISSummaries`.
+* `MODISGrid` now writes MODIS projection (PRJ) files for all ASCII raster grids, so their correct projection is defined. These files can now be loaded directly into a GIS environment.
+* `MODISGrid` now more flexibly deals with data files that contain multiple products.
+* Citation for publication in Ecology and Evolution added.
+* Documentation and 'Using MODISTools' vignette updated.
 
 Changes coming soon:
 * More product-specific time-series summaries in `MODISSummaries`.
