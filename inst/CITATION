@@ -15,7 +15,7 @@ bibentry(bibtype = "Article",
 			person("Andy", "Purvis"),
 			person(c("Lawrence", "N."), "Hudson")
 			),
-	 journal = "\\emph{Ecology and Evolution}",
+	 journal = "Ecology and Evolution",
 	 volume = "4",
 	 number = "24",
 	 pages = "4658--4668",
