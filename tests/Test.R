@@ -28,7 +28,7 @@ if(class(try(GetProducts(), silent = TRUE)) == "try-error") q()
 
 # Check the XML response is as expected.
 getsubset.xml <- paste('
-<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
               xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daac.ornl.gov/MODIS_webservice">
                         <soapenv:Header/>
                         <soapenv:Body>
@@ -77,12 +77,11 @@ QualityCheck(Data = EVIdata, Product = "MOD13Q1", Band = "250m_16_days_EVI", NoD
              QualityBand = "250m_16_days_pixel_reliability", QualityScores = QAdata, QualityThreshold = 0)
 ###
 
-# Check we can still reach the server for lpdaac modis web service before running functions that request.
-if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 # Check MODIS subset uses this output to produce correctly downloaded files.
-if(grepl("Server is busy handling other requests", 
-         GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MCD12Q1", Band = "Land_Cover_Type_1",
-                   StartDate = "A2005001", EndDate = "A2005001", KmAboveBelow = 0, KmLeftRight = 0)$subset[1])){
+request <- GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MCD12Q1", Band = "Land_Cover_Type_1",
+                     StartDate = "A2005001", EndDate = "A2005001", KmAboveBelow = 0, KmLeftRight = 0)$subset[1]
+if(grepl("Server is busy handling other requests", request) | grepl("System overloaded", request) |
+     grepl("Downloading from the web service is currently not working", request)){
   q()
 } else {
   # Check GetSubset is producing the correct output.
@@ -90,23 +89,14 @@ if(grepl("Server is busy handling other requests",
   Product <- GetProducts()[1]
   Band <- GetBands(Product)[1]
   Dates <- GetDates(SubsetExample$lat, SubsetExample$long, Product)[1:2]
-  
-  GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = Product, Band = Band, 
+
+  GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = Product, Band = Band,
             StartDate = Dates[1], EndDate = Dates[1], KmAboveBelow = 0, KmLeftRight = 0)
-  
+
   MODISSubsets(LoadDat = SubsetExample, Product = "MCD12Q1", Bands = c("Land_Cover_Type_1"),
                Size = c(1,1), StartDate = TRUE)
-}
 
-# Check we can still reach the server for lpdaac modis web service before running functions that request.
-if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
-# Check example run of MODISSummaries.
-if(grepl("Server is busy handling other requests", 
-         GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MOD13Q1", Band = "250m_16_days_EVI", 
-                   StartDate = "A2000049", EndDate = "A2000049", KmAboveBelow = 0, KmLeftRight = 0)$subset[1])){
-  q()
-} else {
-  MODISSummaries(LoadDat = SubsetExample, Product = "MCD12Q1", Band = "Land_Cover_Type_1", 
+  MODISSummaries(LoadDat = SubsetExample, Product = "MCD12Q1", Band = "Land_Cover_Type_1",
                  ValidRange = c(0,254), NoDataFill = 255, ScaleFactor = 1, StartDate = TRUE)
 }
 
@@ -121,15 +111,11 @@ if(!file.check){
   warning("The two output files from MODISSummaries are not consistent.")
 }
 
-# Check again that the web service is responsive.
-if(class(try(GetProducts(), silent = TRUE)) == "try-error") q()
-
-# Check we can still reach the server for lpdaac modis web service before running functions that request.
-if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 # Check example of MODISTransects
-if(grepl("Server is busy handling other requests", 
-         GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MOD13Q1", Band = "250m_16_days_EVI",
-                   StartDate = "A2000049", EndDate = "A2000049", KmAboveBelow = 0, KmLeftRight = 0)$subset[1])){
+request <- GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MOD13Q1", Band = "250m_16_days_EVI",
+                     StartDate = "A2000049", EndDate = "A2000049", KmAboveBelow = 0, KmLeftRight = 0)$subset[1]
+if(grepl("Server is busy handling other requests", request) | grepl("System overloaded", request) |
+     grepl("Downloading from the web service is currently not working", request)){
   q()
 } else {
   MODISTransects(LoadData = TransectExample, Product = "MCD12Q1", Bands = c("Land_Cover_Type_1"),
