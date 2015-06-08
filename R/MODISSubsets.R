@@ -193,7 +193,7 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
       cat("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...\n")
 
       lat.long[success.check, ] <- BatchDownload(lat.long = lat.long[success.check, ], dates = dates, MODIS.start = MODIS.start,
-                                                 MODIS|.end = MODIS.end, Bands = Bands, Products = Products, Size = Size,
+                                                 MODIS.end = MODIS.end, Bands = Bands, Products = Products, Size = Size,
                                                  StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
 
       success.check <- lat.long$Status != "Successful download"
