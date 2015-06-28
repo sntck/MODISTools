@@ -1,4 +1,5 @@
 importFrom(RCurl, basicTextGatherer, curlPerform)
 importFrom(XML, xmlRoot, xmlTreeParse, xmlSApply, xmlValue)
+import(R6)
 
 exportPattern("^[^\\.]")
