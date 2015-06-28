@@ -1,72 +1,26 @@
 MODISSubsets <-
-function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
+function(LoadDat, Products, Bands, Size, StartDate = FALSE, TimeSeriesLength = 0, ...)
 {
-    if(SaveDir == '.') cat('Files downloaded will be written to ', getwd(), '.\n', sep = '')
-    if(SaveDir != '.') cat('Files downloaded will be written to ', SaveDir, '.\n', sep = '')
+    ## Retrieve list of optional arguments.
+    optionalInput <- list(...)
 
-    # Load data of locations; external data file, or an R object.
-    if(!is.object(LoadDat) & !is.character(LoadDat)) stop("LoadDat must be an object in R or a file path character string.")
-    if(is.object(LoadDat)) dat <- data.frame(LoadDat)
-    if(is.character(LoadDat)){
-      if(!file.exists(LoadDat)) stop("Character string input for LoadDat does not resemble an existing file path.")
-      if(is.null(FileSep)) stop("To load a file as input, you must also specify its delimiter (FileSep).")
-      dat <- read.delim(LoadDat, sep = FileSep)
-    }
+    ## Instantiate an object of class ModisRequest using input arguments from MODISSubsets call.
+    request <- ModisRequest$new(mget(ls()))
+
+    ## Perform defensive checks on input.
+    request$validateInput()
 
     #####
-    # Check lat and long data frame columns are named "lat" and "long" as necessary.
-    if(!any(names(dat) == "lat") & !any(names(dat) == "long")){
-      stop("Could not find columns for latitude and longitude in your data set. Must be named 'lat' and 'long'.")
-    }
-    # Check lats and longs are valid.
-    if(abs(dat$lat) > 90 || abs(dat$long) > 180) stop("Detected some lats or longs beyond the range of valid coordinates.")
-
-    # Check for missing lat/long data
-    if(any(is.na(dat$lat) != is.na(dat$long))) stop("There are locations with incomplete coordinates.")
-
     # Check to see if IDs have been given in data frame.
-    ID <- ifelse(any(names(dat) == "ID"), TRUE, FALSE)
-
-    # Check that the input data set contains dates, named end.date.
-    if(!any(names(dat) == "end.date")) stop("Dates for time series must be included and named 'end.date'.")
-
-    # Now that incomplete coordinates have been checked for, check also that each coordinate has date information.
-    if(any(is.na(dat$lat) != is.na(dat$end.date))) stop("Not all coordinates have a corresponding date.")
-
-    # Check SaveDir matches an existing directory.
-    if(!file.exists(SaveDir)) stop("Input for SaveDir does not resemble an existing file path.")
-
-    # Check StartDate is logial.
-    if(!is.logical(StartDate)) stop("StartDate must be logical.")
-
-    # Set of stop-if-nots to run if StartDate == TRUE.
-    if(StartDate){
-      # Check that the input data set contains start dates, named start.date.
-      if(!any(names(dat) == "start.date")) stop("StartDate = TRUE, but 'start.date' not found in the data set.")
-      # Check that each coordinate has start date information.
-      if(any(is.na(dat$lat) != is.na(dat$start.date))) stop("Not all coordinates have a corresponding start date.")
-    }
-
-    if(!StartDate){
-      # Check TimeSeriesLength is correctly inputted.
-      if(!is.numeric(TimeSeriesLength)) stop("TimeSeriesLength should be numeric class.")
-
-      if(length(TimeSeriesLength) != 1) stop("TimeSeriesLength must be one numeric element.")
-
-      if(abs(TimeSeriesLength[1] - round(TimeSeriesLength[1])) > .Machine$double.eps^0.5){
-        stop("TimeSeriesLength must be a positive integer.")
-      }
-      if(TimeSeriesLength < 0) stop("TimeSeriesLength must be a positive integer.")
-    }
-    #####
+    ID <- ifelse(any(names(request$inputData) == "ID"), TRUE, FALSE)
 
     # Remove any incomplete time series.
-    if(StartDate) dat <- dat[!is.na(dat$lat) | !is.na(dat$long) | !is.na(dat$end.date) | !is.na(dat$start.date), ]
-    if(!StartDate) dat <- dat[!is.na(dat$lat) | !is.na(dat$long) | !is.na(dat$end.date), ]
+    if(StartDate) request$inputData <- request$inputData[!is.na(request$inputData$lat) | !is.na(request$inputData$long) | !is.na(request$inputData$end.date) | !is.na(request$inputData$start.date), ]
+    if(!StartDate) request$inputData <- request$inputData[!is.na(request$inputData$lat) | !is.na(request$inputData$long) | !is.na(request$inputData$end.date), ]
 
     # Find all unique time-series wanted, for each unique location.
-    if(StartDate) lat.long <- dat[!duplicated(data.frame(dat$lat, dat$long, dat$end.date, dat$start.date)), ]
-    if(!StartDate) lat.long <- dat[!duplicated(data.frame(dat$lat, dat$long, dat$end.date)), ]
+    if(StartDate) lat.long <- request$inputData[!duplicated(data.frame(request$inputData$lat, request$inputData$long, request$inputData$end.date, request$inputData$start.date)), ]
+    if(!StartDate) lat.long <- request$inputData[!duplicated(data.frame(request$inputData$lat, request$inputData$long, request$inputData$end.date)), ]
 
     cat("Found", nrow(lat.long), "unique time-series to download.\n")
 
@@ -150,23 +104,8 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     }
 
     #####
-    # If the Products input does not match any product codes in the list output from GetProducts(), stop with error.
-    if(!all(Products %in% GetProducts())) stop("Not every Products input matches available products (?GetProducts).")
-
-    # If the Bands input does not match with the Products input, stop with error.
-    avail.bands <- unlist(lapply(Products, function(x) GetBands(x)))
-    band.test <- any(lapply(Bands, function(x) any(x %in% avail.bands)) == FALSE)
-    if(band.test) stop("At least one Bands input does not match the product names entered (?GetBands).")
-
-    # If Size is not two dimensions or not integers, stop with error.
-    if(!is.numeric(Size)) stop("Size should be numeric class. Two integers.")
-    if(length(Size) != 2) stop("Size input must be a vector of integers, with two elements.")
-    if(abs(Size[1] - round(Size[1])) > .Machine$double.eps^0.5 |  abs(Size[2] - round(Size[2])) > .Machine$double.eps^0.5){
-      stop("Size input must be integers.")
-    }
-
     # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.
-    dates <- lapply(Products, function(x) GetDates(lat.long$lat[1], lat.long$long[1], x))
+    dates <- lapply(request$products, function(x) GetDates(lat.long$lat[1], lat.long$long[1], x))
 
     # Check that time-series fall within date range of MODIS data.
     if(any((start.date$year + 1900) < 2000 & (end.date$year + 1900) < 2000)){
@@ -184,8 +123,8 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     #####
 
     ##### Retrieve data subsets for each time-series of a set of product bands, saving data for each time series into ASCII files.
-    lat.long <- BatchDownload(lat.long = lat.long, dates = dates, MODIS.start = MODIS.start, MODIS.end = MODIS.end, Bands = Bands,
-                              Products = Products, Size = Size, StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
+    lat.long <- BatchDownload(lat.long = lat.long, dates = dates, MODIS.start = MODIS.start, MODIS.end = MODIS.end, Bands = request$bands,
+                              Products = request$products, Size = request$size, StartDate = StartDate, Transect = request$transect, SaveDir = request$saveDir)
 
     # Run a second round of downloads for any time-series that incompletely downloaded, and overwrite originals.
     success.check <- lat.long$Status != "Successful download"
@@ -193,8 +132,8 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
       cat("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...\n")
 
       lat.long[success.check, ] <- BatchDownload(lat.long = lat.long[success.check, ], dates = dates, MODIS.start = MODIS.start,
-                                                 MODIS|.end = MODIS.end, Bands = Bands, Products = Products, Size = Size,
-                                                 StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
+                                                 MODIS.end = MODIS.end, Bands = request$bands, Products = request$products, Size = request$size,
+                                                 StartDate = StartDate, Transect = request$transect, SaveDir = request$saveDir)
 
       success.check <- lat.long$Status != "Successful download"
       if(any(success.check)) cat("Incomplete downloads were re-tried but incomplete downloads remain. See subset download file.\n")
@@ -206,25 +145,25 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     file.date <- paste(as.Date(date),
                        paste(paste0("h", date$hour), paste0("m", date$min), paste0("s", round(date$sec, digits=0)), sep = "-"),
                        sep = "_")
-    if(!Transect){
-      write.table(lat.long, file = file.path(SaveDir, paste0("SubsetDownload_", file.date, ".csv")),
+    if(!request$transect){
+      write.table(lat.long, file = file.path(request$saveDir, paste0("SubsetDownload_", file.date, ".csv")),
                   col.names = TRUE, row.names = FALSE, sep = ",")
     }
-    if(Transect){
-      DirList <- list.files(path = SaveDir)
-      w.transect <- regexpr("Point", dat$ID[1])
-      transect.id <- substr(dat$ID[1], 1, w.transect - 1)
+    if(request$transect){
+      DirList <- list.files(path = request$saveDir)
+      w.transect <- regexpr("Point", request$inputData$ID[1])
+      transect.id <- substr(request$inputData$ID[1], 1, w.transect - 1)
 
-      if(!any(DirList == file.path(SaveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")))){
-        write.table(lat.long, file = file.path(SaveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")),
+      if(!any(DirList == file.path(request$saveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")))){
+        write.table(lat.long, file = file.path(request$saveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")),
                     col.names = TRUE, row.names = FALSE, sep = ",")
       } else {
-        write.table(lat.long, file = file.path(SaveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")),
+        write.table(lat.long, file = file.path(request$saveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")),
                     col.names = FALSE, row.names = FALSE, sep = ",", append = TRUE)
       }
     }
     #####
 
     # Print message to confirm downloads are complete and to remind the user to check summary file for any missing data.
-    if(!Transect) cat("Done! Check the subset download file for correct subset information and download messages.\n")
+    if(!request$transect) cat("Done! Check the subset download file for correct subset information and download messages.\n")
 }
