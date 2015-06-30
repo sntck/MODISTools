@@ -50,7 +50,7 @@ Optional arguments:
 data(SubsetExample)
 
 MODISSubsets(LoadDat = SubsetExample, Products = "MOD13Q1", Bands = c("250m_16_days_EVI",
-             "250m_16_days_pixel_reliability"), Size = c(0,0), StartDate = TRUE)
+             "250m_16_days_pixel_reliability"), Size = c(0,0))
 
 MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1", Bands = "250m_16_days_EVI",
                ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001,

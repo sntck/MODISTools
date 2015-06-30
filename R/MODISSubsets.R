@@ -10,19 +10,12 @@ function(LoadDat, Products, Bands, Size, StartDate = FALSE, TimeSeriesLength = 0
     ## Perform defensive checks on input.
     request$validateInput()
 
+    ## Clean input dataset so that each time series is complete and unique.
+    request$subsetClean()
+
     #####
     # Check to see if IDs have been given in data frame.
     ID <- ifelse(any(names(request$inputData) == "ID"), TRUE, FALSE)
-
-    # Remove any incomplete time series.
-    if(StartDate) request$inputData <- request$inputData[!is.na(request$inputData$lat) | !is.na(request$inputData$long) | !is.na(request$inputData$end.date) | !is.na(request$inputData$start.date), ]
-    if(!StartDate) request$inputData <- request$inputData[!is.na(request$inputData$lat) | !is.na(request$inputData$long) | !is.na(request$inputData$end.date), ]
-
-    # Find all unique time-series wanted, for each unique location.
-    if(StartDate) request$inputData <- request$inputData[!duplicated(data.frame(request$inputData$lat, request$inputData$long, request$inputData$end.date, request$inputData$start.date)), ]
-    if(!StartDate) request$inputData <- request$inputData[!duplicated(data.frame(request$inputData$lat, request$inputData$long, request$inputData$end.date)), ]
-
-    cat("Found", nrow(request$inputData), "unique time-series to download.\n")
 
     ##### Year or posixt date format?
     Year <- FALSE
