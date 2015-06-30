@@ -24,6 +24,8 @@ TimeSeriesLength = 0, ...)
 }
 \details{The data should be organised accordingly: \code{lat} and \code{long} columns showing WGS-1984 decimal degrees latitudes and longitudes respectively, plus \code{start.date} and \code{end.date} columns to specify the beginning and end of the time period within to search for MODIS data. Dates can be given in years or in POSIXlt date format. Column names should be exactly as shown.
 
+The variable names within LoadDat should have a maximum of one variable containing "ID" in the string, to avoid confusion when looking for unique subset IDs. If no unique subset IDs are found they will be generated.
+
 Optional arguments:
 \code{SaveDir} is an optional argument of character type to specify the directory where downloaded ASCII files should be saved: by default files are saved to the working directory. The directory where the downloaded data files will be located is printed at the beginning of the function call. These downloaded files can then be re-loaded into the R environment in a manageable way by using the function \code{MODISTimeSeries}.
 
