@@ -42,7 +42,7 @@ ModisRequest <- R6Class("ModisRequest",
         {
           self$saveDir <- normalizePath(optionalInput$SaveDir) ## Creates absolute path
         } else {
-          cat("SaveDir input missing. Files will be written to the working directory.\n")
+          cat("SaveDir not specified: default is the working directory.\n")
           self$saveDir <- getwd()
         }
 
@@ -112,13 +112,44 @@ ModisRequest <- R6Class("ModisRequest",
         self$inputData <- subset(self$inputData,
                                  !duplicated(data.frame(lat, long, start.date, end.date)))
 
-        cat("Found", nrow(self$inputData), "unique time-series to download.\n")
+        cat("Found", nrow(self$inputData), "unique time series to download.\n")
+
+        private$createID()
+
+        ## Create variable that will store the status of each subset's download success.
+        self$inputData$Status <- NA
       }
     ),
 
     private = list(
       ##### Private methods
-      requestMessage = function() cat("Files downloaded will be written to ", self$saveDir, ".\n", sep = '')#,
+      requestMessage = function() cat("Files will be written to ", self$saveDir, ".\n", sep = ''),
+      ##
+      createID = function()
+      {
+        ## Check whether a variable resembling unique IDs already exists. If not, make one.
+        whichVarAreIDs <- which(grepl("ID", names(self$inputData)))
+        whichVarAreIDs <- if(length(whichVarAreIDs) > 1) whichVarAreIDs[1] ## If several variables resemble IDs use the first one.
+        numberOfUniqueIDs <- length(unique(self$inputData[ ,whichVarAreIDs]))
+
+        if(numberOfUniqueIDs == nrow(self$inputData))
+        {
+          cat("Unique subset IDs found in variable: ", names(self$inputData)[whichVarAreIDs], ".\n", sep = '')
+
+          ## Three underscores used as placemarker to find ID in strings, so cannot exist within IDs.
+          if(any(grepl("___", self$inputData[whichVarAreIDs]))) stop("IDs can not contain '___'.")
+
+          ## Create new ID variable, at first column in the data.frame, named subsetID for convenience.
+          self$inputData <- data.frame(subsetID = self$inputData[ ,whichVarAreIDs], self$inputData)
+        } else {
+          cat("No unique subset ID variable found so one will be created.\n")
+
+          newID <- with(self$inputData,
+                        paste0("Lat", sprintf('%.5f', lat), "Lon", sprintf('%.5f', long),
+                               "Start", start.date,         "End", end.date))
+          self$inputData <- data.frame(subsetID = newID, self$inputData)
+        }
+      }
       #createModisDates = function()
       #                   {
       #                       return(TRUE)

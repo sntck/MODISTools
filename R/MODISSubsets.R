@@ -13,10 +13,6 @@ function(LoadDat, Products, Bands, Size, StartDate = FALSE, TimeSeriesLength = 0
     ## Clean input dataset so that each time series is complete and unique.
     request$subsetClean()
 
-    #####
-    # Check to see if IDs have been given in data frame.
-    ID <- ifelse(any(names(request$inputData) == "ID"), TRUE, FALSE)
-
     ##### Year or posixt date format?
     Year <- FALSE
     POSIXt <- FALSE
@@ -74,26 +70,6 @@ function(LoadDat, Products, Bands, Size, StartDate = FALSE, TimeSeriesLength = 0
 
       MODIS.start <- paste("A", substr(start.date, 1, 4), start.day, sep = "")
       MODIS.end <- paste("A", substr(end.date, 1, 4), end.day, sep = "")
-    }
-    #####
-
-    # Create IDs for each time series.
-    fmt <- '%.5f'
-    if(ID){
-    	## Check that all author-given IDs will be unique for each unique time-series, and check that they won't cause issues with product information
-    	n.unique <- length(unique(request$inputData$ID)) == nrow(request$inputData)
-    	if(n.unique){
-    		if(any(grepl("___", request$inputData$ID))) stop("IDs can not contain '___'")
-    		names(request$inputData)[names(request$inputData) == "ID"] <- "SubsetID"
-    		request$inputData <- data.frame(request$inputData, Status = rep(NA, nrow(request$inputData)))
-    	} else {
-    		cat("Number of unique IDs does not match number of unique time series. Creating new ID field.")
-    		ID <- paste("Lat", sprintf(fmt, request$inputData$lat), "Lon", sprintf(fmt, request$inputData$long), "Start", start.date, "End", end.date, sep = "")
-    		request$inputData <- data.frame(SubsetID = ID, request$inputData, Status = rep(NA, nrow(request$inputData)))
-    	}
-    } else {
-    	ID <- paste("Lat", sprintf(fmt, request$inputData$lat), "Lon", sprintf(fmt, request$inputData$long), "Start", start.date, "End", end.date, sep = "")
-    	request$inputData <- data.frame(SubsetID = ID, request$inputData, Status = rep(NA, nrow(request$inputData)))
     }
 
     #####
