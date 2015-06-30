@@ -102,6 +102,17 @@ ModisRequest <- R6Class("ModisRequest",
         ## Check SaveDir matches an existing directory.
         tryCatch(stopifnot(file.exists(self$saveDir)),
                  error = function(e) stop(simpleError("Input for SaveDir does not resemble an existing file path.")))
+      },
+      ##
+      subsetClean = function()
+      {
+        ## Take input dataset and remove all rows that are incomplete or duplicated time series.
+        self$inputData <- subset(self$inputData,
+                                 !is.na(lat) | !is.na(long) | !is.na(start.date) | !is.na(end.date))
+        self$inputData <- subset(self$inputData,
+                                 !duplicated(data.frame(lat, long, start.date, end.date)))
+
+        cat("Found", nrow(self$inputData), "unique time-series to download.\n")
       }
     ),
 
