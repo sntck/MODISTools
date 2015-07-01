@@ -20,6 +20,7 @@ ModisRequest <- R6Class("ModisRequest",
       size = NA,
       saveDir = NA,
       transect = FALSE,
+      dateList = NA,
 
       ##### Public methods
       initialize = function(...)
@@ -118,6 +119,34 @@ ModisRequest <- R6Class("ModisRequest",
 
         ## Create variable that will store the status of each subset's download success.
         self$inputData$Status <- NA
+      },
+      ##
+      createModisDates = function()
+      {
+        switch(private$checkDateFormat(),
+               "posix" = {
+                 startDates <- as.Date(self$inputData$start.date)
+                 endDates   <- as.Date(self$inputData$end.date)
+               },
+               "year" = {
+                 startDates <- as.Date(paste0(self$inputData$start.date, "-01-01"))
+                 endDates   <- as.Date(paste0(self$inputData$end.date, "-12-31"))
+               })
+
+        ## Format days information for MODIS-style dates (A + YYYYDDD).
+        modisDates <- data.frame(start = I(private$posixToModisDates(startDates)),
+                                 end   = I(private$posixToModisDates(endDates)))
+
+        ## Store available dates then check start and end dates fall within the available range.
+        self$dateList <- lapply(self$products,
+                                function(x) GetDates(self$inputData$lat[1], self$inputData$long[1], x))
+
+        tryCatch(stopifnot(all(startDates >= min(private$modisToPosixDates(unlist(self$dateList)))),
+                           all(endDates <= max(private$modisToPosixDates(unlist(self$dateList))))),
+                 error = function(e) stop(simpleError("Some dates requested fall outside the available range.")))
+
+        ## Return dates in MODIS format.
+        return(modisDates)
       }
     ),
 
@@ -149,15 +178,46 @@ ModisRequest <- R6Class("ModisRequest",
                                "Start", start.date,         "End", end.date))
           self$inputData <- data.frame(subsetID = newID, self$inputData)
         }
+      },
+      ##
+      checkDateFormat = function()
+      {
+        ## Were start.date and end.date supplied as years or dates coercible to POSIX/C99 construct?
+        year <- FALSE
+        posix <- FALSE
+
+        allDates <- c(self$inputData$start.date, self$inputData$end.date)
+        posixCompatible <- try(as.POSIXlt(allDates), silent = TRUE)
+
+        if(class(posixCompatible) != "try-error")
+        {
+          posix <- TRUE
+        } else {
+          yearCompatible <- try(as.numeric(allDates), silent = TRUE)
+          ifelse(class(yearCompatible) != "try-error" & all(nchar(allDates) == 4),
+                 year <- TRUE,
+                 stop("Dates in LoadDat are recognised in neither year or POSIXt format."))
+        }
+
+        ## Return either "year" or "posix", which will be passed to switch() in modis dates method.
+        if(posix)     return("posix")
+        else if(year) return("year")
+      },
+      ##
+      posixToModisDates = function(dates)
+      {
+        days <- as.POSIXlt(dates)$yday + 1 ## +1 because Jan 1 is day 0.
+        days[nchar(days) == 2] <- paste0(0, days[nchar(days) == 2])
+        days[nchar(days) == 1] <- paste0(0, 0, days[nchar(days) == 1])
+        return(paste0("A", substr(dates, 1, 4), days))
+      },
+      ##
+      modisToPosixDates = function(dates)
+      {
+        years <- substr(dates, 2, 5)
+        days  <- substr(dates, 6, 8)
+        return(as.Date(paste0(years, "-01-01")) + (as.numeric(days) - 1)) ## -1 because Jan 1 is day 0.
       }
-      #createModisDates = function()
-      #                   {
-      #                       return(TRUE)
-      #                   },
-      #createUniqueID = function()
-      #                 {
-      #                     return(TRUE)
-      #                 },
       #checkDownloadSuccess = function()
       #                       {
       #                           return(TRUE)
