@@ -1,8 +1,7 @@
 MODISGrid <-
 function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
 {
-  # DEFINE
-  NUM_METADATA_COLS <- 10
+  modisMethods <- .ModisMethods$new()
 
   if(Dir == '.') cat('Files downloaded will be written to ', file.path(getwd(), DirName), '.\n', sep = '')
   if(Dir != '.') cat('Files downloaded will be written to ', file.path(Dir, DirName), '.\n', sep = '')
@@ -39,7 +38,7 @@ function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
 
     data.file <- read.csv(file.path(Dir, file.list[i]), header = FALSE, as.is = TRUE)
     names(data.file) <- c("nrow", "ncol", "xll", "yll", "pixelsize", "row.id", "product.code", "MODIS.acq.date",
-                          "where", "MODIS.proc.date", 1:(ncol(data.file) - NUM_METADATA_COLS))
+                          "where", "MODIS.proc.date", 1:(ncol(data.file) - modisMethods$numberOfMetadataCols))
 
     # Create directory for this data file if SubDir = TRUE
     sub.dir <- substr(file.list[i], 1, regexpr(".asc$", file.list[i])-1)
@@ -66,9 +65,9 @@ function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
               sprintf("NODATA_value\t %s", as.character(NoDataValues[[data.file$product.code[n]]][data.band]))),
             file = file.path(paste0(path, ".asc")))
 
-      WritePRJ(Path = file.path(paste0(path, ".prj")))
+      modisMethods$writePrjFile(filePath = file.path(paste0(path, ".prj")))
 
-      grid.data <- matrix(data.file[n,(NUM_METADATA_COLS+1):ncol(data.file)],
+      grid.data <- matrix(data.file[n,(modisMethods$numberOfMetadataCols+1):ncol(data.file)],
                           nrow = data.file$nrow[n], ncol = data.file$ncol[n], byrow = TRUE)
       write.table(grid.data, file = file.path(paste0(path, ".asc")), append = TRUE, col.names = FALSE, row.names = FALSE)
     }

@@ -6,6 +6,40 @@
 
 .ModisMethods <- R6Class(".ModisMethods",
     public = list(
+      ##### Public fields
+      ## Define land cover classes for each data band: converts the downloaded numeric data into the correct class name.
+      landCoverClasses <- list(
+        Land_Cover_Type_1 = c("Water" = 0, "Evergreen Needleleaf forest" = 1, "Evergreen Broadleaf forest" = 2,
+                              "Deciduous Needleleaf forest" = 3, "Deciduous Broadleaf forest" = 4, "Mixed forest" = 5,
+                              "Closed shrublands" = 6, "Open shrublands" = 7, "Woody savannas" = 8, "Savannas" = 9,
+                              "Grasslands" = 10, "Permanent wetlands" = 11, "Croplands" = 12, "Urban & built-up" = 13,
+                              "Cropland/Natural vegetation mosaic" = 14, "Snow & ice" = 15, "Barren/Sparsely vegetated" = 16,
+                              "Unclassified" = 254, "NoDataFill" = 255),
+        Land_Cover_Type_2 = c("Water" = 0, "Evergreen Needleleaf forest" = 1, "Evergreen Broadleaf forest" = 2,
+                              "Deciduous Needleleaf forest" = 3, "Deciduous Broadleaf forest" = 4, "Mixed forest" = 5,
+                              "Closed shrublands" = 6, "Open shrublands" = 7, "Woody savannas" = 8, "Savannas" = 9,
+                              "Grasslands" = 10, "Croplands" = 12, "Urban & built-up" = 13, "Barren/Sparsely vegetated" = 16,
+                              "Unclassified" = 254, "NoDataFill" = 255),
+        Land_Cover_Type_3 = c("Water" = 0, "Grasses/Cereal crops" = 1, "Shrubs" = 2, "Broadleaf crops" = 3, "Savanna" = 4,
+                              "Evergreen Broadleaf forest" = 5, "Deciduous Broadleaf forest" = 6,
+                              "Evergreen Needleleaf forest" = 7, "Deciduous Needleleaf forest" = 8, "Non-vegetated" = 9,
+                              "Urban" = 10, "Unclassified" = 254, "NoDataFill" = 255),
+        Land_Cover_Type_4 = c("Water" = 0, "Evergreen Needleleaf forest" = 1, "Evergreen Broadleaf forest" = 2,
+                              "Deciduous Needleleaf forest" = 3, "Deciduous Broadleaf forest" = 4,
+                              "Annual Broadleaf vegetation" = 5, "Annual grass vegetation" = 6, "Non-vegetated land" = 7,
+                              "Urban" = 8, "Unclassified" = 254, "NoDataFill" = 255),
+        Land_Cover_Type_5 = c("Water" = 0, "Evergreen Needleleaf forest" = 1, "Evergreen Broadleaf forest" = 2,
+                              "Deciduous Needleleaf forest" = 3, "Deciduous Broadleaf forest" = 4, "Shrub" = 5, "Grass" = 6,
+                              "Cereal crop" = 7, "Broadleaf crop" = 8, "Urban & built-up" = 9, "Snow & ice" = 10,
+                              "Barren/Sparsely vegetated" = 11, "Unclassified" = 254, "NoDataFill" = 255)
+      ),
+      ## The number of metadata columns in the subset download ASCII files.
+      numberOfMetadataCols = 10,
+      ## The metadata column in the subset download ASCII files that contains the data band name.
+      whereIsBandName = 6,
+      ## Approximate number of metres in one degree of latitude, or longitude at the equator.
+      metresInOneDegree = 111120,
+
       ##### Public methods
       getSubset = function(lat, long, product, band, startDate, endDate, kmAboveBelow, kmLeftRight)
       {
