@@ -1,5 +1,5 @@
 MODISSubsets <-
-function(LoadDat, Products, Bands, Size, StartDate = FALSE, TimeSeriesLength = 0, ...)
+function(LoadDat, Products, Bands, Size, ...)
 {
     ## Retrieve list of optional arguments.
     optionalInput <- list(...)
@@ -16,53 +16,36 @@ function(LoadDat, Products, Bands, Size, StartDate = FALSE, TimeSeriesLength = 0
     ## Use dates in request$inputData to create dates in MODIS format that will be passed to web service methods.
     modisDates <- request$createModisDates()
 
-    ##### Retrieve data subsets for each time-series of a set of product bands, saving data for each time series into ASCII files.
-    request$inputData <- BatchDownload(lat.long = request$inputData, dates = request$dateList,
-                                       MODIS.start = modisDates$start, MODIS.end = modisDates$end,
-                                       Bands = request$bands, Products = request$products,
-                                       Size = request$size, StartDate = StartDate,
-                                       Transect = request$transect, SaveDir = request$saveDir)
+    ## Loop the downloading over each subset.
+    for(i in 1:nrow(request$inputData))
+    {
+      cat(paste0("Getting subset for location ", i, " of ", nrow(request$inputData), "...\n"))
 
-    # Run a second round of downloads for any time-series that incompletely downloaded, and overwrite originals.
-    success.check <- request$inputData$Status != "Successful download"
-    if(any(success.check)){
-      cat("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...\n")
+      ## Extract the available dates within the requested range and organise for download.
+      request$dateList <- request$prepareDatesForDownload(start = modisDates$start, end = modisDates$end)
+      names(request$dateList) <- request$products
 
-      request$inputData[success.check, ] <- BatchDownload(lat.long = request$inputData[success.check, ], dates = request$dateList,
-                                                          MODIS.start = modisDates$start, MODIS.end = modisDates$end,
-                                                          Bands = request$bands, Products = request$products,
-                                                          Size = request$size, StartDate = StartDate, Transect = request$transect,
-                                                          SaveDir = request$saveDir)
+      ## Create list object that will store subset downloads. Each list element is a product, with length time-series*bands.
+      subset <- mapply(function(subsetDates, subsetProduct)
+      {
+        numBands <- nrow(subset(request$bandList, product == subsetProduct))
+        rep(NA, length = sum(!is.na(subsetDates)) * numBands)
+      },
+      subsetDates = request$dateList, subsetProduct = request$products, SIMPLIFY = FALSE)
 
-      success.check <- request$inputData$Status != "Successful download"
-      if(any(success.check)) cat("Incomplete downloads were re-tried but incomplete downloads remain. See subset download file.\n")
+      ## Get time series of all MODIS data bands for this subset.
+      subset <- request$subsetDownload(subset, subsetID = i)
+
+      ## Check if any data are missing, log download status accordingly, and retry download if necessary.
+      request$checkDownloadSuccess(subset, subsetID = i)
+
+      fileName <- paste0(request$inputData$subsetID[i], "___", paste(request$products, collapse = '_'), ".asc")
+      write(subset, file = file.path(request$saveDir, fileName), sep = '', append = TRUE)
     }
-    #####
 
-    ##### Write a summary file with IDs and unique time-series information.
-    date <- as.POSIXlt(Sys.time())
-    file.date <- paste(as.Date(date),
-                       paste(paste0("h", date$hour), paste0("m", date$min), paste0("s", round(date$sec, digits=0)), sep = "-"),
-                       sep = "_")
-    if(!request$transect){
-      write.table(request$inputData, file = file.path(request$saveDir, paste0("SubsetDownload_", file.date, ".csv")),
-                  col.names = TRUE, row.names = FALSE, sep = ",")
-    }
-    if(request$transect){
-      DirList <- list.files(path = request$saveDir)
-      w.transect <- regexpr("Point", request$inputData$ID[1])
-      transect.id <- substr(request$inputData$ID[1], 1, w.transect - 1)
+    ## Write a summary file with IDs and unique time-series information.
+    request$writeSummaryFile()
 
-      if(!any(DirList == file.path(request$saveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")))){
-        write.table(request$inputData, file = file.path(request$saveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")),
-                    col.names = TRUE, row.names = FALSE, sep = ",")
-      } else {
-        write.table(request$inputData, file = file.path(request$saveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")),
-                    col.names = FALSE, row.names = FALSE, sep = ",", append = TRUE)
-      }
-    }
-    #####
-
-    # Print message to confirm downloads are complete and to remind the user to check summary file for any missing data.
+    ## Print a message to confirm downloads are complete and a reminder to check the summary file for any missing data.
     if(!request$transect) cat("Done! Check the subset download file for correct subset information and download messages.\n")
 }

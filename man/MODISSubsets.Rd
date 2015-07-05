@@ -3,8 +3,7 @@
 \title{MODIS Subset Tool}
 \description{Uses the MODIS SOAP Web Service (see references) as a batch process to remotely extract and locally download time-series subsets of a MODIS product for a given area surrounding many locations.
 }
-\usage{MODISSubsets(LoadDat, Products, Bands, Size, StartDate = FALSE,
-TimeSeriesLength = 0, ...)
+\usage{MODISSubsets(LoadDat, Products, Bands, Size, ...)
 }
 \arguments{
   \item{LoadDat}{Input dataset: a data.frame that contains the locations and dates for which MODIS data will be requested. For required data organisation, see Details.
@@ -14,10 +13,6 @@ TimeSeriesLength = 0, ...)
   \item{Bands}{A character vector; the band name codes to retrieve the desired data bands within the specified \code{Products}. To get a list of the available bands in a product of interest, use \code{GetBands()}. Multiple data band across multiple products can be specified and downloaded at the same time.
   }
   \item{Size}{Numeric vector of two non-negative integers defining the size of area of interest surrounding each location. The first element identifies the distance from the centre to the bottom/top (in both directions), and the second element to the left/right (in both directions) in km. For example, \code{Size = c(0,0)} identifies the centre pixel only, whereas \code{Size = c(1,1)} identifies a tile of 2kmsq. The maximum size in either direction is 100.
-  }
-  \item{StartDate}{Logical; indicate whether the input dataset contains information on the time-series start date. If StartDate = TRUE, start dates will be taken from the input data and will expect the data frame to have a column named start.date. Default is StartDate = FALSE, whereby the input data is assumed to have only time-series end date and the length of time-series recorded prior to that date is determined by another optional argument, TimeSeriesLength.
-  }
-  \item{TimeSeriesLength}{Non-negative integer; if StartDate = FALSE specified the length of time-series. Default TimeSeriesLength = 0, giving a time-series length of 1 year, taken from the beginning to the end of the year.
   }
   \item{...}{Optional arguments, see Details.
   }

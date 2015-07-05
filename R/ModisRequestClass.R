@@ -1,33 +1,27 @@
 # =============================================================================
-# An object class definition for a call to the MODISSubsets function.
+# A class definition for a call to the MODISSubsets function.
 # Each instantiated "ModisRequest" object is a unique request for MODIS data.
-# The class include all necessary data to request data.
-# Private methods used internally by MODISSubsets are also included.
-# The class is created using the R6 class system.
-# Author: Sean Tuck
-# Last updated: 2015-06-28
+# The class includes all necessary data and methods to request subsets.
 # =============================================================================
-
-# Load package for R6 class system
-library(R6)
 
 ModisRequest <- R6Class("ModisRequest",
     public = list(
       ##### Public fields
       inputData = NA,
-      products = NA,
-      bands = NA,
-      size = NA,
-      saveDir = NA,
-      transect = FALSE,
-      dateList = NA,
+      products  = NA,
+      bands     = NA,
+      size      = NA,
+      saveDir   = NA,
+      transect  = FALSE,
+      bandList  = NA,
+      dateList  = NA,
 
       ##### Public methods
       initialize = function(...)
       {
         ## Assign the variable list of arguments to objects within this scope.
         args <- do.call(c, list(...))
-        for(i in 1:length(args)) assign(names(args)[i], args[[i]])
+        for(name in names(args)) assign(name, args[[name]])
 
         ## Check if any necessary arguments are missing.
         if(any(missing(LoadDat), missing(Products), missing(Bands), missing(Size)))
@@ -49,6 +43,21 @@ ModisRequest <- R6Class("ModisRequest",
 
         if("Transect" %in% names(optionalInput)) self$transect <- optionalInput$Transect
 
+        ## Organise bands into tidy data.frame with product names that will simplify downloading later.
+        self$bandList <- lapply(self$products, function(x) data.frame(product = I(x), band = I(GetBands(x))))
+        self$bandList <- Reduce(rbind, self$bandList)
+        self$bandList <- subset(self$bandList, band %in% self$bands)
+        ## Order bandList using the user input so that output data files intuitively reflect the user function call.
+        ## Group by product then organise bands within products.
+        orderAsUserInput <- with(self$bandList,
+                                 order(sapply(product, function(product) which(self$products == product)),
+                                       sapply(band, function(band) which(self$bands == band))))
+        self$bandList <- self$bandList[orderAsUserInput, ]
+
+        ## Store available dates for each product in a list: a list because length of dates can vary among products.
+        self$dateList <- lapply(self$products, function(x) GetDates(self$inputData$lat[1], self$inputData$long[1], x))
+        names(self$dateList) <- self$products
+
         ## Print the opening text output detailing the MODISSubsets function call
         private$requestMessage()
       },
@@ -64,7 +73,7 @@ ModisRequest <- R6Class("ModisRequest",
                            "long" %in% names(self$inputData),
                            "start.date" %in% names(self$inputData),
                            "end.date" %in% names(self$inputData)),
-                 error = function(e) stop(simpleError("LoadDat does not contain all required variables: lat, long, start.date, end.date.")))
+                 error = function(e) stop(simpleError("LoadDat does not have all required variables: lat, long, start.date, end.date.")))
 
         ## Check the latitude and longitude input values are valid -- ignoring NAs here.
         tryCatch(stopifnot(abs(na.omit(self$inputData$lat)) <= 90,
@@ -94,10 +103,8 @@ ModisRequest <- R6Class("ModisRequest",
                  error = function(e) stop(simpleError("A named Product is not a MODIS product available through the web service.")))
 
         ## Check the Bands input are valid given the Products input.
-        bandList <- do.call(rbind, lapply(self$products, function(x) data.frame(product = I(x), band = I(GetBands(x)))))
-        bandList <- bandList[bandList$band %in% self$bands, ]           ## From list of relevant bands, extract ones in input.
-        tryCatch(stopifnot(all(self$bands %in% bandList$band),          ## Are all input Bands found in available bands?
-                           all(self$products %in% bandList$product)),   ## Are all input Products used to get Bands?
+        tryCatch(stopifnot(all(self$bands %in% self$bandList$band),          ## Are all input Bands found in available bands?
+                           all(self$products %in% self$bandList$product)),   ## Are all input Products used to get Bands?
                  error = function(e) stop(simpleError("Bands and Products input do not fully match.")))
 
         ## Check SaveDir matches an existing directory.
@@ -137,20 +144,101 @@ ModisRequest <- R6Class("ModisRequest",
         modisDates <- data.frame(start = I(private$posixToModisDates(startDates)),
                                  end   = I(private$posixToModisDates(endDates)))
 
-        ## Store available dates then check start and end dates fall within the available range.
-        self$dateList <- lapply(self$products,
-                                function(x) GetDates(self$inputData$lat[1], self$inputData$long[1], x))
-
+        ## Check start and end dates fall within the available range.
         tryCatch(stopifnot(all(startDates >= min(private$modisToPosixDates(unlist(self$dateList)))),
                            all(endDates <= max(private$modisToPosixDates(unlist(self$dateList))))),
                  error = function(e) stop(simpleError("Some dates requested fall outside the available range.")))
 
         ## Return dates in MODIS format.
         return(modisDates)
+      },
+      ##
+      prepareDatesForDownload = function(start, end)
+      {
+        ## For each product, remove dates beyond the requested range.
+        self$dateList <- lapply(self$products, function(product)
+        {
+          dates <- subset(self$dateList[[product]],
+                          start <= self$dateList[[product]] & self$dateList[[product]] <= end)
+
+          ## Find time-series length modulo maxRequestLength and create vector of NAs to fill a matrix.
+          matrixFiller <- rep(NA, private$maxRequestLength - (length(dates) %% private$maxRequestLength))
+          return(matrix(c(dates, matrixFiller), nrow = private$maxRequestLength))
+        })
+      },
+      ##
+      subsetDownload = function(subset, subsetID)
+      {
+        ## For each subset loop over all the data bands to download.
+        for(i in 1:nrow(self$bandList))
+        {
+          ## Iterate subset download for each batch of dates in the time series from request$dateList.
+          download <- private$batchDownload(subset = subsetID, dataType = i)
+
+          ## Check the subset was successfully downloaded. Did try catch an error? Do any subsets contain erroneous strings?
+          private$validateDownload(download)
+
+          ## Tidy the subset download into a data.frame and store in subsets.
+          download <- Reduce(rbind, download)
+
+          ## Collapse download into a vector of strings, where each string contains all data for one date in a time series.
+          subsetStrings <- with(download, paste(nrow, ncol, xll, yll, pixelsize, unlist(subset), sep = ','))
+
+          ## Write subsetStrings (data for the ith band) to the object containing the whole subset.
+          subsetEntries <- seq(min(which(is.na(subset[[self$bandList$product[i]]]))), length.out = length(subsetStrings))
+          subset[[self$bandList$product[i]]][subsetEntries] <- subsetStrings
+        }
+
+        ## Return a simplified data structure of subsets to prepare for writing to disk.
+        return(Reduce(c, subset))
+      },
+      ##
+      checkDownloadSuccess = function(subset, subsetID)
+      {
+        ## If there are any NAs remaining in subset or a string ends in a comma, then the download was incomplete.
+        if(any(is.na(subset)) | any(substr(subset, nchar(subset), nchar(subset)) == ',')){
+          self$inputData$Status[subsetID] <- "Missing data in subset: try downloading again"
+          cat(paste0("Missing information for time series ", self$inputData$subsetID[subsetID], ". Retrying download...\n"))
+
+          ## Wipe subset clean and then retry the download.
+          subset <- lapply(subset, function(x) rep(NA, length(x)))
+          subset <- request$subsetDownload(subset, subsetID = subsetID)
+
+          ## Check whether download is still incomplete and if it is, print a message then continue.
+          if(any(is.na(subset)) | any(substr(subset, nchar(subset), nchar(subset)) == ','))
+            cat("The incomplete download was retried but remains incomplete. See subset download file.\n")
+          else
+            cat("The incomplete download was retried and has been successful.\n")
+        } else {
+          self$inputData$Status[subsetID] <- "Successful download"
+        }
+      },
+      ##
+      writeSummaryFile = function()
+      {
+        runTime <- as.POSIXlt(Sys.time())
+        timeStamp <- paste(as.Date(runTime),
+                           with(runTime, paste(paste0('h', hour), paste0('m', min), paste0('s', round(sec, digits=0)), sep = '-')),
+                           sep = '_')
+
+        if(!self$transect){
+          write.table(self$inputData, file = file.path(self$saveDir, paste0("SubsetDownload_", timeStamp, ".csv")),
+                      col.names = TRUE, row.names = FALSE, sep = ',')
+        } else {
+          endOfTransectID <- regexpr("Point", self$inputData$ID[1])
+          transectID <- substr(self$inputData$ID[1], 1, endOfTransectID-1)
+
+          write.table(self$inputData, file = file.path(self$saveDir, paste0(transectID, "_SubsetDownload_", timeStamp, ".csv")),
+                      col.names = FALSE, row.names = FALSE, sep = ',', append = TRUE)
+        }
       }
     ),
 
     private = list(
+      ##### Private fields
+      maxRequestLength = 10,     ## The maximum time-series length that a web service request can handle at one time.
+      numSubsetMetadataCols = 5, ## Number of variables in downloaded subsets that are metadata before downloaded data begins.
+
       ##### Private methods
       requestMessage = function() cat("Files will be written to ", self$saveDir, ".\n", sep = ''),
       ##
@@ -217,14 +305,31 @@ ModisRequest <- R6Class("ModisRequest",
         years <- substr(dates, 2, 5)
         days  <- substr(dates, 6, 8)
         return(as.Date(paste0(years, "-01-01")) + (as.numeric(days) - 1)) ## -1 because Jan 1 is day 0.
+      },
+      ##
+      batchDownload = function(subset, dataType)
+      {
+        ## Wrapper for GetSubset() to run for >10 dates, as restricted by the web service method.
+        subsetDates <- self$dateList[[self$bandList$product[dataType]]]
+        try(apply(subsetDates, 2, function(dates)
+        {
+          GetSubset(self$inputData$lat[subset], self$inputData$long[subset],
+                    self$bandList$product[dataType], self$bandList$band[dataType],
+                    min(dates, na.rm = TRUE), max(dates, na.rm = TRUE),
+                    self$size[1], self$size[2])
+        }))
+      },
+      ##
+      validateDownload = function(download)
+      {
+        ## Check download ran without error and retry if it did.
+        subsets <- unlist(download)[grepl("subset", names(unlist(download)))]
+        tryCatch(stopifnot(is.list(download),
+                           all(sapply(strsplit(subsets, ','), length) > private$numSubsetMetadataCols)),
+                 error = function(e) stop(simpleError("Download failed: either input was invalid or web service is busy.")))
+
+        busy <- any(grepl("Server is busy handling other requests", subsets))
+        #if(class(download) != "try-error" | busy)
       }
-      #checkDownloadSuccess = function()
-      #                       {
-      #                           return(TRUE)
-      #                       },
-      #writeSummaryFile = function()
-      #                   {
-      #                       return(TRUE)
-      #                   }
     )
 )
