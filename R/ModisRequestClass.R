@@ -5,6 +5,7 @@
 # =============================================================================
 
 ModisRequest <- R6Class("ModisRequest",
+    inherit = .ModisMethods,
     public = list(
       ##### Public fields
       inputData = NA,
@@ -44,7 +45,7 @@ ModisRequest <- R6Class("ModisRequest",
         if("Transect" %in% names(optionalInput)) self$transect <- optionalInput$Transect
 
         ## Organise bands into tidy data.frame with product names that will simplify downloading later.
-        self$bandList <- lapply(self$products, function(x) data.frame(product = I(x), band = I(GetBands(x))))
+        self$bandList <- lapply(self$products, function(x) data.frame(product = I(x), band = I(self$getBands(x))))
         self$bandList <- Reduce(rbind, self$bandList)
         self$bandList <- subset(self$bandList, band %in% self$bands)
         ## Order bandList using the user input so that output data files intuitively reflect the user function call.
@@ -55,7 +56,7 @@ ModisRequest <- R6Class("ModisRequest",
         self$bandList <- self$bandList[orderAsUserInput, ]
 
         ## Store available dates for each product in a list: a list because length of dates can vary among products.
-        self$dateList <- lapply(self$products, function(x) GetDates(self$inputData$lat[1], self$inputData$long[1], x))
+        self$dateList <- lapply(self$products, function(x) self$getDates(self$inputData$lat[1], self$inputData$long[1], x))
         names(self$dateList) <- self$products
 
         ## Print the opening text output detailing the MODISSubsets function call
@@ -309,14 +310,14 @@ ModisRequest <- R6Class("ModisRequest",
       ##
       batchDownload = function(subset, dataType)
       {
-        ## Wrapper for GetSubset() to run for >10 dates, as restricted by the web service method.
+        ## Wrapper for self$getSubset() to run for >10 dates, as restricted by the web service method.
         subsetDates <- self$dateList[[self$bandList$product[dataType]]]
         try(apply(subsetDates, 2, function(dates)
         {
-          GetSubset(self$inputData$lat[subset], self$inputData$long[subset],
-                    self$bandList$product[dataType], self$bandList$band[dataType],
-                    min(dates, na.rm = TRUE), max(dates, na.rm = TRUE),
-                    self$size[1], self$size[2])
+          self$getSubset(self$inputData$lat[subset], self$inputData$long[subset],
+                         self$bandList$product[dataType], self$bandList$band[dataType],
+                         min(dates, na.rm = TRUE), max(dates, na.rm = TRUE),
+                         self$size[1], self$size[2])
         }))
       },
       ##
