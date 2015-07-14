@@ -13,13 +13,23 @@ function(LoadDat, Products, Bands, Size, ...)
     ## Clean input dataset so that each time series is complete and unique.
     request$subsetClean()
 
+    ## Check whether any subsets have already been downloaded before beginning subset request.
+    newSubsets <- UpdateSubsets(request$inputData, request$saveDir, StartDate = TRUE) ## Remove StartDate par once OOP development finished.
+    if(nrow(newSubsets) < nrow(request$inputData))
+    {
+      cat(nrow(request$inputData)-nrow(newSubsets), " previously downloaded subsets were found in ", request$saveDir, "\n",
+          "These subsets will be ignored during this request.\n",
+          "The number of unique subsets to download is now ", nrow(newSubsets), ".\n", sep = '')
+      request$inputData <- newSubsets
+    }
+
     ## Use dates in request$inputData to create dates in MODIS format that will be passed to web service methods.
     modisDates <- request$createModisDates()
 
     ## Loop the downloading over each subset.
     for(i in 1:nrow(request$inputData))
     {
-      cat(paste0("Getting subset for location ", i, " of ", nrow(request$inputData), "...\n"))
+      cat("Getting subset for location ", i, " of ", nrow(request$inputData), "...\n", sep = '')
 
       ## Extract the available dates within the requested range and organise for download.
       request$dateList <- request$prepareDatesForDownload(start = modisDates$start, end = modisDates$end)
