@@ -54,7 +54,7 @@ function(LoadDat, StartDate = FALSE, Dir = ".")
 
   for(file in filelist)
   {
-    dataFile <- read.csv(file, as.is = TRUE, header = FALSE)
+    dataFile <- read.csv(file.path(Dir, file), as.is = TRUE, header = FALSE)
 
     dataLat <- substr(dataFile[1,9],
                       regexpr("Lat", dataFile[1,9])+3,
