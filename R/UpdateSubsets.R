@@ -76,22 +76,22 @@ function(LoadDat, StartDate = FALSE, Dir = ".")
 
     if(Year)
     {
-      subsetMetadata <- data.frame(lat = dataLat,
-                                   long = dataLong,
+      subsetMetadata <- data.frame(lat = as.numeric(dataLat),
+                                   long = as.numeric(dataLong),
                                    start.date = startYears,
                                    end.date = endYears)
 
       whichSubsetsDownloaded <- c(whichSubsetsDownloaded,
                                   with(subsetMetadata,
-                                       which(lat == sprintf("%.5f", details$lat) &
-                                             long == sprintf("%.5f", details$long) &
+                                       which(sprintf("%.5f", lat) == sprintf("%.5f", details$lat) &
+                                             sprintf("%.5f", long) == sprintf("%.5f", details$long) &
                                              start.date == details$start.date &
                                              end.date == details$end.date)))
     }
     if(POSIXt)
     {
-      subsetMetadata <- data.frame(lat = dataLat,
-                                   long = dataLong,
+      subsetMetadata <- data.frame(lat = as.numeric(dataLat),
+                                   long = as.numeric(dataLong),
                                    start.date = startPosixDate,
                                    end.date = endPosixDate)
 
@@ -105,8 +105,8 @@ function(LoadDat, StartDate = FALSE, Dir = ".")
 
       whichSubsetsDownloaded <- c(whichSubsetsDownloaded,
                                   with(subsetMetadata,
-                                       which(lat == sprintf("%.5f", details$lat) &
-                                             long == sprintf("%.5f", details$long) &
+                                       which(lat == details$lat &
+                                             long == details$long &
                                              (as.Date(details$start.date) <= start.date & start.date < as.Date(details$start.date)+intervalLength) &
                                              (end.date <= as.Date(details$end.date) & as.Date(details$start.date) < end.date+intervalLength))))
     }
