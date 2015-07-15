@@ -83,8 +83,8 @@ function(LoadDat, StartDate = FALSE, Dir = ".")
 
       whichSubsetsDownloaded <- c(whichSubsetsDownloaded,
                                   with(subsetMetadata,
-                                       which(lat == details$lat &
-                                             long == details$long &
+                                       which(lat == sprintf("%.5f", details$lat) &
+                                             long == sprintf("%.5f", details$long) &
                                              start.date == details$start.date &
                                              end.date == details$end.date)))
     }
@@ -105,8 +105,8 @@ function(LoadDat, StartDate = FALSE, Dir = ".")
 
       whichSubsetsDownloaded <- c(whichSubsetsDownloaded,
                                   with(subsetMetadata,
-                                       which(lat == details$lat &
-                                             long == details$long &
+                                       which(lat == sprintf("%.5f", details$lat) &
+                                             long == sprintf("%.5f", details$long) &
                                              (as.Date(details$start.date) <= start.date & start.date < as.Date(details$start.date)+intervalLength) &
                                              (end.date <= as.Date(details$end.date) & as.Date(details$start.date) < end.date+intervalLength))))
     }
