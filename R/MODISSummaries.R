@@ -21,6 +21,12 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     }
     
     #####
+
+    # Check lat and long data frame columns are named "lat" and "long" as necessary.
+    if(!any(names(details) == "lat") | !any(names(details) == "long")){
+      stop("Could not find columns for latitude and/or longitude in your data set. Must be named 'lat' and 'long'.")
+    }   
+
     if(!file.exists(Dir)) stop("Character string input for Dir argument does not resemble an existing file path.")
     
     # Check valid inputs for the quality screening process.
