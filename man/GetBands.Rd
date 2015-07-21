@@ -10,13 +10,13 @@
 \references{
   \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
 
-  \url{https://lpdaac.usgs.gov/products/modis_products_table}
+  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
 
-  \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}  
-}    
+  \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
+}
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
 \examples{
 \dontrun{ # dontrun() used because running the example requires internet access.
-GetBands("MOD13Q1")} 
+GetBands("MOD13Q1")}
 }

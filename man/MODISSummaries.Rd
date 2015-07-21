@@ -5,9 +5,9 @@
 \description{A function to run time-series analysis and compute summary statistics for a downloaded MODIS subset, writing a summary file and another file with processed MODIS data tagged onto the original file inputted to MODISSubsets. This function allows the user to easily explore the characteristics of the downloaded data, and then process them into a form that is ready for use in modelling.
 }
 \usage{MODISSummaries(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataFill,
-ScaleFactor, StartDate = FALSE, QualityScreen = FALSE, QualityBand = NULL, 
-QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE, Yield = FALSE, 
-Interpolate = FALSE, InterpolateN = NULL)
+ScaleFactor, StartDate = FALSE, QualityScreen = FALSE, QualityBand = NULL,
+QualityThreshold = NULL, Mean = TRUE, SD = TRUE, Min = TRUE, Max = TRUE, Yield = FALSE,
+Interpolate = FALSE, InterpolateN = NULL, DiagnosticPlot = FALSE)
 }
 \arguments{
   \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, dates (end date, and optionally start date) and study ID for each location. If IDs are found in LoadDat that provide a primary key for unique time series then these IDs will be used. Otherwise a set of unique IDs will be generated and used to identify, and file name, each time series.
@@ -42,8 +42,10 @@ Interpolate = FALSE, InterpolateN = NULL)
   }
   \item{Interpolate}{Logical; determines whether, after poor quality data is removed, to linearly interpolate between high quality data before calculating the summary statistics. Must be TRUE if Yield = TRUE. The interpolation function used is stats::approx. See ?stats::approx for more details.
   }
-  \item{InterpolateN}{Numeric; if Interpolate = TRUE, optionally set the number interpolated data points to be requested from the time-series interpolation. The default is set to a daily interpolation of the data.}
-  \item{DiagnosticPlot}{Logical; if TRUE will produce an additional folder in the specified directory to which plots of the time series data for each site will be saved. Will add the interpolation line, mean, min and max values if specified in the function call.}
+  \item{InterpolateN}{Numeric; if Interpolate = TRUE, optionally set the number interpolated data points to be requested from the time-series interpolation. The default is set to a daily interpolation of the data.
+  }
+  \item{DiagnosticPlot}{Logical; if TRUE will produce an additional folder in the specified directory to which plots of the time series data for each site will be saved. Will add the interpolation line, mean, min and max values if specified in the function call.
+  }
 }
 \details{If QualityScreen = TRUE, subsets to be processed should include a pixel reliability layer, so the data can be screened for poor quality data, removing them and using linear interpolation to refill data between high quality values.
 }
@@ -54,9 +56,9 @@ The second file (MODIS_Data...) that has the information from the original file 
 }
 \references{
   \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-  
-  \url{https://lpdaac.usgs.gov/products/modis_products_table}
-  
+
+  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
+
   \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 }
 \author{Sean Tuck}
@@ -64,13 +66,13 @@ The second file (MODIS_Data...) that has the information from the original file 
           \code{\link[MODISTools:QualityCheck]{QualityCheck}}
 }
 \examples{
-\dontrun{ 
-# dontrun() used because running the example requires internet access, 
+\dontrun{
+# dontrun() used because running the example requires internet access,
 # and takes over a minute to run.
 
 data(SubsetExample)
 
-MODISSubsets(LoadDat = SubsetExample, Products = "MOD13Q1",     
+MODISSubsets(LoadDat = SubsetExample, Products = "MOD13Q1",
              Bands = c("250m_16_days_EVI", "250m_16_days_NDVI", "250m_16_days_pixel_reliability"),
              Size = c(0,0), StartDate = TRUE)
 
@@ -84,12 +86,12 @@ MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1", Bands = "250m_16_da
                ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001,
                StartDate = TRUE, QualityScreen = TRUE, QualityThreshold = 0,
                QualityBand = "250m_16_days_pixel_reliability")
-               
+
 # For both EVI and NDVI
 MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1",
                Bands = c("250m_16_days_EVI","250m_16_days_NDVI"),
                ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001,
                StartDate = TRUE, QualityScreen = TRUE, QualityThreshold = 0,
                QualityBand = "250m_16_days_pixel_reliability")
-    }  
+    }
 }

@@ -3,7 +3,7 @@
 \title{MODIS Transect Subset Tool}
 \description{A function that downloads batches of MODIS data transects.
 }
-\usage{MODISTransects(LoadData, FileSep = NULL, Product, Bands, Size, 
+\usage{MODISTransects(LoadData, FileSep = NULL, Product, Bands, Size,
 SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0)
 }
 \arguments{
@@ -34,21 +34,21 @@ The transects lengths requested must be longer than the requested pixel size. Th
 }
 \references{
   \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-  
+
   \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
-  
-  \url{https://lpdaac.usgs.gov/products/modis_products_table}
+
+  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
 }
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
 \examples{
-\dontrun{ 
-# dontrun() used because running the example requires internet access, 
+\dontrun{
+# dontrun() used because running the example requires internet access,
 # and takes over a minute to run.
 data(TransectExample)
 
-MODISTransects(LoadData = TransectExample, Product = "MOD13Q1",     
-    Bands = c("250m_16_days_EVI", "250m_16_days_pixel_reliability"), 
+MODISTransects(LoadData = TransectExample, Product = "MOD13Q1",
+    Bands = c("250m_16_days_EVI", "250m_16_days_pixel_reliability"),
     Size = c(0,0), StartDate = TRUE)
     }
 }

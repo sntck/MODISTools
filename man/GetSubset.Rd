@@ -14,7 +14,7 @@
   \item{KmLeftRight}{An integer; the distance, in kilometres, from the centre of the tile of pixels to the left and right sides of the tile. So, if KmLeftRight=1, the total distance from side to side of the tile will be 2km.}
 }
 \value{A data frame containing:
-xll=The x coordinate, in the MODIS coordinate system, of the lower left corner of the pixel in which the location data falls. 
+xll=The x coordinate, in the MODIS coordinate system, of the lower left corner of the pixel in which the location data falls.
 yll=The y coordinate, in the MODIS coordinate system, of the lower left corner of the pixel in which the location data falls.
 pixelsize=The actual calculated width of the pixels of interest, in metres.
 nrow=Corresponds to KmAboveBelow argument.
@@ -29,18 +29,18 @@ This data frame is then passed to MODISSubsets.}
 \references{
   \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
 
-  \url{https://lpdaac.usgs.gov/products/modis_products_table}
+  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
 
-  \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}  
+  \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 }
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
 \examples{
-\dontrun{ 
+\dontrun{
 # dontrun() used because running the example requires internet access,
 # and takes over a minute to run.
 data(SubsetExample)
-GetSubset(Lat=SubsetExample[ ,1], Long=SubsetExample[ ,2], Product="MOD13Q1", 
-    Band="250m_16_days_EVI", StartDate="A2001001", EndDate="A2001025", 
+GetSubset(Lat=SubsetExample[ ,1], Long=SubsetExample[ ,2], Product="MOD13Q1",
+    Band="250m_16_days_EVI", StartDate="A2001001", EndDate="A2001025",
     KmAboveBelow=0, KmLeftRight=0)}
 }

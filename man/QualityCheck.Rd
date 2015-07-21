@@ -4,7 +4,7 @@
 \description{Designed as an internal function for MODISSummaries, but can also be used independently. MODIS data of a given product band are screened for poor quality pixels, using the reliability data available for that product. The missing data values are also filtered out. The output is the same MODIS data, with screened poor quality and missing data converted to NAs.
 }
 \usage{
-QualityCheck(Data, Product, Band, NoDataFill, QualityBand, QualityScores, 
+QualityCheck(Data, Product, Band, NoDataFill, QualityBand, QualityScores,
               QualityThreshold)
 }
 \arguments{
@@ -29,22 +29,22 @@ QualityCheck(Data, Product, Band, NoDataFill, QualityBand, QualityScores,
 }
 \references{
   \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-  
-  \url{https://lpdaac.usgs.gov/products/modis_products_table}
-  
+
+  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
+
   \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 }
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSummaries]{MODISSummaries}}}
 \examples{
-\dontrun{ 
+\dontrun{
 # dontrun() used because running the example requires internet access.
 data(QualityCheckExample)
 EVIdata <- QualityCheckExample[1:5, ]
 QAdata <- QualityCheckExample[6:10, ]
 
-QualityCheck(Data=EVIdata, Product="MOD13Q1", Band="250m_16_days_EVI", 
-              NoDataFill=-3000, QualityBand="250m_16_days_pixel_reliability", 
+QualityCheck(Data=EVIdata, Product="MOD13Q1", Band="250m_16_days_EVI",
+              NoDataFill=-3000, QualityBand="250m_16_days_pixel_reliability",
               QualityScores=QAdata, QualityThreshold=0)
         }
 }

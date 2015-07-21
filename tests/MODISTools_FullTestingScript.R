@@ -15,7 +15,7 @@
 # Load data to be used for testing.
 rm(list = ls())
 library(MODISTools)
-data(SubsetExample, FindIDExample, QualityCheckExample, TransectExample, 
+data(SubsetExample, FindIDExample, QualityCheckExample, TransectExample,
      EndCoordinatesExample, ConvertExample)
 library(RCurl)  # Will use some RCurl and XML functions explicitly in testing.
 library(XML)
@@ -37,17 +37,17 @@ if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 if(class(try(GetProducts(), silent = TRUE)) == "try-error") q()
 
 # Check MODIS subset uses this output to produce correctly downloaded files.
-if(grepl("Server is busy handling other requests", 
+if(grepl("Server is busy handling other requests",
          GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MCD12Q1",
                    Band = "Land_Cover_Type_1", StartDate = "A2005001", EndDate = "A2005001",
                    KmAboveBelow = 0, KmLeftRight = 0)$subset[1])){
   q()
-}  
+}
 ###
 
 ### Check the XML response is as expected.
 getsubset.xml <- paste('
-<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+<soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
                        xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daac.ornl.gov/MODIS_webservice">
                        <soapenv:Header/>
                        <soapenv:Body>
@@ -109,20 +109,20 @@ GetDates(SubsetExample$lat, SubsetExample$long, 'MOD13Q1')
 # Check we can still reach the server for lpdaac modis web service before running functions that request.
 if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 # Check MODIS subset uses this output to produce correctly downloaded files.
-if(grepl("Server is busy handling other requests", 
+if(grepl("Server is busy handling other requests",
          GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MCD12Q1", Band = "Land_Cover_Type_1",
                    StartDate = "A2005001", EndDate = "A2005001", KmAboveBelow = 0, KmLeftRight = 0)$subset[1])){
   q()
 } else {
   # Check GetSubset is producing the correct output.
   Dates <- GetDates(FindIDExample$lat[1], FindIDExample$long[1], Product = 'MOD13Q1')[1:10]
-  
+
   gsub.try <- try(GetSubset(Lat = FindIDExample$lat[1], Long = FindIDExample$long[1],
                             Product = 'MOD13Q1', Band = '250m_16_days_EVI', StartDate = Dates[1],
                             EndDate = Dates[5], KmAboveBelow = 0, KmLeftRight = 0))
   if(class(gsub.try) == "try-error") q()
   gsub.try
-  
+
   ###
   # MODISSubsets check using multiple bands and multiple-pixel tiles over multiple time-steps.
   MODISSubsets(LoadDat = FindIDExample, Product = "MOD13Q1",
@@ -134,18 +134,18 @@ if(grepl("Server is busy handling other requests",
 # Check we can still reach the server for lpdaac modis web service before running functions that request.
 if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 # Check example run of MODISSummaries.
-if(grepl("Server is busy handling other requests", 
-         GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MOD13Q1", Band = "250m_16_days_EVI", 
+if(grepl("Server is busy handling other requests",
+         GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MOD13Q1", Band = "250m_16_days_EVI",
                    StartDate = "A2000049", EndDate = "A2000049", KmAboveBelow = 0, KmLeftRight = 0)$subset[1])){
   q()
 } else {
-  
+
   ###
   # MODISSummaries check without QualityCheck
   MODISSummaries(LoadDat = FindIDExample, Product = "MOD13Q1",
                  Bands = c("250m_16_days_EVI","250m_16_days_NDVI"), ValidRange = c(-2000,10000),
                  NoDataFill = -3000, ScaleFactor = 0.0001, StartDate = TRUE)
-  
+
   # MODISSummaries check with QualityCheck
   MODISSummaries(LoadDat = FindIDExample, Product = "MOD13Q1",
                  Bands = c("250m_16_days_EVI","250m_16_days_NDVI"), ValidRange = c(-2000,10000),
@@ -156,8 +156,8 @@ if(grepl("Server is busy handling other requests",
 
 ###
 # Check the MODISSummaries file outputs are consistent.
-SummaryFile <- read.csv(list.files(pattern = "MODIS_Summary"))
-DataFile <- read.csv(list.files(pattern = "MODIS_Data"))
+SummaryFile <- read.csv(list.files(pattern = "MODIS_Summary")[1])
+DataFile <- read.csv(list.files(pattern = "MODIS_Data")[1])
 file.check <- all(SummaryFile$mean.band == DataFile[1,which(grepl("pixel", names(DataFile)))])
 if(is.na(file.check)){
   warning("The two output files from MODISSummaries are not consistent.")
@@ -173,12 +173,12 @@ if(class(try(GetProducts(), silent = TRUE)) == "try-error") q()
 # Check we can still reach the server for lpdaac modis web service before running functions that request.
 if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
 # Check example of MODISTransects
-if(grepl("Server is busy handling other requests", 
+if(grepl("Server is busy handling other requests",
          GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MOD13Q1", Band = "250m_16_days_EVI",
                    StartDate = "A2000049", EndDate = "A2000049", KmAboveBelow = 0, KmLeftRight = 0)$subset[1])){
   q()
 } else {
-  
+
   ###
   MODISTransects(LoadData = TransectExample, Product = "MCD12Q1", Bands = c("Land_Cover_Type_1"),
                  Size = c(0,0), StartDate = TRUE)
@@ -202,7 +202,7 @@ convert.deg2 <- ConvertToDD(XY = convert.eg2, LatColName = "lat", LongColName = 
 if(!all.equal(convert.deg1, (convert.deg2 * -1))) stop('ConvertToDD function not translating hemispheres correctly.')
 
 # Check ExtractTile example
-TileExample <- read.csv(list.files(pattern = "MODIS_Data"))
+TileExample <- read.csv(list.files(pattern = "MODIS_Data")[1])
 TileExample <- TileExample[1,which(grepl("pixel", names(TileExample)))[1:81]]
 
 dim(TileExample)
@@ -225,14 +225,14 @@ dir.create('./UpdateSubsetsEx')
 setwd('./UpdateSubsetsEx')
 data(SubsetExample, FindIDExample)
 
-MODISSubsets(LoadDat = SubsetExample, Product = "MOD13Q1", 
-             Bands = c("250m_16_days_EVI","250m_16_days_pixel_reliability"), 
+MODISSubsets(LoadDat = SubsetExample, Product = "MOD13Q1",
+             Bands = c("250m_16_days_EVI","250m_16_days_pixel_reliability"),
              Size = c(0,0), StartDate = TRUE)
 list.files()
 
 reduced.subset <- UpdateSubsets(LoadDat = FindIDExample)
-MODISSubsets(LoadDat = reduced.subset, Product = "MOD13Q1", 
-             Bands = c("250m_16_days_EVI","250m_16_days_pixel_reliability"), 
+MODISSubsets(LoadDat = reduced.subset, Product = "MOD13Q1",
+             Bands = c("250m_16_days_EVI","250m_16_days_pixel_reliability"),
              Size = c(0,0), StartDate = TRUE)
 list.files()
 ###

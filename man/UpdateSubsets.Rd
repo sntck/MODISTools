@@ -7,7 +7,7 @@
 \arguments{
   \item{LoadDat}{Input dataset: either the name of an object already in the workspace, or a file to be read in by specifying its file path as a character string, that has location data, end date (end.date) and study ID for each location.  	
   	}
-  \item{StartData}{Logical: Specifying whether StartDate was specified in the original MODISSubset download.}	
+  \item{StartDate}{Logical: Specifying whether StartDate was specified in the original MODISSubset download.}	
   \item{Dir}{String: Directory where previously downloaded subsets are saved. Default is current working directory.}
 }
 \details{The input dataset should be organised accordingly: "lat" and "long" columns showing WGS-1984 decimal degrees latitudes and longitudes respectively; "end.date" for study end date.}

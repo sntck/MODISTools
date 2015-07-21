@@ -3,7 +3,7 @@
 \title{MODIS Subset Tool}
 \description{Uses the MODIS SOAP Web Service (see references) as a batch process to remotely extract and locally download time-series subsets of a MODIS product for a given area surrounding many locations.
 }
-\usage{MODISSubsets(LoadDat, FileSep = NULL, Products, Bands, Size, 
+\usage{MODISSubsets(LoadDat, FileSep = NULL, Products, Bands, Size,
 SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
 }
 \arguments{
@@ -32,10 +32,10 @@ SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
 }
 \references{
   \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-  
-  \url{https://lpdaac.usgs.gov/products/modis_products_table}
-  
-  \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}  
+
+  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
+
+  \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 }
 \author{Sean Tuck}
 \seealso{\code{\link{MODISSummaries}}
@@ -44,7 +44,7 @@ SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
          \code{\link{MODISTimeSeries}}
 }
 \examples{
-\dontrun{ 
+\dontrun{
 # dontrun() used because running the example requires internet access.
 
 data(SubsetExample)
@@ -52,10 +52,10 @@ data(SubsetExample)
 MODISSubsets(LoadDat = SubsetExample, Products = "MOD13Q1", Bands = c("250m_16_days_EVI",
              "250m_16_days_pixel_reliability"), Size = c(0,0), StartDate = TRUE)
 
-MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1", Bands = "250m_16_days_EVI", 
-               ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001, 
+MODISSummaries(LoadDat = SubsetExample, Product = "MOD13Q1", Bands = "250m_16_days_EVI",
+               ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001,
                StartDate = TRUE, QualityScreen = TRUE, QualityThreshold = 0,
                QualityBand = "250m_16_days_pixel_reliability")
-      
-    }    
+
+    }
 }

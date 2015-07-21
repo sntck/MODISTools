@@ -7,13 +7,13 @@
 \author{Sean Tuck}
 \references{
   \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-  
+
   \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
-  
-  \url{https://lpdaac.usgs.gov/products/modis_products_table}
-  
+
+  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
+
   \url{http://www.omegahat.org/RCurl}
-  
+
   \url{http://www.omegahat.org/RSXML}
-}  
+}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}

@@ -14,7 +14,7 @@
 \sloppy    % Prevent hyphenated words running into margins
 \SweaveOpts{concordance=TRUE, width=6, height=6}
 \setkeys{Gin}{width=0.5\textwidth}
-\title{Using MODISTools 
+\title{Using MODISTools
        (\Sexpr{packageDescription('MODISTools', fields='Version')})}
 \author{Sean Tuck}
 \date{\Sexpr{packageDescription('MODISTools', fields='Date')}}
@@ -30,7 +30,7 @@ options(continue = ' ')
 options(width = 90)
 options(prompt = '> ')
 
-options(SweaveHooks = list(fig=function() par(mgp=c(2.5,1,0), 
+options(SweaveHooks = list(fig=function() par(mgp=c(2.5,1,0),
                                               mar=c(4,4,2,1),
                                               oma=c(0,0,1,0),
                                               cex.main=0.8)))
@@ -49,7 +49,7 @@ ConvertExample
 @
 These coordinates are WGS-1984 coordinates, but they are not in decimal degrees. We can use \code{ConvertToDD} to fix this.
 <<>>=
-modis.subset <- 
+modis.subset <-
   ConvertToDD(XY = ConvertExample, LatColName = "lat", LongColName = "long")
 modis.subset <- data.frame(lat = modis.subset[ ,1], long = modis.subset[ ,2])
 modis.subset
@@ -94,20 +94,20 @@ The time-period available for the Vegetation Indices product covers 2003-2006 (t
 \subsection{MODISSubsets}
 The download will write the MODIS data to ASCII files for each location subset specified. We can specify the directory that we would like to save downloaded files in, using the \code{SaveDir} argument below. In the code below, downloaded files will be written to your working directory; if you would prefer the files to be written elsewhere change \code{SaveDir}. But we will access these files later, so remember to request the files from the same directory.
 <<eval=FALSE>>=
-MODISSubsets(LoadDat = modis.subset, Products = "MOD13Q1", 
-             Bands = c("250m_16_days_EVI", "250m_16_days_pixel_reliability"), 
+MODISSubsets(LoadDat = modis.subset, Products = "MOD13Q1",
+             Bands = c("250m_16_days_EVI", "250m_16_days_pixel_reliability"),
              Size = c(1,1))
 @
 Each ASCII file is a different subset location. In each ASCII file, each row is a different time-step in the time-series. If multiple data bands have been downloaded for this subset, they will all be contained in the same ASCII file for that subset.
 
 Here is an example of the strings of data that are downloaded for pixels at each time-step and data band:
 <<eval=FALSE>>=
-subset.string <- read.csv(paste(list.files(pattern = ".asc")[1], 
-                                header = FALSE, as.is = TRUE))
+subset.string <- read.csv(list.files(pattern = ".asc")[1],
+                                header = FALSE, as.is = TRUE)
 subset.string[1, ]
 @
 <<echo=FALSE>>=
-subset.string <- read.csv(paste("./MODISSubsetsMOD13Q1/", 
+subset.string <- read.csv(paste("./MODISSubsetsMOD13Q1/",
                                 list.files(path = "./MODISSubsetsMOD13Q1", pattern = ".asc")[1]
                                 , sep = ""), header = FALSE, as.is = TRUE)
 subset.string[1, ]
@@ -115,26 +115,15 @@ subset.string[1, ]
 A download log file will also be written, displaying all the unique subsets found in the dataset, and confirmation of download success for each.
 
 \subsection{MODISTransects}
-Alternatively, we may want transects of MODIS data. This is easily done by specifying start and end points for transects and calling \code{MODISTransects}. Our data here does not have coordinates that specify transect end points yet, so we need to calculate them using \code{EndCoordinates}.
-<<eval=FALSE>>=
-names(modis.subset) <- c("start.lat", "start.long", "start.date", "end.date")
-EndCoordinates(LoadDat = modis.subset, Distance = 1000, Angle = 60, 
-               AngleUnits = "degrees")
-
-modis.transect <- read.csv(list.files(pattern = "Transect Coordinates"))
-
-MODISTransects(LoadData = modis.transect, Product = "MOD13Q1",     
-    Bands = c("250m_16_days_EVI", "250m_16_days_pixel_reliability"), 
-    Size = c(0,0), StartDate = TRUE)
-@
+Alternatively, we may want transects of MODIS data. This is easily done by specifying start and end points for transects, with unique IDs for each transect and then calling \code{MODISTransects} instead of using \code{MODISSubsets}. To try this out, use the example given in the \code{MODISTransects} help documentation.
 
 \section{Process the data}
 \subsection{MODISSummaries}
-Now we have downloaded the EVI data, we can find average each pixel over time, to produce one tile of mean EVI pixels at each subset location. We can use \code{MODISSummaries} for this. The function will also take this processed data and append it to your original files containing all the subset information (\code{modis.subset}). This will write two files to the specified directory. We downloaded quality control data for each pixel alongside our EVI data, so \code{MODISSummaries} can also check for poor quality and missing data. These data will be removed and replaced with \code{NA}s. The threshold for defining what is good and poor quality is set by the user: the scores for highest quality is 0, and the score for lowest quality is 3 or 5, depending on the data band. To see how quality control information is defined for each data type, go to the \href{https://lpdaac.usgs.gov/products/modis_products_table}{\bf{MODIS Products Table}}. We need to specify the range of valid data for EVI, the value that denotes missing data, and the scale factor that is applied to the data, which are all available from the same web page.
+Now we have downloaded the EVI data, we can find average each pixel over time, to produce one tile of mean EVI pixels at each subset location. We can use \code{MODISSummaries} for this. The function will also take this processed data and append it to your original files containing all the subset information (\code{modis.subset}). This will write two files to the specified directory. We downloaded quality control data for each pixel alongside our EVI data, so \code{MODISSummaries} can also check for poor quality and missing data. These data will be removed and replaced with \code{NA}s. The threshold for defining what is good and poor quality is set by the user: the scores for highest quality is 0, and the score for lowest quality is 3 or 5, depending on the data band. To see how quality control information is defined for each data type, go to the \href{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}{\bf{MODIS Products Table}}. We need to specify the range of valid data for EVI, the value that denotes missing data, and the scale factor that is applied to the data, which are all available from the same web page.
 <<eval=FALSE>>=
-MODISSummaries(LoadDat = modis.subset, Product = "MOD13Q1", Bands = "250m_16_days_EVI", 
-               ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001, 
-               QualityScreen = TRUE, QualityBand = "250m_16_days_pixel_reliability", 
+MODISSummaries(LoadDat = modis.subset, Product = "MOD13Q1", Bands = "250m_16_days_EVI",
+               ValidRange = c(-2000,10000), NoDataFill = -3000, ScaleFactor = 0.0001,
+               QualityScreen = TRUE, QualityBand = "250m_16_days_pixel_reliability",
                QualityThreshold = 0)
 @
 If you want to screen data for quality without all the other things that \code{MODISSummaries} does, you can call the more general \code{QualityCheck}, which is an internal function for \code{MODISSummaries}.
@@ -143,19 +132,19 @@ If you want to screen data for quality without all the other things that \code{M
 Also, if large subset tiles are downloaded for each location, there may be times when we want to extract a smaller tile from within this subset, rather than downloading again to retrieve the nested data we want. This can be done using \code{ExtractTile}. We will use the file just written from our call to \code{MODISSummaries}, retrieve the smaller subset we want, and arrange them into tiles to compare before and after.
 <<eval=FALSE>>=
 TileExample <- read.csv(list.files(pattern = "MODIS_Data"))
-TileExample <- TileExample[ ,which(grepl("band.pixels", names(TileExample)))]
+TileExample <- TileExample[ ,which(grepl("250m_16_days_EVI", names(TileExample)))]
 @
 <<echo=FALSE>>=
-TileExample <- read.csv(paste("./MODISSummaries/", 
-                              list.files(path = "./MODISSummaries/", 
+TileExample <- read.csv(paste("./MODISSummaries/",
+                              list.files(path = "./MODISSummaries/",
                                          pattern = "Data"), sep = ""))
-TileExample <- TileExample[ ,which(grepl("band.pixels", names(TileExample)))]
+TileExample <- TileExample[ ,which(grepl("250m_16_days_EVI", names(TileExample)))]
 @
 Pixels in a tile are on the same row. See that using \code{ExtractTile} takes away some of the columns.
 <<>>=
 dim(TileExample)
 dim(ExtractTile(Data = TileExample, Rows = c(9,2), Cols = c(9,2), Grid = FALSE))
-head(ExtractTile(Data = TileExample, Rows = c(9,2), Cols = c(9,2), Grid = FALSE), 
+head(ExtractTile(Data = TileExample, Rows = c(9,2), Cols = c(9,2), Grid = FALSE),
      n = 2)
 @
 We can look at the first subset and arrange the pixels into a tile to visually show what \code{ExtractTile} has done.
@@ -168,7 +157,9 @@ Arrangement of the pixels into tiles this way can be optionally set with a call 
 \subsection{LandCover}
 Let's do the same as above but download data on land cover classes for the same subsets.
 <<eval=FALSE>>=
-MODISSubsets(LoadDat = modis.subset, Product = "MCD12Q1", Bands = "Land_Cover_Type_1", 
+dir.create('./LandCover')
+setwd('./LandCover')
+MODISSubsets(LoadDat = modis.subset, Product = "MCD12Q1", Bands = "Land_Cover_Type_1",
              Size = c(1,1))
 @
 We can use \code{LandCover} to retrieve some summaries of land cover in each tile. This will tell us the most common land cover type, the total number of distinct land cover types, and Simpson's D and evenness measures to express landscape diversity and heterogeneity in these tiles. Let's retrieve these summaries from the land cover subset files we just downloaded.
