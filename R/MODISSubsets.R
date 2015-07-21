@@ -15,8 +15,8 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     
     #####
     # Check lat and long data frame columns are named "lat" and "long" as necessary.
-    if(!any(names(dat) == "lat") & !any(names(dat) == "long")){
-      stop("Could not find columns for latitude and longitude in your data set. Must be named 'lat' and 'long'.")
+    if(!any(names(dat) == "lat") | !any(names(dat) == "long")){
+      stop("Could not find columns for latitude and/or longitude in your data set. Must be named 'lat' and 'long'.")
     }   
     # Check lats and longs are valid.
     if(abs(dat$lat) > 90 || abs(dat$long) > 180) stop("Detected some lats or longs beyond the range of valid coordinates.")
