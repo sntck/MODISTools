@@ -40,7 +40,7 @@ library(devtools)
 ```
 Then use `install_github`, with this repository name, to install `MODISTools` straight from github.
 ```
-install_github("seantuck12/MODISTools")
+install_github("seantuck12/MODISTools", build_vignettes=TRUE)
 ```
 
 
