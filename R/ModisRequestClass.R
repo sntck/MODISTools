@@ -28,7 +28,7 @@ ModisRequest <- R6Class("ModisRequest",
         if(any(missing(LoadDat), missing(Products), missing(Bands), missing(Size)))
           stop("Input was missing: LoadDat, Products, Bands, and Size are all required.")
 
-        ## Populate the object fields upon initialisation
+        ## Populate the object fields upon initialisation.
         self$inputData <- LoadDat
         self$products  <- Products
         self$bands     <- Bands
@@ -36,13 +36,39 @@ ModisRequest <- R6Class("ModisRequest",
 
         if("SaveDir" %in% names(optionalInput))
         {
-          self$saveDir <- normalizePath(optionalInput$SaveDir) ## Creates absolute path
+          self$saveDir <- normalizePath(optionalInput$SaveDir) ## Creates absolute path.
         } else {
           cat("SaveDir not specified: default is the working directory.\n")
           self$saveDir <- getwd()
         }
 
         if("Transect" %in% names(optionalInput)) self$transect <- optionalInput$Transect
+
+        ## If optional variable names were supplied, make these now conform with what is expected.
+        if(any("LatColName" %in% names(optionalInput)))
+        {
+          tryCatch(stopifnot(any(LatColName %in% names(self$inputData))),
+                   error = function(e) stop(simpleError("LatColName supplied does not match any variable name in LoadDat.")))
+          names(self$inputData)[names(self$inputData) == LatColName] <- "lat"
+        }
+        if(any("LongColName" %in% names(optionalInput)))
+        {
+          tryCatch(stopifnot(any(LongColName %in% names(self$inputData))),
+                   error = function(e) stop(simpleError("LongColName supplied does not match any variable name in LoadDat.")))
+          names(self$inputData)[names(self$inputData) == LongColName] <- "long"
+        }
+        if(any("StartDateColName" %in% names(optionalInput)))
+        {
+          tryCatch(stopifnot(any(StartDateColName %in% names(self$inputData))),
+                   error = function(e) stop(simpleError("StartDateColName supplied does not match any variable name in LoadDat.")))
+          names(self$inputData)[names(self$inputData) == StartDateColName] <- "start.date"
+        }
+        if(any("EndDateColName" %in% names(optionalInput)))
+        {
+          tryCatch(stopifnot(any(EndDateColName %in% names(self$inputData))),
+                   error = function(e) stop(simpleError("EndDateColName supplied does not match any variable name in LoadDat.")))
+          names(self$inputData)[names(self$inputData) == EndDateColName] <- "end.date"
+        }
 
         ## Organise bands into tidy data.frame with product names that will simplify downloading later.
         self$bandList <- lapply(self$products, function(x) data.frame(product = I(x), band = I(self$getBands(x))))
@@ -59,7 +85,7 @@ ModisRequest <- R6Class("ModisRequest",
         self$dateList <- lapply(self$products, function(x) self$getDates(self$inputData$lat[1], self$inputData$long[1], x))
         names(self$dateList) <- self$products
 
-        ## Print the opening text output detailing the MODISSubsets function call
+        ## Print the opening text output detailing the MODISSubsets function call.
         private$requestMessage()
       },
       ##
@@ -142,12 +168,12 @@ ModisRequest <- R6Class("ModisRequest",
                })
 
         ## Format days information for MODIS-style dates (A + YYYYDDD).
-        modisDates <- data.frame(start = I(private$posixToModisDates(startDates)),
-                                 end   = I(private$posixToModisDates(endDates)))
+        modisDates <- data.frame(start = I(self$posixToModisDates(startDates)),
+                                 end   = I(self$posixToModisDates(endDates)))
 
         ## Check start and end dates fall within the available range.
-        tryCatch(stopifnot(all(startDates >= min(private$modisToPosixDates(unlist(self$dateList)))),
-                           all(endDates <= max(private$modisToPosixDates(unlist(self$dateList))))),
+        tryCatch(stopifnot(all(startDates >= min(self$modisToPosixDates(unlist(self$dateList)))),
+                           all(endDates <= max(self$modisToPosixDates(unlist(self$dateList))))),
                  error = function(e) stop(simpleError("Some dates requested fall outside the available range.")))
 
         ## Return dates in MODIS format.
@@ -166,6 +192,21 @@ ModisRequest <- R6Class("ModisRequest",
           matrixFiller <- rep(NA, private$maxRequestLength - (length(dates) %% private$maxRequestLength))
           return(matrix(c(dates, matrixFiller), nrow = private$maxRequestLength))
         })
+      },
+      ##
+      posixToModisDates = function(dates)
+      {
+        days <- as.POSIXlt(dates)$yday + 1 ## +1 because Jan 1 is day 0.
+        days[nchar(days) == 2] <- paste0(0, days[nchar(days) == 2])
+        days[nchar(days) == 1] <- paste0(0, 0, days[nchar(days) == 1])
+        return(paste0("A", substr(dates, 1, 4), days))
+      },
+      ##
+      modisToPosixDates = function(dates)
+      {
+        years <- substr(dates, 2, 5)
+        days  <- substr(dates, 6, 8)
+        return(as.Date(paste0(years, "-01-01")) + (as.numeric(days) - 1)) ## -1 because Jan 1 is day 0.
       },
       ##
       subsetDownload = function(subset, subsetID)
@@ -291,21 +332,6 @@ ModisRequest <- R6Class("ModisRequest",
         ## Return either "year" or "posix", which will be passed to switch() in modis dates method.
         if(posix)     return("posix")
         else if(year) return("year")
-      },
-      ##
-      posixToModisDates = function(dates)
-      {
-        days <- as.POSIXlt(dates)$yday + 1 ## +1 because Jan 1 is day 0.
-        days[nchar(days) == 2] <- paste0(0, days[nchar(days) == 2])
-        days[nchar(days) == 1] <- paste0(0, 0, days[nchar(days) == 1])
-        return(paste0("A", substr(dates, 1, 4), days))
-      },
-      ##
-      modisToPosixDates = function(dates)
-      {
-        years <- substr(dates, 2, 5)
-        days  <- substr(dates, 6, 8)
-        return(as.Date(paste0(years, "-01-01")) + (as.numeric(days) - 1)) ## -1 because Jan 1 is day 0.
       },
       ##
       batchDownload = function(subset, dataType)
