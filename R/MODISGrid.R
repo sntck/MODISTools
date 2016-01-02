@@ -1,30 +1,31 @@
 MODISGrid <-
 function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
 {
-  # DEFINE
+  ## DEFINE
   NUM_METADATA_COLS <- 10
 
   if(Dir == '.') cat('Files downloaded will be written to ', file.path(getwd(), DirName), '.\n', sep = '')
   if(Dir != '.') cat('Files downloaded will be written to ', file.path(Dir, DirName), '.\n', sep = '')
 
-  # Create directory for storing new grid files.
+  ## Create directory for storing new grid files.
   if(!file.exists(file.path(Dir, DirName))) dir.create(path = file.path(Dir, DirName))
 
-  # Find all MODIS data files in Dir
+  ## Find all MODIS data files in Dir.
   file.list <- list.files(path = Dir, pattern = ".asc$")
   file.list <- file.list[grepl("___", file.list)]
   if(length(file.list) == 0) stop("Could not find any MODIS data files in directory specified.")
 
-  # Check NoDataValues is a list of named vectors
+  ## Check NoDataValues is a list of named vectors.
   if(!is.list(NoDataValues)) stop("NoDataValues should be a list of named vectors. See help doc.")
 
-  # Check the number of products in NoDataValues list equals the number found in file.list
+  ## Check the number of products in NoDataValues list equals the number found in file.list.
   prod.set <- unique(do.call(c, as.vector(lapply(
       file.path(Dir, file.list), function(x) read.csv(x, header = FALSE, as.is = TRUE)[ ,7]
   ))))
+  if(any(nchar(prod.set) == 0)) stop("A subset was incompletely downloaded. Check MODISSubsets output and retry the subset.")
   if(!all(prod.set %in% names(NoDataValues))) stop("Mismatch between NoDataValues and data products found in files.")
 
-  # Check that NoDataValues value is specified for every data band found in file.list
+  ## Check that NoDataValues value is specified for every data band found in file.list.
   band.set <- unique(as.vector(sapply(
       lapply(file.path(Dir, file.list), function(x) read.csv(x, header = FALSE, as.is = TRUE)[ ,6]),
       function(x) unique(substr(x, (gregexpr(".", x, fixed = TRUE)[[1]][5] + 1), nchar(x)))
@@ -33,20 +34,20 @@ function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
     stop("Mismatch between NoDataValues and data bands found in files.")
   }
 
-  for(i in 1:length(file.list)){
-
+  for(i in 1:length(file.list))
+  {
     cat("Creating new GIS ASCII files from MODIS data file", i, "out of", length(file.list), "\n")
 
     data.file <- read.csv(file.path(Dir, file.list[i]), header = FALSE, as.is = TRUE)
     names(data.file) <- c("nrow", "ncol", "xll", "yll", "pixelsize", "row.id", "product.code", "MODIS.acq.date",
                           "where", "MODIS.proc.date", 1:(ncol(data.file) - NUM_METADATA_COLS))
 
-    # Create directory for this data file if SubDir = TRUE
+    ## Create directory for this data file if SubDir = TRUE.
     sub.dir <- substr(file.list[i], 1, regexpr(".asc$", file.list[i])-1)
     if(SubDir & !file.exists(file.path(Dir, DirName, sub.dir))) dir.create(path = file.path(Dir, DirName, sub.dir))
 
-    for(n in 1:nrow(data.file)){
-
+    for(n in 1:nrow(data.file))
+    {
       data.band <- substr(data.file$row.id[n],
                           gregexpr(".", data.file$row.id[n], fixed = TRUE)[[1]][5] + 1,
                           nchar(data.file$row.id[n]))
@@ -64,13 +65,13 @@ function(Dir = ".", DirName = "MODIS_GRID", SubDir = TRUE, NoDataValues)
               sprintf("yllcorner\t %.2f", data.file$yll[n]),
               sprintf("cellsize\t %s", as.character(data.file$pixelsize[n])),
               sprintf("NODATA_value\t %s", as.character(NoDataValues[[data.file$product.code[n]]][data.band]))),
-            file = file.path(paste0(path, ".asc")))
+            file = file.path(paste0(path,".asc")))
 
-      WritePRJ(Path = file.path(paste0(path, ".prj")))
+      WritePRJ(Path = file.path(paste0(path,".prj")))
 
       grid.data <- matrix(data.file[n,(NUM_METADATA_COLS+1):ncol(data.file)],
                           nrow = data.file$nrow[n], ncol = data.file$ncol[n], byrow = TRUE)
-      write.table(grid.data, file = file.path(paste0(path, ".asc")), append = TRUE, col.names = FALSE, row.names = FALSE)
+      write.table(grid.data, file = file.path(paste0(path,".asc")), append = TRUE, col.names = FALSE, row.names = FALSE)
     }
   }
 }
