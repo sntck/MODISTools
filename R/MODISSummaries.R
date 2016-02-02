@@ -25,7 +25,7 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
     # Check lat and long data frame columns are named "lat" and "long" as necessary.
     if(!any(names(details) == "lat") | !any(names(details) == "long")){
       stop("Could not find columns for latitude and/or longitude in your data set. Must be named 'lat' and 'long'.")
-    }   
+    }
 
     if(!file.exists(Dir)) stop("Character string input for Dir argument does not resemble an existing file path.")
 
@@ -131,15 +131,16 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
       whereSamp <- regexpr("Samp", ds$where[1])
       lat <- as.numeric(substr(ds$where[1], 4, wherelong - 1))
       long <- as.numeric(substr(ds$where[1], wherelong + 3, whereSamp - 1))
+      rowIdBands <- Reduce(rbind, strsplit(ds$row.id, "[.]"))
+      rowIdBands <- rowIdBands[ ,ncol(rowIdBands)]
 
       # Check that all bands listed are in the ASCII files.
-      Band.check <- sapply(Bands, function(x) any(grepl(x, ds$row.id)))
-      if(!all(Band.check)) stop("Not all Bands are represented in data file.")
+      if(!all(Bands %in% rowIdBands)) stop("Not all Bands are represented in data file.")
 
       # Identify which rows in ds correspond to the quality data and put into a matrix.
       if(QualityScreen){
-        ifelse(any(grepl(QualityBand, ds$row.id)),
-               which.QA <- grep(QualityBand, ds$row.id),
+        ifelse(QualityBand %in% rowIdBands,
+               which.QA <- which(QualityBand == rowIdBands),
                stop("Cannot find quality data in LoadDat. Download quality data with band data in MODISSubsets."))
         QA.time.series <- as.matrix(ds[which.QA,w.ds.dat:ncol(ds)], nrow = length(which.QA), ncol = length(w.ds.dat:ncol(ds)))
       }
@@ -148,8 +149,8 @@ function(LoadDat, FileSep = NULL, Dir = ".", Product, Bands, ValidRange, NoDataF
       for(bands in 1:length(Bands)){
 
         # Find rows in ds that correspond to Bands[bands] data and put into a matrix.
-        ifelse(any(grepl(Bands[bands], ds$row.id)),
-               which.band <- grep(Bands[bands], ds$row.id),
+        ifelse(Bands[bands] %in% rowIdBands,
+               which.band <- which(Bands[bands] == rowIdBands),
                stop("Cannot find band data in LoadDat. Make sure ASCII files in the directory are from MODISSubsets."))
         band.time.series <- as.matrix(ds[which.band,w.ds.dat:ncol(ds)],
                                       nrow = length(which.band), ncol = length(w.ds.dat:ncol(ds)))
