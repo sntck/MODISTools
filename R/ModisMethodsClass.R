@@ -8,7 +8,7 @@
     public = list(
       ##### Public fields
       ## Define land cover classes for each data band: converts the downloaded numeric data into the correct class name.
-      landCoverClasses <- list(
+      landCoverClasses = list(
         Land_Cover_Type_1 = c("Water" = 0, "Evergreen Needleleaf forest" = 1, "Evergreen Broadleaf forest" = 2,
                               "Deciduous Needleleaf forest" = 3, "Deciduous Broadleaf forest" = 4, "Mixed forest" = 5,
                               "Closed shrublands" = 6, "Open shrublands" = 7, "Woody savannas" = 8, "Savannas" = 9,
