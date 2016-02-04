@@ -2,26 +2,26 @@ QualityCheck <-
 function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThreshold)
 {
   ##### Define what valid ranges for quality bands should be for different products:
-  ## 1=lower range     2=upper range     3=no fill value
-  QA_RANGE <- data.frame(
-    MYD09A1 = c(0,4294966531,""),            ## Surface reflectance bands 0-1 bits
-    MOD09A1 = c(0,4294966531,""),            ## Surface reflectance bands 0-1 bits
-    MOD11A2 = c(0,255,""),                   ## Land surface temperature and emissivity 0-1 bits
-    MYD11A2 = c(0,255,""),                   ## Land surface temperature and emissivity 0-1 bits
+  qc <- data.frame(
+    MYD09A1 = c(0,4294966531,NA),            ## Surface reflectance bands 0-1 bits
+    MOD09A1 = c(0,4294966531,NA),            ## Surface reflectance bands 0-1 bits
+    MOD11A2 = c(0,255,NA),                   ## Land surface temperature and emissivity 0-1 bits
+    MYD11A2 = c(0,255,NA),                   ## Land surface temperature and emissivity 0-1 bits
     MCD12Q1 = c(0,254,255),                  ## Land cover types 0-1 bits
     MOD13Q1 = c(0,3,-1),                     ## Vegetation indices 0-1 bits
     MYD13Q1 = c(0,3,-1),                     ## Vegetation indices 0-1 bits
     MOD15A2 = c(0,254,255),                  ## LAI - FPAR 0 bit
     MYD15A2 = c(0,254,255),                  ## LAI - FPAR 0 bit
     MOD17A2 = c(0,254,255),                  ## GPP 0 bit
-    MOD17A3 = c(0,100,""),                   ## GPP funny one - evaluate separately
+    MOD17A3 = c(0,100,NA),                   ## GPP funny one - evaluate separately
     MCD43A4 = c(0,4294967294,4294967295),    ## BRDF albedo band quality, taken from MCD43A2, for reflectance data
     MOD16A2 = c(0,254,255)                   ## 8-day, monthly ET/LE/PET/PLE, annual LE/PLE. Same data as MOD15A2 QC
   )
+  row.names(qc) <- c("min","max","noData")
   ## Land cover dynamics products are available for download but not for quality checking with this function.
 
   ## Check the product input corresponds to one with useable quality information.
-  if(!any(names(QA_RANGE) == Product)) stop(paste0("QualityCheck cannot be used for (",Product,") product."))
+  if(!any(names(qc) == Product)) stop("QualityCheck cannot be used for ",Product," product.")
 
   ## If dataframes, coerce to matrices.
   if(is.data.frame(Data)) Data <- as.matrix(Data)
@@ -29,17 +29,22 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
 
   ## Check that Data and QualityScores have matching length and, if a matrix, dimensions.
   if(is.matrix(Data) | is.matrix(QualityScores)){
-    if(!(is.matrix(Data) & is.matrix(QualityScores))) stop("Data and QualityScores do not have matching dimensions.")
-    if(!all(dim(Data) == dim(QualityScores))) stop("Data and QualityScores do not have matching dimensions.")
+    if(!(is.matrix(Data) & is.matrix(QualityScores))) stop("Data and QualityScores must have matching dimensions.")
+    if(!all(dim(Data) == dim(QualityScores)))         stop("Data and QualityScores must have matching dimensions.")
   } else {
     if(length(Data) != length(QualityScores)) stop("Data and QualityScores must have matching lengths.")
   }
 
   ## Check the QualityScores input are within the correct range for the product requested.
-  if(any((QualityScores < QA_RANGE[1,Product] | QualityScores > QA_RANGE[2,Product]) &
-          QualityScores != QA_RANGE[3,Product])){
-    stop(paste("Some QualityScores are outside of the range of valid quality control data for the product requested. For
-         this product, the valid QualityScore range is",QA_RANGE[1,Product],"and",QA_RANGE[2,Product],".",sep=" "))
+  if(is.na(qc["noData",Product])){
+    if(any(QualityScores < qc["min",Product] | QualityScores > qc["max",Product]))
+      stop("QualityScores not all in range of ",Product,"'s QC: ",qc["min",Product],"-",qc["max",Product])
+  } else {
+    qualityScoresInvalid <- ifelse(QualityScores != qc["noData",Product],
+                                   QualityScores < qc["min",Product] | QualityScores > qc["max",Product],
+                                   FALSE)
+    if(any(qualityScoresInvalid))
+      stop("QualityScores not all in range of ",Product,"'s QC: ",qc["min",Product],"-",qc["max",Product])
   }
 
   ## Quality Threshold should be one integer.
@@ -70,7 +75,7 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
 
   ## MOD17A3 is an exception, so deal with this first, and then the rest.
   if(Product == "MOD17A3"){
-    if(QualityThreshold < 0 | QualityThreshold > 100) stop("Valid QualityThreshold values are 0-100 for this product.")
+    if(QualityThreshold < 0 | QualityThreshold > 100) stop("Valid QualityThreshold values are 0-100 for MOD17A3.")
 
     NOFILLRANGE <- c(250,255)
     Data <- ifelse(Data > NOFILLRANGE[1] & Data < NOFILLRANGE[2], Data, NA)
@@ -99,8 +104,8 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
       ## Create an ifelse here so if MCD43A4, snip the relevant binary string for Band. Otherwise, carry on.
       if(Product == "MCD43A4"){
         band.num <- as.numeric(substr(Band, nchar(Band), nchar(Band)))
-        if(any(is.na(band.num))) stop("Band input is not one of the reflectance bands (1-7) from MCD43A4.")
-        if(any(1 < band.num & band.num > 7)) stop("Band input is not one of the reflectance bands (1-7) from MCD43A4.")
+        if(any(is.na(band.num))) stop("Band input is not one of MCD43A4's reflectance bands (1-7).")
+        if(any(1 < band.num & band.num > 7)) stop("Band input is not one of MCD43A4's reflectance bands (1-7).")
 
         ## Select the section of binary code relevant to Band.
         qa.binary <- substr(quality.binary, (nchar(quality.binary) - (((band.num-1)*2)+2)),
