@@ -4,24 +4,25 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
   ##### Define what valid ranges for quality bands should be for different products:
   # 1=lower range     2=upper range     3=no fill value
   QA_RANGE <- data.frame(
-    MOD09A1 = c(0, 4294966531, ""),            # Surface reflectance bands 0-1 bits
-    MYD09A1 = c(0, 4294966531, ""),            # Surface reflectance bands 0-1 bits
-    MOD11A2 = c(0, 255, ""),                   # Land surface temperature and emissivity 0-1 bits
-    MYD11A2 = c(0, 255, ""),                   # Land surface temperature and emissivity 0-1 bits
-    MCD12Q1 = c(0, 254, 255),                  # Land cover types 0-1 bits
-    MOD13Q1 = c(0, 3, -1),                     # Vegetation indices 0-1 bits
-    MYD13Q1 = c(0, 3, -1),                     # Vegetation indices 0-1 bits
-    MOD15A2 = c(0, 254, 255),                  # LAI - FPAR 0 bit
-    MYD15A2 = c(0, 254, 255),                  # LAI - FPAR 0 bit
-    MOD17A2 = c(0, 254, 255),                  # GPP 0 bit
-    MOD17A3 = c(0, 100, ""),                   # GPP funny one - evaluate separately.
-    MCD43A4 = c(0, 4294967294, 4294967295),     # BRDF albedo band quality, taken from MCD43A2, for reflectance data.
-    MOD16A2 = c(0,254,255)                     # 8-day, monthly ET/LE/PET/PLE, annual LE/PLE. Same data as MOD15A2 QC
+    MOD09A1 = c(0,4294966531,NA),            # Surface reflectance bands 0-1 bits
+    MYD09A1 = c(0,4294966531,NA),            # Surface reflectance bands 0-1 bits
+    MOD11A2 = c(0,255,NA),                   # Land surface temperature and emissivity 0-1 bits
+    MYD11A2 = c(0,255,NA),                   # Land surface temperature and emissivity 0-1 bits
+    MCD12Q1 = c(0,254,255),                  # Land cover types 0-1 bits
+    MOD13Q1 = c(0,3,-1),                     # Vegetation indices 0-1 bits
+    MYD13Q1 = c(0,3,-1),                     # Vegetation indices 0-1 bits
+    MOD15A2 = c(0,254,255),                  # LAI - FPAR 0 bit
+    MYD15A2 = c(0,254,255),                  # LAI - FPAR 0 bit
+    MOD17A2 = c(0,254,255),                  # GPP 0 bit
+    MOD17A3 = c(0,100,NA),                   # GPP funny one - evaluate separately
+    MCD43A4 = c(0,4294967294,4294967295),    # BRDF albedo band quality, taken from MCD43A2, for reflectance data
+    MOD16A2 = c(0,254,255)                   # 8-day, monthly ET/LE/PET/PLE, annual LE/PLE. Same data as MOD15A2 QC
   )
+  row.names(QA_RANGE) <- c("min","max","noData")
   # Land cover dynamics products are available for download but not for quality checking with this function.
 
   # Check the product input corresponds to one with useable quality information
-  if(!any(names(QA_RANGE) == Product)) stop(paste("QualityCheck cannot be used for (", Product, ") product.", sep = ""))
+  if(!any(names(QA_RANGE) == Product)) stop("QualityCheck cannot be used for ",Product," product.")
 
   # If dataframes, coerce to matrices.
   if(is.data.frame(Data)) Data <- as.matrix(Data)
@@ -36,10 +37,15 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
   }
 
   # Check the QualityScores input are within the correct range for the product requested.
-  if(any((QualityScores < QA_RANGE[1,Product] | QualityScores > QA_RANGE[2,Product]) &
-          QualityScores != QA_RANGE[3,Product])){
-    stop(paste("Some QualityScores are outside of the range of valid quality control data for the product requested. For
-         this product, the valid QualityScore range is", QA_RANGE[1,Product], "and", QA_RANGE[2,Product], ".", sep = " "))
+  if(is.na(QA_RANGE["noData",Product])){
+    if(any(QualityScores < QA_RANGE["min",Product] | QualityScores > QA_RANGE["max",Product]))
+      stop("QualityScores not all in range of ",Product,"'s QC: ",QA_RANGE["min",Product],"-",QA_RANGE["max",Product])
+  } else {
+    qualityScoresInvalid <- ifelse(QualityScores != QA_RANGE["noData",Product],
+                                   QualityScores < QA_RANGE["min",Product] | QualityScores > QA_RANGE["max",Product],
+                                   FALSE)
+    if(any(qualityScoresInvalid))
+      stop("QualityScores not all in range of ",Product,"'s QC: ",QA_RANGE["min",Product],"-",QA_RANGE["max",Product])
   }
 
   # Quality Threshold should be one integer.
