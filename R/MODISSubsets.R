@@ -32,7 +32,7 @@ function(LoadDat, Products, Bands, Size, ...)
       cat("Getting subset for location ",i," of ",nrow(request$inputData),"...\n", sep='')
 
       ## Extract the available dates within the requested range and organise for download.
-      request$dateList <- request$prepareDatesForDownload(start = modisDates$start, end = modisDates$end)
+      request$dateList <- request$prepareDatesForDownload(start = modisDates$start[i], end = modisDates$end[i])
       names(request$dateList) <- request$products
 
       ## Create empty subset and then, inside it, store time series of all MODIS data bands for this subset.

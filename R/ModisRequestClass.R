@@ -247,7 +247,7 @@ ModisRequest <- R6Class("ModisRequest",
       checkDownloadSuccess = function(subset, subsetID)
       {
         ## If there are any NAs remaining in subset or a string ends in a comma, then the download was incomplete.
-        if(any(is.na(subset)) | any(substr(subset, nchar(subset), nchar(subset)) == ','))
+        if(anyNA(subset) | ',' %in% substr(subset, nchar(subset), nchar(subset)))
         {
           cat("Missing information for",self$inputData$ID[subsetID],"time series. Retrying download...\n")
 
@@ -255,12 +255,12 @@ ModisRequest <- R6Class("ModisRequest",
           subset <- self$createEmptySubset()
           subset <- self$subsetDownload(subset, subsetID = subsetID)
 
-          ## Check whether download is still incomplete and if it is, print a message then continue.
-          ## If any dates are empty, remove them, print a warning and record the dates in the download log.
-          if(any(substr(subset, nchar(subset), nchar(subset)) == ',')){
+          if(',' %in% substr(subset, nchar(subset), nchar(subset))){
+            ## Check whether download is still incomplete and if it is, print a message then continue.
             cat("The incomplete download was retried but remains incomplete. See subset download file.\n")
             self$inputData$Status[subsetID] <- "Missing data in subset: try downloading again"
-          } else if(any(is.na(subset))){
+          } else if(anyNA(subset)){
+            ## If any dates are empty, remove them, print a warning and record the dates in the download log.
             subsetDates <- sapply(subset, function(x) strsplit(x, ',')[[1]][self$whereIsDate], USE.NAMES=FALSE)
             problemDates <- unlist(self$dateList)[!(unlist(self$dateList) %in% subsetDates)]
 
@@ -270,9 +270,8 @@ ModisRequest <- R6Class("ModisRequest",
                     "Longitude = ",self$inputData$long[subsetID],"\n",
                     "Dates = ",problemDates,"\n",
                     call.=FALSE, immediate.=TRUE)
-
-            subset <- subset[!is.na(subset)]
             self$inputData$Status[subsetID] <- paste("Some dates were missing:", paste(problemDates, collapse="; "))
+            subset <- subset[!is.na(subset)]
           } else {
             cat("The incomplete download was re-tried and has been successful.\n")
           }
