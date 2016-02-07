@@ -1,5 +1,5 @@
 BatchDownload <-
-function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDate, Transect, SaveDir)
+function(lat.long, start.date, end.date, MODIS.start, MODIS.end, Bands, Products, Size, StartDate, Transect, SaveDir)
 {
     # DEFINE
     NCOL_SERVER_RES <- 10
@@ -8,7 +8,24 @@ function(lat.long, dates, MODIS.start, MODIS.end, Bands, Products, Size, StartDa
     which.bands <- lapply(Products, function(x) which(Bands %in% GetBands(x)))
 
     # Loop set up to make request and write a subset file for each location.
-    for(i in 1:nrow(lat.long)){
+    for(i in 1:nrow(lat.long))
+    {
+      # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.
+      dates <- lapply(Products, function(x) GetDates(lat.long$lat[i], lat.long$long[i], x))
+
+      # Check that time-series fall within date range of MODIS data.
+      if(any((start.date$year + 1900) < 2000 & (end.date$year + 1900) < 2000)){
+        stop("Time-series found that falls entirely outside the range of available MODIS dates.")
+      }
+      if(any((start.date$year + 1900) > max(unlist(dates)) & (end.date$year + 1900) > max(unlist(dates)))){
+        stop("Time-series found that falls entirely outside the range of available MODIS dates.")
+      }
+      if(any((end.date$year + 1900) < 2000) | any((end.date$year + 1900) > max(unlist(dates)))){
+        stop("Some dates have been found that are beyond the range of MODIS observations available for download.")
+      }
+      if(any((start.date$year + 1900) < 2000) | any((start.date$year + 1900) > max(unlist(dates)))){
+        warning("Dates found beyond range of MODIS observations. Downloading from earliest date.", immediate. = TRUE)
+      }
 
       ##### Initialise objects that will store downloaded data.
       # Find the start date and end date specific for each subset.

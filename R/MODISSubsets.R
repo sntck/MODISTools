@@ -165,37 +165,20 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     if(abs(Size[1] - round(Size[1])) > .Machine$double.eps^0.5 |  abs(Size[2] - round(Size[2])) > .Machine$double.eps^0.5){
       stop("Size input must be integers.")
     }
-
-    # Retrieve the list of date codes to be requested and organise them in batches of time series's of length 10.
-    dates <- lapply(Products, function(x) GetDates(lat.long$lat[1], lat.long$long[1], x))
-
-    # Check that time-series fall within date range of MODIS data.
-    if(any((start.date$year + 1900) < 2000 & (end.date$year + 1900) < 2000)){
-      stop("Time-series found that falls entirely outside the range of available MODIS dates.")
-    }
-    if(any((start.date$year + 1900) > max(unlist(dates)) & (end.date$year + 1900) > max(unlist(dates)))){
-      stop("Time-series found that falls entirely outside the range of available MODIS dates.")
-    }
-    if(any((end.date$year + 1900) < 2000) | any((end.date$year + 1900) > max(unlist(dates)))){
-      stop("Some dates have been found that are beyond the range of MODIS observations available for download.")
-    }
-    if(any((start.date$year + 1900) < 2000) | any((start.date$year + 1900) > max(unlist(dates)))){
-      warning("Dates found beyond range of MODIS observations. Downloading from earliest date.", immediate. = TRUE)
-    }
     #####
 
     ##### Retrieve data subsets for each time-series of a set of product bands, saving data for each time series into ASCII files.
-    lat.long <- BatchDownload(lat.long = lat.long, dates = dates, MODIS.start = MODIS.start, MODIS.end = MODIS.end, Bands = Bands,
-                              Products = Products, Size = Size, StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
+    lat.long <- BatchDownload(lat.long = lat.long, start.date = start.date, end.date = end.date, MODIS.start = MODIS.start, MODIS.end = MODIS.end,
+                              Bands = Bands, Products = Products, Size = Size, StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
 
     # Run a second round of downloads for any time-series that incompletely downloaded, and overwrite originals.
     success.check <- lat.long$Status != "Successful download"
     if(any(success.check)){
       cat("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...\n")
 
-      lat.long[success.check, ] <- BatchDownload(lat.long = lat.long[success.check, ], dates = dates, MODIS.start = MODIS.start,
-                                                 MODIS.end = MODIS.end, Bands = Bands, Products = Products, Size = Size,
-                                                 StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
+      lat.long[success.check, ] <- BatchDownload(lat.long = lat.long[success.check, ], start.date = start.date, end.date = end.date,
+                                                 MODIS.start = MODIS.start, MODIS.end = MODIS.end, Bands = Bands, Products = Products,
+                                                 Size = Size, StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
 
       success.check <- lat.long$Status != "Successful download"
       if(any(success.check)) cat("Incomplete downloads were re-tried but incomplete downloads remain. See subset download file.\n")
