@@ -242,7 +242,7 @@ ModisRequest <- R6Class("ModisRequest",
 
           ## Wipe subset clean and then retry the download.
           subset <- lapply(subset, function(x) rep(NA, length(x)))
-          subset <- request$subsetDownload(subset, subsetID = subsetID)
+          subset <- self$subsetDownload(subset, subsetID = subsetID)
 
           ## Check whether download is still incomplete and if it is, print a message then continue.
           ## If any dates are empty, remove them, print a warning and record the dates in the download log.
@@ -301,8 +301,7 @@ ModisRequest <- R6Class("ModisRequest",
       createID = function()
       {
         ## Check whether a variable resembling unique IDs already exists. If not, make one.
-        whichVarAreIDs <- which(grepl("ID", names(self$inputData)))
-        whichVarAreIDs <- if(length(whichVarAreIDs) > 1) whichVarAreIDs[1] ## If several variables resemble IDs use the first one.
+        whichVarAreIDs <- which(grepl("ID", names(self$inputData)))[1]
         numberOfUniqueIDs <- length(unique(self$inputData[ ,whichVarAreIDs]))
 
         if(numberOfUniqueIDs == nrow(self$inputData))
