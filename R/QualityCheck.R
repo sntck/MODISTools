@@ -72,6 +72,14 @@ function(Data, Product, Band, NoDataFill, QualityBand, QualityScores, QualityThr
            0 = high quality, 1 = good but marginal quality, 2 = cloudy/poor quality, 3 = poor quality for other reasons.")
     }
   }
+
+  # Check whether all QualityScores are no data fills scores.
+  # If so, then return Data with NoDataFill removed, without quality screening.
+  if(all(QualityScores == QA_RANGE["noData",Product])){
+    warning("Quality checking aborted for this subset because all QualityScores were missing data.",
+            call.=FALSE, immediate.=TRUE)
+    return(matrix(ifelse(Data != NoDataFill, Data, NA), nrow = nrow(Data)))
+  }
   #####
 
   # MOD17A3 is an exception, so deal with this first, and then the rest,
