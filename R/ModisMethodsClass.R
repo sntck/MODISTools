@@ -37,6 +37,8 @@
       numberOfMetadataCols = 10,
       ## The metadata column in the subset download ASCII files that contains the data band name.
       whereIsBandName = 6,
+      ## The metadata column in the subset download ASCII files that contains the subset date.
+      whereIsDate = 8,
       ## Approximate number of metres in one degree of latitude, or longitude at the equator.
       metresInOneDegree = 111120,
 

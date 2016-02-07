@@ -124,8 +124,8 @@ ModisRequest <- R6Class("ModisRequest",
                  error = function(e) stop(simpleError("Size input invalid: should be two integers between 0 and 100.")))
 
         ## Check the Products input was a valid member of the MODIS products list.
-        productList <- c("MCD12Q1","MCD12Q2","MCD43A1","MCD43A2","MCD43A4","MOD09A1","MOD11A2","MOD13Q1","MOD15A2",
-                         "MOD15A2GFS","MOD16A2","MOD17A2_51","MOD17A3","MYD09A1","MYD11A2","MYD13Q1","MYD15A2")
+        productList <- c("MCD12Q1",   "MCD12Q2", "MCD43A1",    "MCD43A2", "MCD43A4", "MOD09A1", "MOD11A2", "MOD13Q1", "MOD15A2",
+                         "MOD15A2GFS","MOD16A2", "MOD17A2_51", "MOD17A3", "MYD09A1", "MYD11A2", "MYD13Q1", "MYD15A2")
         tryCatch(stopifnot(all(self$products %in% productList)),
                  error = function(e) stop(simpleError("A named Product is not a MODIS product available through the web service.")))
 
@@ -142,12 +142,10 @@ ModisRequest <- R6Class("ModisRequest",
       subsetClean = function()
       {
         ## Take input dataset and remove all rows that are incomplete or duplicated time series.
-        self$inputData <- subset(self$inputData,
-                                 !is.na(lat) | !is.na(long) | !is.na(start.date) | !is.na(end.date))
-        self$inputData <- subset(self$inputData,
-                                 !duplicated(data.frame(lat, long, start.date, end.date)))
+        self$inputData <- subset(self$inputData, !is.na(lat) | !is.na(long) | !is.na(start.date) | !is.na(end.date))
+        self$inputData <- subset(self$inputData, !duplicated(data.frame(lat, long, start.date, end.date)))
 
-        cat("Found", nrow(self$inputData), "unique time series to download.\n")
+        cat("Found",nrow(self$inputData),"unique time series to download.\n")
 
         private$createID()
 
@@ -163,8 +161,8 @@ ModisRequest <- R6Class("ModisRequest",
                  endDates   <- as.Date(self$inputData$end.date)
                },
                "year" = {
-                 startDates <- as.Date(paste0(self$inputData$start.date, "-01-01"))
-                 endDates   <- as.Date(paste0(self$inputData$end.date, "-12-31"))
+                 startDates <- as.Date(paste0(self$inputData$start.date,"-01-01"))
+                 endDates   <- as.Date(paste0(self$inputData$end.date,"-12-31"))
                })
 
         ## Format days information for MODIS-style dates (A + YYYYDDD).
@@ -238,19 +236,35 @@ ModisRequest <- R6Class("ModisRequest",
       checkDownloadSuccess = function(subset, subsetID)
       {
         ## If there are any NAs remaining in subset or a string ends in a comma, then the download was incomplete.
-        if(any(is.na(subset)) | any(substr(subset, nchar(subset), nchar(subset)) == ',')){
-          self$inputData$Status[subsetID] <- "Missing data in subset: try downloading again"
-          cat(paste0("Missing information for time series ", self$inputData$subsetID[subsetID], ". Retrying download...\n"))
+        if(any(is.na(subset)) | any(substr(subset, nchar(subset), nchar(subset)) == ','))
+        {
+          cat("Missing information for",self$inputData$subsetID[subsetID],"time series. Retrying download...\n")
 
           ## Wipe subset clean and then retry the download.
           subset <- lapply(subset, function(x) rep(NA, length(x)))
           subset <- request$subsetDownload(subset, subsetID = subsetID)
 
           ## Check whether download is still incomplete and if it is, print a message then continue.
-          if(any(is.na(subset)) | any(substr(subset, nchar(subset), nchar(subset)) == ','))
+          ## If any dates are empty, remove them, print a warning and record the dates in the download log.
+          if(any(substr(subset, nchar(subset), nchar(subset)) == ',')){
             cat("The incomplete download was retried but remains incomplete. See subset download file.\n")
-          else
-            cat("The incomplete download was retried and has been successful.\n")
+            self$inputData$Status[subsetID] <- "Missing data in subset: try downloading again"
+          } else if(any(is.na(subset))){
+            subsetDates <- sapply(subset, function(x) strsplit(x, ',')[[1]][self$whereIsDate], USE.NAMES=FALSE)
+            problemDates <- unlist(self$dateList)[!(unlist(self$dateList) %in% subsetDates)]
+
+            warning("There is no data for some requested dates:\n",
+                    "Subset ID = ",self$inputData$ID[subsetID],"\n",
+                    "Latitude = ",self$inputData$lat[subsetID],"\n",
+                    "Longitude = ",self$inputData$long[subsetID],"\n",
+                    "Dates = ",problemDates,"\n",
+                    call.=FALSE, immediate.=TRUE)
+
+            subset <- subset[!is.na(subset)]
+            self$inputData$Status[subsetID] <- paste("Some dates were missing:", paste(problemDates, collapse="; "))
+          } else {
+            cat("The incomplete download was re-tried and has been successful.\n")
+          }
         } else {
           self$inputData$Status[subsetID] <- "Successful download"
         }
@@ -260,17 +274,17 @@ ModisRequest <- R6Class("ModisRequest",
       {
         runTime <- as.POSIXlt(Sys.time())
         timeStamp <- paste(as.Date(runTime),
-                           with(runTime, paste(paste0('h', hour), paste0('m', min), paste0('s', round(sec, digits=0)), sep = '-')),
+                           with(runTime, paste(paste0('h',hour), paste0('m',min), paste0('s',round(sec, digits=0)), sep = '-')),
                            sep = '_')
 
         if(!self$transect){
-          write.table(self$inputData, file = file.path(self$saveDir, paste0("SubsetDownload_", timeStamp, ".csv")),
+          write.table(self$inputData, file = file.path(self$saveDir, paste0("SubsetDownload_",timeStamp,".csv")),
                       col.names = TRUE, row.names = FALSE, sep = ',')
         } else {
           endOfTransectID <- regexpr("Point", self$inputData$ID[1])
           transectID <- substr(self$inputData$ID[1], 1, endOfTransectID-1)
 
-          write.table(self$inputData, file = file.path(self$saveDir, paste0(transectID, "_SubsetDownload_", timeStamp, ".csv")),
+          write.table(self$inputData, file = file.path(self$saveDir, paste0(transectID,"_SubsetDownload_",timeStamp,".csv")),
                       col.names = FALSE, row.names = FALSE, sep = ',', append = TRUE)
         }
       }
@@ -282,7 +296,7 @@ ModisRequest <- R6Class("ModisRequest",
       numSubsetMetadataCols = 5, ## Number of variables in downloaded subsets that are metadata before downloaded data begins.
 
       ##### Private methods
-      requestMessage = function() cat("Files will be written to ", self$saveDir, ".\n", sep = ''),
+      requestMessage = function() cat("Files will be written to ",self$saveDir,".\n", sep=''),
       ##
       createID = function()
       {
@@ -293,19 +307,17 @@ ModisRequest <- R6Class("ModisRequest",
 
         if(numberOfUniqueIDs == nrow(self$inputData))
         {
-          cat("Unique subset IDs found in variable: ", names(self$inputData)[whichVarAreIDs], ".\n", sep = '')
+          cat("Unique subset IDs found in variable: ",names(self$inputData)[whichVarAreIDs],".\n", sep='')
 
           ## Three underscores used as placemarker to find ID in strings, so cannot exist within IDs.
-          if(any(grepl("___", self$inputData[whichVarAreIDs]))) stop("IDs can not contain '___'.")
+          if(any(grepl("___", self$inputData[whichVarAreIDs]))) stop("IDs cannot contain '___'.")
 
           ## Create new ID variable, at first column in the data.frame, named subsetID for convenience.
           self$inputData <- data.frame(subsetID = self$inputData[ ,whichVarAreIDs], self$inputData)
         } else {
           cat("No unique subset ID variable found so one will be created.\n")
 
-          newID <- with(self$inputData,
-                        paste0("Lat", sprintf('%.5f', lat), "Lon", sprintf('%.5f', long),
-                               "Start", start.date,         "End", end.date))
+          newID <- with(self$inputData, paste0("Lat",sprintf('%.5f',lat),"Lon",sprintf('%.5f',long),"Start",start.date,"End",end.date))
           self$inputData <- data.frame(subsetID = newID, self$inputData)
         }
       },
@@ -352,7 +364,7 @@ ModisRequest <- R6Class("ModisRequest",
         ## Check download ran without error and retry if it did.
         subsets <- unlist(download)[grepl("subset", names(unlist(download)))]
         tryCatch(stopifnot(is.list(download),
-                           all(sapply(strsplit(subsets, ','), length) > private$numSubsetMetadataCols)),
+                           all(sapply(strsplit(subsets,','), length) > private$numSubsetMetadataCols)),
                  error = function(e) stop(simpleError("Download failed: either input was invalid or web service is busy.")))
 
         busy <- any(grepl("Server is busy handling other requests", subsets))

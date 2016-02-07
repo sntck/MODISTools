@@ -14,12 +14,12 @@ function(LoadDat, Products, Bands, Size, ...)
     request$subsetClean()
 
     ## Check whether any subsets have already been downloaded before beginning subset request.
-    newSubsets <- UpdateSubsets(request$inputData, request$saveDir, StartDate = TRUE) ## Remove StartDate par once OOP development finished.
+    newSubsets <- UpdateSubsets(request$inputData, request$saveDir, StartDate = TRUE) #Remove StartDate once OOP dev complete
     if(nrow(newSubsets) < nrow(request$inputData))
     {
-      cat(nrow(request$inputData)-nrow(newSubsets), " previously downloaded subsets were found in ", request$saveDir, "\n",
+      cat(nrow(request$inputData)-nrow(newSubsets)," previously downloaded subsets were found in ",request$saveDir,"\n",
           "These subsets will be ignored during this request.\n",
-          "The number of unique subsets to download is now ", nrow(newSubsets), ".\n", sep = '')
+          "The number of unique subsets to download is now ",nrow(newSubsets),".\n", sep='')
       request$inputData <- newSubsets
     }
 
@@ -29,7 +29,7 @@ function(LoadDat, Products, Bands, Size, ...)
     ## Loop the downloading over each subset.
     for(i in 1:nrow(request$inputData))
     {
-      cat("Getting subset for location ", i, " of ", nrow(request$inputData), "...\n", sep = '')
+      cat("Getting subset for location ",i," of ",nrow(request$inputData),"...\n", sep='')
 
       ## Extract the available dates within the requested range and organise for download.
       request$dateList <- request$prepareDatesForDownload(start = modisDates$start, end = modisDates$end)
@@ -49,7 +49,7 @@ function(LoadDat, Products, Bands, Size, ...)
       ## Check if any data are missing, log download status accordingly, and retry download if necessary.
       request$checkDownloadSuccess(subset, subsetID = i)
 
-      fileName <- paste0(request$inputData$subsetID[i], "___", paste(request$products, collapse = '_'), ".asc")
+      fileName <- paste0(request$inputData$subsetID[i],"___",paste(request$products, collapse='_'),".asc")
       write(subset, file = file.path(request$saveDir, fileName), sep = '', append = TRUE)
     }
 
@@ -57,5 +57,5 @@ function(LoadDat, Products, Bands, Size, ...)
     request$writeSummaryFile()
 
     ## Print a message to confirm downloads are complete and a reminder to check the summary file for any missing data.
-    if(!request$transect) cat("Done! Check the subset download file for correct subset information and download messages.\n")
+    if(!request$transect) cat("Done! Check the subset download file to verify subset information and download messages.\n")
 }
