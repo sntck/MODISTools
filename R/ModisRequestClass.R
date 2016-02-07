@@ -343,12 +343,12 @@ ModisRequest <- R6Class("ModisRequest",
 
         if("try-error" %in% class(posixCompatible))
         {
-          posix <- TRUE
-        } else {
           yearCompatible <- try(as.numeric(allDates), silent = TRUE)
-          ifelse(class(yearCompatible) != "try-error" & all(nchar(allDates) == 4),
-                 year <- TRUE,
-                 stop("Dates in LoadDat are recognised in neither year or POSIXt format."))
+          ifelse("try-error" %in% class(yearCompatible) | any(nchar(allDates) != 4),
+                 stop("Dates in LoadDat are recognised in neither year or POSIXt format."),
+                 year <- TRUE)
+        } else {
+          posix <- TRUE
         }
 
         ## Return either "year" or "posix", which will be passed to switch() in modis dates method.
