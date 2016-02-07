@@ -207,6 +207,17 @@ ModisRequest <- R6Class("ModisRequest",
         return(as.Date(paste0(years, "-01-01")) + (as.numeric(days) - 1)) ## -1 because Jan 1 is day 0.
       },
       ##
+      createEmptySubset = function()
+      {
+        ## Create empty list to store the subset: each list element is a product, with length time-series*bands.
+        mapply(function(subsetDates, subsetProduct)
+        {
+          numBands <- nrow(subset(self$bandList, product == subsetProduct))
+          rep(NA, length = sum(!is.na(subsetDates)) * numBands)
+        },
+        subsetDates = self$dateList, subsetProduct = self$products, SIMPLIFY = FALSE)
+      },
+      ##
       subsetDownload = function(subset, subsetID)
       {
         ## For each subset loop over all the data bands to download.
@@ -238,10 +249,10 @@ ModisRequest <- R6Class("ModisRequest",
         ## If there are any NAs remaining in subset or a string ends in a comma, then the download was incomplete.
         if(any(is.na(subset)) | any(substr(subset, nchar(subset), nchar(subset)) == ','))
         {
-          cat("Missing information for",self$inputData$subsetID[subsetID],"time series. Retrying download...\n")
+          cat("Missing information for",self$inputData$ID[subsetID],"time series. Retrying download...\n")
 
           ## Wipe subset clean and then retry the download.
-          subset <- lapply(subset, function(x) rep(NA, length(x)))
+          subset <- self$createEmptySubset()
           subset <- self$subsetDownload(subset, subsetID = subsetID)
 
           ## Check whether download is still incomplete and if it is, print a message then continue.
@@ -330,7 +341,7 @@ ModisRequest <- R6Class("ModisRequest",
         allDates <- c(self$inputData$start.date, self$inputData$end.date)
         posixCompatible <- try(as.POSIXlt(allDates), silent = TRUE)
 
-        if(class(posixCompatible) != "try-error")
+        if("try-error" %in% class(posixCompatible))
         {
           posix <- TRUE
         } else {

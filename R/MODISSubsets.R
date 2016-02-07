@@ -35,15 +35,8 @@ function(LoadDat, Products, Bands, Size, ...)
       request$dateList <- request$prepareDatesForDownload(start = modisDates$start, end = modisDates$end)
       names(request$dateList) <- request$products
 
-      ## Create list object that will store subset downloads. Each list element is a product, with length time-series*bands.
-      subset <- mapply(function(subsetDates, subsetProduct)
-      {
-        numBands <- nrow(subset(request$bandList, product == subsetProduct))
-        rep(NA, length = sum(!is.na(subsetDates)) * numBands)
-      },
-      subsetDates = request$dateList, subsetProduct = request$products, SIMPLIFY = FALSE)
-
-      ## Get time series of all MODIS data bands for this subset.
+      ## Create empty subset and then, inside it, store time series of all MODIS data bands for this subset.
+      subset <- request$createEmptySubset()
       subset <- request$subsetDownload(subset, subsetID = i)
 
       ## Check if any data are missing, log download status accordingly, and retry download if necessary.
