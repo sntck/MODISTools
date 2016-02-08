@@ -106,6 +106,24 @@ function(lat.long, start.date, end.date, MODIS.start, MODIS.end, Bands, Products
               # Store retrieved data in subsets. If more than 10 time-steps are requested, this runs until the final
               # column, which is downloaded after this loop.
               result <- with(result, paste(nrow, ncol, xll, yll, pixelsize, subset[[1]], sep = ','))
+
+              # Check whether result contains the expected number of dates. If not, find missing dates, add NA placemark, and print warning.
+              if(length(result) < sum(!is.na(date.list[ ,x]))){
+                resultDates <- sapply(result, function(x) strsplit(x, ',')[[1]][8], USE.NAMES=FALSE)
+                whichProblemDates <- which(!(date.list[ ,x] %in% resultDates))
+                problemDates <- date.list[whichProblemDates,x]
+                allProblemDates <- c(allProblemDates,problemDates)
+                result <- replace(rep(NA,sum(!is.na(date.list[ ,x]))), date.list[ ,x] %in% resultDates, result)
+
+                warning("There is no data for some requested dates:\n",
+                        "Latitude = ",lat.long$lat[i],"\n",
+                        "Longitude = ",lat.long$long[i],"\n",
+                        "Product = ",Products[prod],"\n",
+                        "Band = ",Bands[n],"\n",
+                        "Dates = ",problemDates,"\n",
+                        call.=FALSE, immediate.=TRUE)
+              }
+
               subsets[[prod]][(((n - 1) * length(date.res[[prod]])) + ((x * NCOL_SERVER_RES) - (NCOL_SERVER_RES - 1))):
                         (((n - 1) * length(date.res[[prod]])) + (x * NCOL_SERVER_RES))] <- result
 
@@ -162,6 +180,24 @@ function(lat.long, start.date, end.date, MODIS.start, MODIS.end, Bands, Products
 
           # All MODIS data for a given product band now retrieved and stored in subsets.
           result <- with(result, paste(nrow, ncol, xll, yll, pixelsize, subset[[1]], sep = ','))
+
+          # Check whether result contains the expected number of dates. If not, find missing dates, add NA placemark, and print warning.
+          if(length(result) < sum(!is.na(date.list[ ,ncol(date.list)]))){
+            resultDates <- sapply(result, function(x) strsplit(x, ',')[[1]][8], USE.NAMES=FALSE)
+            whichProblemDates <- which(!(date.list[ ,ncol(date.list)] %in% resultDates))
+            problemDates <- date.list[whichProblemDates,ncol(date.list)]
+            allProblemDates <- c(allProblemDates,problemDates)
+            result <- replace(rep(NA,sum(!is.na(date.list[ ,ncol(date.list)]))), date.list[ ,ncol(date.list)] %in% resultDates, result)
+
+            warning("There is no data for some requested dates:\n",
+                    "Latitude = ",lat.long$lat[i],"\n",
+                    "Longitude = ",lat.long$long[i],"\n",
+                    "Product = ",Products[prod],"\n",
+                    "Band = ",Bands[n],"\n",
+                    "Dates = ",problemDates,"\n",
+                    call.=FALSE, immediate.=TRUE)
+          }
+
           subsets[[prod]][(((n - 1) * length(date.res[[prod]])) + (((ncol(date.list) - 1) * NCOL_SERVER_RES) + 1)):
                     (((n - 1) * length(date.res[[prod]])) + length(date.res[[prod]]))] <- result
 
@@ -185,7 +221,14 @@ function(lat.long, start.date, end.date, MODIS.start, MODIS.end, Bands, Products
       subsets <- do.call("c", subsets)
 
       ##### Check that there is no missing data in the download & log download status accordingly.
-      if(length(subsets) != subsets.length | any(is.na(subsets)) | any(substr(subsets, nchar(subsets), nchar(subsets)) == ",")){
+      if(length(subsets) != subsets.length | anyNA(subsets)){
+        lat.long$Status[i] <- paste("Some dates were missing:", paste(unique(allProblemDates),collapse="; "))
+        subsets <- subsets[!is.na(subsets)]
+      } else {
+        lat.long$Status[i] <- "Successful download"
+      }
+
+      if("," %in% substr(subsets, nchar(subsets), nchar(subsets))){
         lat.long$Status[i] <- "Missing data in subset: try downloading again"
         cat("Missing information for time-series ", lat.long$SubsetID[i], ". See subset download file.\n", sep = "")
       } else {
@@ -195,6 +238,7 @@ function(lat.long, start.date, end.date, MODIS.start, MODIS.end, Bands, Products
 
       # Remove any empty subsets
       if(any(problemDates <- grep("character(0)", subsets, fixed=TRUE))){
+        allProblemDates <- c(allProblemDates,problemDates)
         subsets <- subsets[-problemDates]
         lat.long$Status[i] <- paste("Some dates were missing:", paste(unique(allProblemDates),collapse="; "))
       }
