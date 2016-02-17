@@ -221,7 +221,7 @@ function(lat.long, start.date, end.date, MODIS.start, MODIS.end, Bands, Products
       subsets <- do.call("c", subsets)
 
       ##### Check that there is no missing data in the download & log download status accordingly.
-      if(length(subsets) != subsets.length | anyNA(subsets)){
+      if(length(subsets) != subsets.length | any(is.na(subsets))){
         lat.long$Status[i] <- paste("Some dates were missing:", paste(unique(allProblemDates),collapse="; "))
         subsets <- subsets[!is.na(subsets)]
       } else {
