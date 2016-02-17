@@ -247,7 +247,7 @@ ModisRequest <- R6Class("ModisRequest",
       checkDownloadSuccess = function(subset, subsetID)
       {
         ## If there are any NAs remaining in subset or a string ends in a comma, then the download was incomplete.
-        if(anyNA(subset) | ',' %in% substr(subset, nchar(subset), nchar(subset)))
+        if(any(is.na(subset)) | ',' %in% substr(subset, nchar(subset), nchar(subset)))
         {
           cat("Missing information for",self$inputData$ID[subsetID],"time series. Retrying download...\n")
 
@@ -259,7 +259,7 @@ ModisRequest <- R6Class("ModisRequest",
             ## Check whether download is still incomplete and if it is, print a message then continue.
             cat("The incomplete download was retried but remains incomplete. See subset download file.\n")
             self$inputData$Status[subsetID] <- "Missing data in subset: try downloading again"
-          } else if(anyNA(subset)){
+          } else if(any(is.na(subset))){
             ## If any dates are empty, remove them, print a warning and record the dates in the download log.
             subsetDates <- sapply(subset, function(x) strsplit(x, ',')[[1]][self$whereIsDate], USE.NAMES=FALSE)
             problemDates <- unlist(self$dateList)[!(unlist(self$dateList) %in% subsetDates)]
