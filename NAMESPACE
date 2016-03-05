@@ -2,4 +2,9 @@ importFrom(RCurl, basicTextGatherer, curlPerform)
 importFrom(XML, xmlRoot, xmlTreeParse, xmlSApply, xmlValue)
 import(R6)
 
+importFrom("grDevices", "dev.off", "pdf")
+importFrom("graphics", "abline", "lines", "plot")
+importFrom("stats", "approx", "median", "sd")
+importFrom("utils", "read.csv", "read.delim", "write.csv", "write.table")
+
 exportPattern("^[^\\.]")
