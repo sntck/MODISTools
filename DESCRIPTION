@@ -4,7 +4,7 @@ Title: MODIS Subsetting Tools
 Version: 0.94.6
 Date: 2015-01-21
 Author: Sean Tuck, Helen Phillips
-Imports: RCurl, XML, R6
+Imports: RCurl, XML, R6, grDevices, graphics, stats, utils
 Maintainer: Sean Tuck <sean.tuck@plants.ox.ac.uk>
 Description: 	Provides several functions for downloading, storing and processing 
 		subsets of MODIS Land Processes data as a batch process.
