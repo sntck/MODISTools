@@ -1,5 +1,5 @@
-importFrom(RCurl, basicTextGatherer, curlPerform)
 importFrom(XML, xmlRoot, xmlTreeParse, xmlSApply, xmlValue)
+import(RCurl)
 import(R6)
 
 importFrom("grDevices", "dev.off", "pdf")
