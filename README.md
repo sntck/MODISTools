@@ -42,11 +42,3 @@ Then use `install_github`, with this repository name, to install `MODISTools` st
 ```
 install_github("seantuck12/MODISTools", build_vignettes=TRUE)
 ```
-
-
-Dependencies
-----------
-
-http://www.omegahat.org/RCurl
-
-http://www.omegahat.org/RSXML
