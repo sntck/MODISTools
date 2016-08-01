@@ -1,7 +1,7 @@
 Package: MODISTools
 Type: Package
 Title: MODIS Subsetting Tools
-Version: 0.94.8
+Version: 0.95.0
 Date: 2016-08-01
 Author: Sean Tuck, Helen Phillips
 Imports: RCurl, XML, grDevices, graphics, stats, utils
