@@ -1,7 +1,7 @@
 MODISTools
-=============
+=========
 R package - retrieving & using MODIS data from NASA LPDAAC archive
--------------
+---------
 
 MODISTools is an R package for retrieving and using MODIS data subsets using ORNL DAAC web service (SOAP) for subsetting from Oak Ridge National Laboratory (ORNL). It provides a batch method for retrieving subsets of MODIS [http://modis.gsfc.nasa.gov/](http://modis.gsfc.nasa.gov/) remotely sensed data and processing them to a format ready for user-friendly application in R, such as statistical modelling.
 
@@ -24,9 +24,22 @@ Some of the changes in recent updates:
 Changes coming soon:
 * More product-specific time-series summaries in `MODISSummaries`.
 
+Frequently asked questions
+=========
+Available MODIS products
+---------
+Not all MODIS products are available using `MODISTools` (and the web service it uses). The list of products available using `MODISTools` can be found [here](http://daac.ornl.gov/MODIS/MODIS-menu/products.html), or by running `GetProducts()`. There is no option for selecting different versions of products.
+
+Other tools for accessing MODIS data in R are available:
+* The package [laads](https://github.com/masalmon/laads) is under development, to provide an interface to the NASA API of MODIS Level 1 and Atmosphere data products.
+* `rts::ModisDownload()`.
+
+ORNL DAAC FAQ
+---------
+The Oak Ridge National Laboratory Distributed Active Archive Center (ORNL DAAC) has an FAQ [here](http://daac.ornl.gov/faq/faq.shtml).
 
 Installation
----------
+=========
 The most recent stable release can be installed from the CRAN repository, by running:
 ```
 install.packages("MODISTools")
