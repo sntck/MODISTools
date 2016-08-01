@@ -1,4 +1,4 @@
-importFrom(RCurl, basicTextGatherer, curlPerform)
+import(RCurl)
 importFrom(XML, xmlRoot, xmlTreeParse, xmlSApply, xmlValue)
 
 importFrom("grDevices", "dev.off", "pdf")
