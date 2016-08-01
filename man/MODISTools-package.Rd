@@ -12,8 +12,8 @@
 
   \url{http://daac.ornl.gov/MODIS/MODIS-menu/products.html}
 
-  \url{https://cran.r-project.org/web/packages/RCurl/index.html}
+  \url{https://cran.r-project.org/package=RCurl}
 
-  \url{https://cran.r-project.org/web/packages/XML/index.html}
+  \url{https://cran.r-project.org/package=XML}
 }
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
