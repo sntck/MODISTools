@@ -33,7 +33,7 @@ SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
 \references{
   \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
 
-  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
+  \url{http://daac.ornl.gov/MODIS/MODIS-menu/products.html}
 
   \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 }
