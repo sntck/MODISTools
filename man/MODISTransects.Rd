@@ -37,7 +37,7 @@ The transects lengths requested must be longer than the requested pixel size. Th
 
   \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 
-  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
+  \url{http://daac.ornl.gov/MODIS/MODIS-menu/products.html}
 }
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}

@@ -10,10 +10,10 @@
 
   \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 
-  \url{http://daacweb-dev.ornl.gov/MODIS/MODIS-menu/products.html}
+  \url{http://daac.ornl.gov/MODIS/MODIS-menu/products.html}
 
-  \url{http://www.omegahat.org/RCurl}
+  \url{https://cran.r-project.org/package=RCurl}
 
-  \url{http://www.omegahat.org/RSXML}
+  \url{https://cran.r-project.org/package=XML}
 }
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}
