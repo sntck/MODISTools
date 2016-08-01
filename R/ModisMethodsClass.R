@@ -48,7 +48,7 @@
         ## Send XML request to MODIS SOAP web service and retrieve the XML response subset data.
         xmlRequest <- paste0('
           <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daac.ornl.gov/MODIS_webservice">
+            xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daacmodis.ornl.gov/MODIS_webservice">
                 <soapenv:Header/>
                 <soapenv:Body>
                 <mod:getsubset soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -72,7 +72,7 @@
         reader <- basicTextGatherer()
         header <- basicTextGatherer()
 
-        curlPerform(url = "http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
+        curlPerform(url = "http://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
                     httpheader = headerFields,
                     postfields = xmlRequest,
                     writefunction = reader$update,
@@ -105,7 +105,7 @@
         ## Send XML request to MODIS SOAP web service and retrieve the XML response products list.
         xmlRequest <- paste0('
           <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daac.ornl.gov/MODIS_webservice">
+            xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daacmodis.ornl.gov/MODIS_webservice">
                 <soapenv:Header/>
                 <soapenv:Body>
                 <mod:getproducts soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/>
@@ -120,7 +120,7 @@
         reader <- basicTextGatherer()
         header <- basicTextGatherer()
 
-        curlPerform(url = "http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
+        curlPerform(url = "http://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
                     httpheader = headerFields,
                     postfields = xmlRequest,
                     writefunction = reader$update,
@@ -150,7 +150,7 @@
         ## Send XML request to MODIS SOAP web service and retrieve the XML response bands list for product.
         xmlRequest <- paste0('
           <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daac.ornl.gov/MODIS_webservice">
+            xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daacmodis.ornl.gov/MODIS_webservice">
                 <soapenv:Header/>
                 <soapenv:Body>
                 <mod:getbands soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -167,7 +167,7 @@
         reader <- basicTextGatherer()
         header <- basicTextGatherer()
 
-        curlPerform(url = "http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
+        curlPerform(url = "http://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
                     httpheader = headerFields,
                     postfields = xmlRequest,
                     writefunction = reader$update,
@@ -197,7 +197,7 @@
         ## Send XML request to MODIS SOAP web service and retrieve the XML response dates list for lat, long, product.
         xmlRequest <- paste0('
           <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-            xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daac.ornl.gov/MODIS_webservice">
+            xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daacmodis.ornl.gov/MODIS_webservice">
                 <soapenv:Header/>
                 <soapenv:Body>
                 <mod:getdates soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -216,7 +216,7 @@
         reader <- basicTextGatherer()
         header <- basicTextGatherer()
 
-        curlPerform(url = "http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
+        curlPerform(url = "http://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
                     httpheader = headerFields,
                     postfields = xmlRequest,
                     writefunction = reader$update,
