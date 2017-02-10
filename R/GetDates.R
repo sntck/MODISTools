@@ -11,7 +11,7 @@ function(Lat, Long, Product)
 
   getdates.xml <- paste('
     <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-             xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daacmodis.ornl.gov/MODIS_webservice">
+             xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="https://daacmodis.ornl.gov/MODIS_webservice">
                          <soapenv:Header/>
                          <soapenv:Body>
                          <mod:getdates soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -31,7 +31,7 @@ function(Lat, Long, Product)
   reader <- basicTextGatherer()
   header <- basicTextGatherer()
 
-  curlPerform(url = "http://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
+  curlPerform(url = "https://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
               httpheader = header.fields,
               postfields = getdates.xml,
               writefunction = reader$update,
