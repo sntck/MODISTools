@@ -55,11 +55,11 @@ One file (MODIS_Summary...) contains summary statistics and computed values for 
 The second file (MODIS_Data...) that has the information from the original file inputted (which should have been used in MODISSubsets too) with computed means of the MODIS data tagged on, coupling the input with the output in one form ready for use, such as modelling. In the second file, each nth column of MODIS data, if more than one, will be for each pixel within the whole tile of n pixels collected for the time-series on that row.
 }
 \references{
-  \url{http://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
+  \url{https://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
 
-  \url{http://daac.ornl.gov/MODIS/MODIS-menu/products.html}
+  \url{https://daac.ornl.gov/MODIS/MODIS-menu/products.html}
 
-  \url{http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
+  \url{https://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 }
 \author{Sean Tuck}
 \seealso{ \code{\link[MODISTools:MODISSubsets]{MODISSubsets}}

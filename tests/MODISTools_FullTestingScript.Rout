@@ -66,7 +66,7 @@ Loading required package: bitops
 > ### Check the XML response is as expected.
 > getsubset.xml <- paste('
 + <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-+                        xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daac.ornl.gov/MODIS_webservice">
++                        xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="https://daac.ornl.gov/MODIS_webservice">
 +                        <soapenv:Header/>
 +                        <soapenv:Body>
 +                        <mod:getsubset soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -91,7 +91,7 @@ Loading required package: bitops
 > reader <- basicTextGatherer()
 > header <- basicTextGatherer()
 > 
-> curlPerform(url = "http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
+> curlPerform(url = paste0(daac, "/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"),
 +             httpheader = header.fields,
 +             postfields = getsubset.xml,
 +             writefunction = reader$update,
@@ -103,9 +103,9 @@ OK
 > if(grepl("Internal Server Error", reader$value())) q()
 > 
 > xmlRoot(xmlTreeParse(reader$value()))
-<soap:Envelope encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns1="http://daac.ornl.gov/MODIS_webservice">
+<soap:Envelope encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns1="https://daac.ornl.gov/MODIS_webservice">
  <soap:Body>
-  <getsubsetResponse xmlns="http://daac.ornl.gov/MODIS_webservice">
+  <getsubsetResponse xmlns="https://daac.ornl.gov/MODIS_webservice">
    <tns1:getsubsetReturn type="tns1:ModisData" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
     <xllcorner type="xsd:float">-45172.97</xllcorner>
     <yllcorner type="xsd:float">5716815.61</yllcorner>
