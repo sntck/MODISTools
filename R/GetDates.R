@@ -11,7 +11,7 @@ function(Lat, Long, Product)
 
   getdates.xml <- paste('
     <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-             xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daacmodis.ornl.gov/MODIS_webservice">
+             xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="', daacmodis, '/MODIS_webservice">
                          <soapenv:Header/>
                          <soapenv:Body>
                          <mod:getdates soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -31,7 +31,7 @@ function(Lat, Long, Product)
   reader <- basicTextGatherer()
   header <- basicTextGatherer()
 
-  curlPerform(url = "http://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
+  curlPerform(url = paste0(daacmodis, "/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"),
               httpheader = header.fields,
               postfields = getdates.xml,
               writefunction = reader$update,
@@ -40,7 +40,7 @@ function(Lat, Long, Product)
   # Check the server is not down by insepcting the XML response for internal server error message.
   if(grepl("Internal Server Error", reader$value())){
     stop("Web service failure: the ORNL DAAC server seems to be down, please try again later.
-         The online subsetting tool (http://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl)
+         The online subsetting tool (https://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl)
          will indicate when the server is up and running again.")
   }
 
