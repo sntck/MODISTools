@@ -30,5 +30,5 @@ bibentry(bibtype = "Manual",
 	 author = c(person("Sean", "Tuck"), person("Helen", "Phillips")),
 	 year = year,
 	 note = note,
-	 url = "http://cran.r-project.org/package=MODISTools"
+	 url = "https://cran.r-project.org/package=MODISTools"
 )

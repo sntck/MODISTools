@@ -6,11 +6,7 @@
 \details{Imports RCurl and XML. The main purpose of this package is to employ the MODIS SOAP Web Service to remotely interrogate the MODIS archive and locally download the requested datasets. The most important function is MODISSubsets, which allows the user to request subsets from a given MODIS product for multiple time-series. Each time-series is defined by a coordinate location (WGS-1984), a specified surrounding extent of pixels, and a start and end date. The relevant MODIS product data is then extracted for these location/time combinations. Automating this as a batch process greatly reduces time, effort, and human error. Alternatively, MODISTransects expands upon MODISSubsets by extracting MODIS data along a transect, and its surrounding neighbourhood. Downloaded subsets are saved in ascii files, which are then accessed by MODISSummaries for computing summary statistics. It also organises downloaded data back with the original input data into a csv file that can be easily used for modelling; this provides efficient storage of data and a transparent process from data collection, to processing, to a form that is ready for final use.}
 \author{Sean Tuck}
 \references{
-  \url{https://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-
-  \url{https://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
-
-  \url{https://daac.ornl.gov/MODIS/MODIS-menu/products.html}
+  \url{https://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 
   \url{https://cran.r-project.org/package=RCurl}
 

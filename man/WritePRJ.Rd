@@ -11,7 +11,7 @@ WritePRJ(Path)
   \item{Path}{The file path for the MODIS PRJ file that will be written.
   }
 }
-\value{A PRJ (plain text) file containing the definitions for the MODIS projection system. This PRJ file can be accessed online at \url{https://daac.ornl.gov/MODIS/modis.prj}.
+\value{A PRJ (plain text) file containing the definitions for the MODIS projection system.
 }
 \author{Sean Tuck
 }

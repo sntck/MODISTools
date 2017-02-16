@@ -6,11 +6,7 @@
 \arguments{No input.}
 \value{A character vector; containing the codes for each product.}
 \references{
-  \url{https://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-
-  \url{https://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
-
-  \url{https://daac.ornl.gov/MODIS/MODIS-menu/products.html}
+  \url{https://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 }
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}

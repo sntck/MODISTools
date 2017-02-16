@@ -28,11 +28,7 @@ QualityCheck(Data, Product, Band, NoDataFill, QualityBand, QualityScores,
 \value{Data, as it was, but with poor quality data and no data fill values replaced with NAs.
 }
 \references{
-  \url{https://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-
-  \url{https://daac.ornl.gov/MODIS/MODIS-menu/products.html}
-
-  \url{https://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
+  \url{https://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 }
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSummaries]{MODISSummaries}}}

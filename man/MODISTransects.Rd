@@ -33,11 +33,7 @@ The transects lengths requested must be longer than the requested pixel size. Th
 \value{ASCII file written for each location, containing the specified time-series for each band of data requested. File name states the transect ID that the location is within, and a unique ID for that specific location.
 }
 \references{
-  \url{https://daac.ornl.gov/MODIS/MODIS-menu/modis_webservice.html}
-
-  \url{https://daac.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
-
-  \url{https://daac.ornl.gov/MODIS/MODIS-menu/products.html}
+  \url{https://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb/modis_subset_order_global_col5.pl}
 }
 \author{Sean Tuck}
 \seealso{\code{\link[MODISTools:MODISSubsets]{MODISSubsets}}}

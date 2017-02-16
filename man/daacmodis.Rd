@@ -1,6 +1,7 @@
 \name{daacmodis}
 \alias{daac}
 \alias{daacmodis}
+\alias{wsdl_loc}
 \docType{data}
 \title{
 Base URLs for MODIS downloads and the web service location
