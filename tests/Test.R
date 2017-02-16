@@ -20,7 +20,7 @@ if(!capabilities("http/ftp")) q()
 if(.Platform$OS.type == "unix" && is.null(nsl("cran.r-project.org"))) q()
 
 # Check we can reach the server for lpdaac modis web service.
-if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
+if(.Platform$OS.type == "unix" && is.null(nsl("daacmodis.ornl.gov"))) q()
 
 # Check the web service is currently responsive.
 if(class(try(GetProducts(), silent = TRUE)) == "try-error") q()
@@ -29,7 +29,7 @@ if(class(try(GetProducts(), silent = TRUE)) == "try-error") q()
 # Check the XML response is as expected.
 getsubset.xml <- paste('
 <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-              xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="', daac, '/MODIS_webservice">
+              xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="', daacmodis, '/MODIS_webservice">
                         <soapenv:Header/>
                         <soapenv:Body>
                         <mod:getsubset soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -54,7 +54,7 @@ header.fields <- c(Accept = "text/xml",
 reader <- basicTextGatherer()
 header <- basicTextGatherer()
 
-curlPerform(url = paste0(daac, "/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"),
+curlPerform(url = paste0(daacmodis, wsdl_loc),
             httpheader = header.fields,
             postfields = getsubset.xml,
             writefunction = reader$update,

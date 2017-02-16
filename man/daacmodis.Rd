@@ -3,7 +3,7 @@
 \alias{daacmodis}
 \docType{data}
 \title{
-Base URLs for MODIS downloads
+Base URLs for MODIS downloads and the web service location
 }
 \description{
 These give the base URLs for MODIS downloads.  Originally they were \url{http://daac.ornl.gov}
@@ -16,8 +16,10 @@ will be initialized to values of \code{getOption("MODIStools.daac", default = "h
 and \code{getOption("MODIStools.daacmodis", default = "https://daacmodis.ornl.gov")} in case there is
 a future change.
 }
-\usage{daac
+\usage{
+daac
 daacmodis
+wsdl_loc
 }
 \format{
   The format is:

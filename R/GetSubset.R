@@ -38,7 +38,7 @@ function(Lat, Long, Product, Band, StartDate, EndDate, KmAboveBelow, KmLeftRight
   reader <- basicTextGatherer()
   header <- basicTextGatherer()
 
-  curlPerform(url = paste0(daacmodis, "/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"),
+  curlPerform(url = paste0(daacmodis, wsdl_loc),
               httpheader = header.fields,
               postfields = getsubset.xml,
               writefunction = reader$update,

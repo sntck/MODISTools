@@ -73,7 +73,7 @@ header.fields <- c(Accept = "text/xml",
 reader <- basicTextGatherer()
 header <- basicTextGatherer()
 
-curlPerform(url = paste0(daacmodis, "/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"),
+curlPerform(url = paste0(daacmodis, wsdl_doc),
             httpheader = header.fields,
             postfields = getsubset.xml,
             writefunction = reader$update,
@@ -171,7 +171,7 @@ if(!file.check){
 if(class(try(GetProducts(), silent = TRUE)) == "try-error") q()
 
 # Check we can still reach the server for lpdaac modis web service before running functions that request.
-if(.Platform$OS.type == "unix" && is.null(nsl("daac.ornl.gov"))) q()
+if(.Platform$OS.type == "unix" && is.null(nsl("daacmodis.ornl.gov"))) q()
 # Check example of MODISTransects
 if(grepl("Server is busy handling other requests",
          GetSubset(Lat = SubsetExample$lat, Long = SubsetExample$long, Product = "MOD13Q1", Band = "250m_16_days_EVI",

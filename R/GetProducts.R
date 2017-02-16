@@ -19,7 +19,7 @@ function()
   reader <- basicTextGatherer()
   header <- basicTextGatherer()
 
-  curlPerform(url = paste0(daacmodis, "/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"),
+  curlPerform(url = paste0(daacmodis, wsdl_loc),
               httpheader = header.fields,
               postfields = getproducts.xml,
               writefunction = reader$update,
